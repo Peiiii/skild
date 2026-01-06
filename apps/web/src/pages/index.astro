@@ -1,141 +1,23 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import Terminal from '../components/Terminal.astro';
+import Features from '../components/Features.astro';
+import Waitlist from '../components/Waitlist.astro';
+import Footer from '../components/Footer.astro';
 ---
 
 <Layout title="skild.sh — Get your agents skilled">
-	<!-- Nav -->
-	<nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-black/20 backdrop-blur-md">
-		<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-			<div class="flex items-center gap-2">
-				<span class="text-2xl">🛡️</span>
-				<span class="text-xl font-bold tracking-tight">skild</span>
-			</div>
-			<div class="flex items-center gap-8">
-				<a href="https://github.com/Peiiii/skild" target="_blank" class="text-sm font-medium text-white/60 hover:text-white transition-colors">GitHub</a>
-				<a href="#waitlist" class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-neutral-200 transition-all active:scale-95">Join Waitlist</a>
-			</div>
-		</div>
-	</nav>
+	<Navbar />
 
 	<main class="relative z-10 pt-32">
-		<!-- Hero Section -->
-		<section class="max-w-5xl mx-auto px-6 text-center reveal">
-			<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-8">
-				<span class="relative flex h-2 w-2">
-					<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-					<span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-				</span>
-				<span class="text-xs font-bold tracking-wider uppercase text-indigo-300">Phase 0: Launching soon</span>
-			</div>
-
-			<h1 class="text-6xl md:text-8xl font-black tracking-tight mb-8 leading-[1]">
-				Get your agents <br />
-				<span class="text-gradient">skilled.</span>
-			</h1>
-
-			<p class="text-xl md:text-23px text-white/50 max-w-2xl mx-auto mb-12 leading-relaxed font-medium">
-				The official package manager for Agent Skills. <br class="hidden md:block" />
-				Discover, install, and orchestrate <span class="text-white/90">AI capabilities</span> with a single command.
-			</p>
-
-			<!-- Premium Terminal -->
-			<div class="max-w-2xl mx-auto mb-20 animate-float">
-				<div class="glass rounded-2xl overflow-hidden shadow-2xl shadow-indigo-500/20 border-white/10 group">
-					<div class="flex items-center gap-1.5 px-5 h-12 border-b border-white/5 bg-white/5">
-						<div class="flex gap-1.5">
-							<div class="w-3 h-3 rounded-full bg-[#FF5F56] shadow-inner shadow-black/20"></div>
-							<div class="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-inner shadow-black/20"></div>
-							<div class="w-3 h-3 rounded-full bg-[#27C93F] shadow-inner shadow-black/20"></div>
-						</div>
-						<div class="flex-1 text-[11px] text-center text-white/30 font-mono tracking-widest uppercase">skild-cli — zsh</div>
-					</div>
-					<div class="p-8 text-left font-mono text-sm md:text-base leading-relaxed h-[200px] overflow-hidden">
-						<div class="flex gap-3">
-							<span class="text-indigo-400 font-bold">➜</span>
-							<span class="text-purple-400">~</span>
-							<span class="terminal-typewriter text-white/90">skild install anthropics/pdf-processing</span>
-						</div>
-						<div class="mt-4 flex items-center gap-3 text-white/40 animate-pulse">
-							<span class="inline-block w-4 h-4 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></span>
-							<span>Resolving dependencies...</span>
-						</div>
-						<div class="mt-2 text-indigo-300 hidden terminal-success-message">
-							<div class="flex gap-2">
-								<span class="text-emerald-400">✔</span>
-								<span>Skill installed: <span class="text-white font-bold underline decoration-indigo-500/50 underline-offset-4">pdf-processing@1.2.0</span></span>
-							</div>
-							<div class="mt-3 pl-6 text-xs text-white/30 space-y-1">
-								<p>• Instructions loaded (SKILL.md)</p>
-								<p>• Python scripts verified</p>
-								<p>• Ready for Claude Code & Claude.ai</p>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- CTA Buttons -->
-			<div class="flex flex-col sm:flex-row items-center justify-center gap-5 mb-40">
-				<a href="#waitlist" class="w-full sm:w-auto px-10 py-5 bg-white text-black font-black rounded-2xl hover:bg-indigo-50 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 shadow-2xl shadow-white/5">
-					Get Early Access
-					<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-						<path d="M5 12h14M12 5l7 7-7 7"/>
-					</svg>
-				</a>
-				<a href="https://github.com/Peiiii/skild" target="_blank" class="w-full sm:w-auto px-10 py-5 glass font-black rounded-2xl hover:bg-white/10 transition-all active:scale-95 flex items-center justify-center gap-3">
-					<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-						<path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-					</svg>
-					Star on GitHub
-				</a>
-			</div>
-		</section>
-
-		<!-- Features Grid -->
-		<section class="max-w-7xl mx-auto px-6 py-40 border-t border-white/5">
-			<div class="grid md:grid-cols-3 gap-16">
-				<div class="space-y-6 reveal">
-					<div class="w-14 h-14 glass rounded-2xl flex items-center justify-center text-3xl">📦</div>
-					<h3 class="text-2xl font-bold tracking-tight">One-command Install</h3>
-					<p class="text-white/40 leading-relaxed text-lg">Install any skill from GitHub or the official registry with a single command. Say goodbye to manual cloning.</p>
-				</div>
-				<div class="space-y-6 reveal [transition-delay:100ms]">
-					<div class="w-14 h-14 glass rounded-2xl flex items-center justify-center text-3xl">🔍</div>
-					<h3 class="text-2xl font-bold tracking-tight">Search & Discover</h3>
-					<p class="text-white/40 leading-relaxed text-lg">Find specialized skills for your agents in the community marketplace. From PDF processing to data analysis.</p>
-				</div>
-				<div class="space-y-6 reveal [transition-delay:200ms]">
-					<div class="w-14 h-14 glass rounded-2xl flex items-center justify-center text-3xl">🔄</div>
-					<h3 class="text-2xl font-bold tracking-tight">Multi-platform Sync</h3>
-					<p class="text-white/40 leading-relaxed text-lg">Sync your skills across Claude Code, Claude.ai, and your local agent setup automatically.</p>
-				</div>
-			</div>
-		</section>
-
-		<!-- Waitlist / Footer -->
-		<section id="waitlist" class="max-w-3xl mx-auto px-6 py-40 text-center reveal">
-			<h2 class="text-5xl md:text-6xl font-black tracking-tighter mb-8 leading-[1]">Be the first to know.</h2>
-			<p class="text-xl text-white/50 mb-12">We're building the infrastructure for the agentic era. <br class="hidden md:block" /> Join the waitlist for exclusive early access.</p>
-			
-			<form class="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
-				<input type="email" placeholder="Enter your email" required class="flex-[2] px-8 py-5 rounded-2xl bg-white/5 border border-white/10 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all text-lg" />
-				<button type="submit" class="flex-1 px-8 py-5 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-500 transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-indigo-600/20">Join Waitlist</button>
-			</form>
-			<p class="mt-6 text-sm text-white/20 font-medium">Expect zero spam. Just high-bandwidth updates.</p>
-		</section>
-
-		<footer class="max-w-7xl mx-auto px-6 py-16 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-10">
-			<div class="flex items-center gap-3">
-				<span class="text-2xl">🛡️</span>
-				<span class="text-lg font-black tracking-tighter opacity-80">skild.sh</span>
-			</div>
-			<div class="flex gap-10 text-sm font-bold text-white/40">
-				<a href="https://github.com/Peiiii/skild" class="hover:text-white transition-colors">GitHub</a>
-				<a href="https://twitter.com/peiiii" class="hover:text-white transition-colors">Twitter</a>
-				<a href="https://agentskills.io" class="hover:text-white transition-colors">Spec</a>
-			</div>
-			<div class="text-xs text-white/20 font-medium tracking-wide font-mono">© 2026 skild.sh. MIT License.</div>
-		</footer>
+		<Hero>
+			<Terminal slot="terminal" />
+		</Hero>
+		<Features />
+		<Waitlist />
+		<Footer />
 	</main>
 </Layout>
 
@@ -154,45 +36,4 @@ import Layout from '../layouts/Layout.astro';
 	}, observerOptions);
 
 	document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-	// Terminal animation simulation logic
-	setTimeout(() => {
-		const successMessage = document.querySelector('.terminal-success-message');
-		const pulseLine = document.querySelector('.animate-pulse');
-		
-		if (successMessage && pulseLine) {
-			pulseLine.classList.add('hidden');
-			successMessage.classList.remove('hidden');
-			successMessage.classList.add('animate-fade-in');
-		}
-	}, 3500);
 </script>
-
-<style>
-	@keyframes fade-in {
-		from { opacity: 0; transform: translateY(10px); }
-		to { opacity: 1; transform: translateY(0); }
-	}
-	.animate-fade-in {
-		animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-	}
-
-	.terminal-typewriter {
-		display: inline-block;
-		width: 0;
-		overflow: hidden;
-		white-space: nowrap;
-		border-right: 2px solid rgba(255,255,255,0.6);
-		animation: typing 2.5s steps(40, end) forwards, blink 0.8s infinite;
-	}
-
-	@keyframes typing {
-		from { width: 0 }
-		to { width: 100% }
-	}
-
-	@keyframes blink {
-		from, to { border-color: transparent }
-		50% { border-color: rgba(255,255,255,0.6) }
-	}
-</style>
