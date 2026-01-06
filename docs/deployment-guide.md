@@ -9,15 +9,35 @@
 ### 本地开发
 
 ```bash
-# 在根目录启动开发服务器
+# 启动 web 应用开发服务器
 pnpm dev
 
-# 构建生产版本
+# 指定特定 app（当有多个 app 时）
+pnpm dev:web
+
+# 构建所有 apps
 pnpm build
+
+# 构建指定 app
+pnpm build:web
 
 # 预览生产版本
 pnpm preview
+
+# 清理构建产物
+pnpm clean
 ```
+
+### 多 App 扩展
+
+后续添加新 app 时（如 `apps/docs`），只需：
+1. 在 `apps/` 下创建新目录
+2. 在根 `package.json` 添加对应脚本：
+   ```json
+   "dev:docs": "pnpm --filter docs dev",
+   "build:docs": "pnpm --filter docs build"
+   ```
+
 
 ---
 

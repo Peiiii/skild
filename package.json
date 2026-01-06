@@ -5,8 +5,13 @@
     "description": "The npm for Agent Skills — Discover, install, manage, and publish AI Agent Skills with ease.",
     "scripts": {
         "dev": "pnpm --filter web dev",
-        "build": "pnpm --filter web build",
-        "preview": "pnpm --filter web preview"
+        "dev:web": "pnpm --filter web dev",
+        "build": "pnpm -r --filter './apps/*' build",
+        "build:web": "pnpm --filter web build",
+        "preview": "pnpm --filter web preview",
+        "lint": "pnpm -r lint",
+        "test": "pnpm -r test",
+        "clean": "rm -rf apps/*/dist packages/*/dist node_modules/.cache"
     },
     "keywords": [
         "agent-skills",
@@ -20,5 +25,10 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Peiiii/skild.git"
-    }
+    },
+    "engines": {
+        "node": ">=18",
+        "pnpm": ">=8"
+    },
+    "packageManager": "pnpm@10.12.3"
 }
