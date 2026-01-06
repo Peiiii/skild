@@ -1,0 +1,140 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="skild.sh — Get your agents skilled">
+	<!-- Nav -->
+	<nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-black/20 backdrop-blur-md">
+		<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+			<div class="flex items-center gap-2">
+				<span class="text-2xl">🛡️</span>
+				<span class="text-xl font-bold tracking-tight">skild</span>
+			</div>
+			<div class="flex items-center gap-8">
+				<a href="https://github.com/Peiiii/skild" target="_blank" class="text-sm font-medium text-white/60 hover:text-white transition-colors">GitHub</a>
+				<a href="#waitlist" class="px-4 py-2 bg-white text-black text-sm font-bold rounded-full hover:bg-neutral-200 transition-all active:scale-95">Join Waitlist</a>
+			</div>
+		</div>
+	</nav>
+
+	<main class="relative z-10 pt-32">
+		<!-- Hero Section -->
+		<section class="max-w-5xl mx-auto px-6 text-center">
+			<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-8 animate-fade-in">
+				<span class="relative flex h-2 w-2">
+					<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+					<span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+				</span>
+				<span class="text-xs font-semibold text-indigo-300">Phase 0: Launching soon</span>
+			</div>
+
+			<h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter mb-8 leading-[1.1]">
+				Get your agents <br />
+				<span class="text-gradient">skilled.</span>
+			</h1>
+
+			<p class="text-xl md:text-2xl text-white/50 max-w-2xl mx-auto mb-12 leading-relaxed">
+				The <strong>npm</strong> for Agent Skills — Discover, install, manage, and publish <span class="text-white font-medium">AI Agent Skills</span> with ease.
+			</p>
+
+			<!-- Terminal Animation Placeholder -->
+			<div class="max-w-2xl mx-auto mb-20">
+				<div class="rounded-xl border border-white/10 bg-zinc-900/50 backdrop-blur-sm overflow-hidden shadow-2xl shadow-indigo-500/10">
+					<div class="flex items-center gap-1.5 px-4 h-10 border-b border-white/5 bg-white/5">
+						<div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
+						<div class="w-2.5 h-2.5 rounded-full bg-amber-500/50"></div>
+						<div class="w-2.5 h-2.5 rounded-full bg-emerald-500/50"></div>
+						<div class="flex-1 text-[10px] text-center text-white/20 font-mono tracking-widest">skild cli v0.1.0</div>
+					</div>
+					<div class="p-6 text-left font-mono text-sm md:text-base leading-relaxed">
+						<div class="flex gap-2">
+							<span class="text-emerald-400">➜</span>
+							<span class="text-indigo-300">~</span>
+							<span class="flex-1">skild install anthropics/pdf</span>
+						</div>
+						<div class="mt-2 text-white/40">⠋ Fetching skill from registry...</div>
+						<div class="mt-1 text-emerald-400/80">✔ Successfully installed: pdf (v1.2.0)</div>
+						<div class="mt-1 text-white/40">Usage: Send files to your agent and say "Use the PDF skill"</div>
+						<div class="flex gap-2 mt-4">
+							<span class="text-emerald-400">➜</span>
+							<span class="text-indigo-300">~</span>
+							<span class="w-2 h-5 bg-white/60 animate-pulse"></span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- CTA Buttons -->
+			<div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-32">
+				<a href="#waitlist" class="w-full sm:w-auto px-8 py-4 bg-white text-black font-bold rounded-xl hover:bg-neutral-200 transition-all flex items-center justify-center gap-2 group shadow-xl shadow-white/10 active:scale-95">
+					Join the Waitlist
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="transition-transform group-hover:translate-x-1">
+						<path d="M5 12h14M12 5l7 7-7 7"/>
+					</svg>
+				</a>
+				<a href="https://github.com/Peiiii/skild" target="_blank" class="w-full sm:w-auto px-8 py-4 bg-white/5 border border-white/10 font-bold rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2 active:scale-95">
+					<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+						<path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+					</svg>
+					Star on GitHub
+				</a>
+			</div>
+		</section>
+
+		<!-- Features Grid -->
+		<section class="max-w-7xl mx-auto px-6 py-32 border-t border-white/5">
+			<div class="grid md:grid-cols-3 gap-12">
+				<div class="space-y-4">
+					<div class="text-3xl">📦</div>
+					<h3 class="text-xl font-bold">One-command Install</h3>
+					<p class="text-white/40 leading-relaxed">Install any skill from GitHub or the official registry with a single command. Say goodbye to manual cloning.</p>
+				</div>
+				<div class="space-y-4">
+					<div class="text-3xl">🔍</div>
+					<h3 class="text-xl font-bold">Search & Discover</h3>
+					<p class="text-white/40 leading-relaxed">Find specialized skills for your agents in the community marketplace. From PDF processing to data analysis.</p>
+				</div>
+				<div class="space-y-4">
+					<div class="text-3xl">🔄</div>
+					<h3 class="text-xl font-bold">Multi-platform Sync</h3>
+					<p class="text-white/40 leading-relaxed">Sync your skills across Claude Code, Claude.ai, and your local agent setup automatically.</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- Waitlist / Footer -->
+		<section id="waitlist" class="max-w-2xl mx-auto px-6 py-40 text-center">
+			<h2 class="text-4xl font-bold mb-6">Be the first to know.</h2>
+			<p class="text-white/50 mb-10">We're building the infrastructure for the agentic era. Join the waitlist for early access.</p>
+			
+			<form class="flex flex-col sm:flex-row gap-3">
+				<input type="email" placeholder="Enter your email" required class="flex-1 px-6 py-4 rounded-xl bg-white/5 border border-white/10 focus:outline-none focus:border-indigo-500/50 transition-colors" />
+				<button type="submit" class="px-8 py-4 bg-indigo-500 text-white font-bold rounded-xl hover:bg-indigo-600 transition-all active:scale-95">Join Waitlist</button>
+			</form>
+			<p class="mt-4 text-xs text-white/20">Expect zero spam. Just high-bandwidth updates.</p>
+		</section>
+
+		<footer class="max-w-7xl mx-auto px-6 py-12 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+			<div class="flex items-center gap-2 opacity-50">
+				<span>🛡️</span>
+				<span class="font-bold">skild.sh</span>
+			</div>
+			<div class="flex gap-8 text-sm text-white/40">
+				<a href="https://github.com/Peiiii/skild" class="hover:text-white transition-colors">GitHub</a>
+				<a href="https://twitter.com/peiiii" class="hover:text-white transition-colors">Twitter</a>
+				<a href="https://agentskills.io" class="hover:text-white transition-colors">Spec</a>
+			</div>
+			<div class="text-xs text-white/20">© 2026 skild.sh. MIT License.</div>
+		</footer>
+	</main>
+</Layout>
+
+<style>
+	@keyframes fade-in {
+		from { opacity: 0; transform: translateY(10px); }
+		to { opacity: 1; transform: translateY(0); }
+	}
+	.animate-fade-in {
+		animation: fade-in 0.8s ease-out forwards;
+	}
+</style>

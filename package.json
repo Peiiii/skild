@@ -1,0 +1,24 @@
+{
+    "name": "skild",
+    "version": "0.0.1",
+    "private": true,
+    "description": "The npm for Agent Skills — Discover, install, manage, and publish AI Agent Skills with ease.",
+    "scripts": {
+        "dev": "pnpm --filter web dev",
+        "build": "pnpm --filter web build",
+        "preview": "pnpm --filter web preview"
+    },
+    "keywords": [
+        "agent-skills",
+        "ai",
+        "npm",
+        "cli",
+        "package-manager"
+    ],
+    "author": "Peiiii",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Peiiii/skild.git"
+    }
+}
