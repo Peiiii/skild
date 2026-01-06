@@ -1,34 +1,75 @@
 ---
+
 ---
+
 <div class="max-w-2xl mx-auto mb-20 animate-float">
-    <div class="glass rounded-2xl overflow-hidden shadow-2xl shadow-indigo-500/20 border-white/10 group text-left font-mono">
-        <div class="flex items-center gap-1.5 px-5 h-12 border-b border-white/5 bg-white/5">
+    <div
+        class="glass rounded-2xl overflow-hidden shadow-2xl shadow-indigo-500/20 border-white/10 group text-left font-mono"
+    >
+        <div
+            class="flex items-center gap-1.5 px-5 h-12 border-b border-white/5 bg-white/5"
+        >
             <div class="flex gap-1.5">
-                <div class="w-3 h-3 rounded-full bg-[#FF5F56] shadow-inner shadow-black/20"></div>
-                <div class="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-inner shadow-black/20"></div>
-                <div class="w-3 h-3 rounded-full bg-[#27C93F] shadow-inner shadow-black/20"></div>
+                <div
+                    class="w-3 h-3 rounded-full bg-[#FF5F56] shadow-inner shadow-black/20"
+                >
+                </div>
+                <div
+                    class="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-inner shadow-black/20"
+                >
+                </div>
+                <div
+                    class="w-3 h-3 rounded-full bg-[#27C93F] shadow-inner shadow-black/20"
+                >
+                </div>
             </div>
-            <div class="flex-1 text-[11px] text-center text-white/30 font-mono tracking-widest uppercase">skild-cli — zsh</div>
+            <div
+                class="flex-1 text-[11px] text-center text-white/30 font-mono tracking-widest uppercase"
+            >
+                skild — zsh
+            </div>
         </div>
-        <div class="p-8 text-sm md:text-base leading-relaxed h-[200px] overflow-hidden">
+        <div
+            class="p-8 text-sm md:text-base leading-relaxed h-[220px] overflow-hidden"
+        >
             <div class="flex gap-3">
                 <span class="text-indigo-400 font-bold">➜</span>
                 <span class="text-purple-400">~</span>
-                <span class="terminal-typewriter text-white/90">skild install anthropics/pdf-processing</span>
+                <span class="terminal-typewriter text-white/90"
+                    >skild install anthropics/skills/skills/pdf</span
+                >
             </div>
-            <div class="mt-4 flex items-center gap-3 text-white/40 animate-pulse terminal-loading">
-                <span class="inline-block w-4 h-4 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></span>
-                <span>Resolving dependencies...</span>
+            <div
+                class="mt-4 flex items-center gap-3 text-white/40 animate-pulse terminal-loading"
+            >
+                <span
+                    class="inline-block w-4 h-4 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"
+                ></span>
+                <span>Cloning from GitHub...</span>
             </div>
             <div class="mt-2 text-indigo-300 hidden terminal-success-message">
                 <div class="flex gap-2">
                     <span class="text-emerald-400">✔</span>
-                    <span>Skill installed: <span class="text-white font-bold underline decoration-indigo-500/50 underline-offset-4">pdf-processing@1.2.0</span></span>
+                    <span
+                        >Installed <span class="text-white font-bold">pdf</span> to
+                        <span class="text-white/60">~/.claude/skills/pdf</span
+                        ></span
+                    >
                 </div>
-                <div class="mt-3 pl-6 text-xs text-white/30 space-y-1">
-                    <p>• Instructions loaded (SKILL.md)</p>
-                    <p>• Python scripts verified</p>
-                    <p>• Ready for Claude Code & Claude.ai</p>
+                <div class="mt-2 text-xs text-white/30 space-y-1">
+                    <p>└─ SKILL.md found ✓</p>
+                </div>
+                <div class="mt-4 flex gap-3 text-white/50">
+                    <span class="text-indigo-400 font-bold">➜</span>
+                    <span class="text-purple-400">~</span>
+                    <span class="text-white/40">skild list</span>
+                </div>
+                <div class="mt-1 text-xs text-white/30">
+                    <p>
+                        📦 Installed Skills (1): <span class="text-emerald-400"
+                            >✓</span
+                        > pdf
+                    </p>
                 </div>
             </div>
         </div>
@@ -38,21 +79,29 @@
 <script>
     // Terminal animation logic
     setTimeout(() => {
-        const successMessage = document.querySelector('.terminal-success-message');
-        const pulseLine = document.querySelector('.terminal-loading');
-        
+        const successMessage = document.querySelector(
+            ".terminal-success-message",
+        );
+        const pulseLine = document.querySelector(".terminal-loading");
+
         if (successMessage && pulseLine) {
-            pulseLine.classList.add('hidden');
-            successMessage.classList.remove('hidden');
-            successMessage.classList.add('animate-fade-in');
+            pulseLine.classList.add("hidden");
+            successMessage.classList.remove("hidden");
+            successMessage.classList.add("animate-fade-in");
         }
     }, 3500);
 </script>
 
 <style>
     @keyframes fade-in {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     .animate-fade-in {
         animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -63,17 +112,28 @@
         width: 0;
         overflow: hidden;
         white-space: nowrap;
-        border-right: 2px solid rgba(255,255,255,0.6);
-        animation: typing 2.5s steps(40, end) forwards, blink 0.8s infinite;
+        border-right: 2px solid rgba(255, 255, 255, 0.6);
+        animation:
+            typing 2.5s steps(40, end) forwards,
+            blink 0.8s infinite;
     }
 
     @keyframes typing {
-        from { width: 0 }
-        to { width: 100% }
+        from {
+            width: 0;
+        }
+        to {
+            width: 100%;
+        }
     }
 
     @keyframes blink {
-        from, to { border-color: transparent }
-        50% { border-color: rgba(255,255,255,0.6) }
+        from,
+        to {
+            border-color: transparent;
+        }
+        50% {
+            border-color: rgba(255, 255, 255, 0.6);
+        }
     }
 </style>

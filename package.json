@@ -14,7 +14,8 @@
         "lint": "pnpm -r lint",
         "test": "pnpm -r test",
         "clean": "rm -rf apps/*/dist packages/*/dist node_modules/.cache",
-        "cli": "node packages/cli/dist/index.js"
+        "cli": "node packages/cli/dist/index.js",
+        "release:cli": "node scripts/release-cli.js"
     },
     "keywords": [
         "agent-skills",
