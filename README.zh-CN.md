@@ -82,6 +82,17 @@ skild/
 
 欢迎贡献！请查看我们的[贡献指南](./CONTRIBUTING.md)了解详情。
 
+## 🚢 发布（维护者）
+
+```bash
+pnpm release:cli
+```
+
+前置条件：
+- `npm` 已登录（或设置了 `NPM_TOKEN`）
+- `git` 在 `main` 分支且工作区干净
+- 如需创建 GitHub Release：`GITHUB_TOKEN`（或 `GH_TOKEN`）
+
 ## 📄 开源许可
 
 MIT © [Peiiii](https://github.com/Peiiii)

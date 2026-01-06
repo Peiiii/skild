@@ -1,20 +1,21 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Navbar from '../components/Navbar.astro';
-import Hero from '../components/Hero.astro';
-import Terminal from '../components/Terminal.astro';
-import Features from '../components/Features.astro';
-import Waitlist from '../components/Waitlist.astro';
-import Footer from '../components/Footer.astro';
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Hero from "../components/Hero.astro";
+import Terminal from "../components/Terminal.astro";
+import HowItWorks from "../components/HowItWorks.astro";
+import Features from "../components/Features.astro";
+import Waitlist from "../components/Waitlist.astro";
+import Footer from "../components/Footer.astro";
 ---
 
 <Layout title="skild.sh — Get your agents skilled">
 	<Navbar />
-
 	<main class="relative z-10 pt-32">
 		<Hero>
 			<Terminal slot="terminal" />
 		</Hero>
+		<HowItWorks />
 		<Features />
 		<Waitlist />
 		<Footer />
@@ -24,16 +25,16 @@ import Footer from '../components/Footer.astro';
 <script>
 	// Simple Intersection Observer for reveal animations
 	const observerOptions = {
-		threshold: 0.1
+		threshold: 0.1,
 	};
 
 	const observer = new IntersectionObserver((entries) => {
-		entries.forEach(entry => {
+		entries.forEach((entry) => {
 			if (entry.isIntersecting) {
-				entry.target.classList.add('active');
+				entry.target.classList.add("active");
 			}
 		});
 	}, observerOptions);
 
-	document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+	document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 </script>

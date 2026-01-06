@@ -82,6 +82,17 @@ skild/
 
 We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
 
+## 🚢 Releasing (Maintainers)
+
+```bash
+pnpm release:cli
+```
+
+Prereqs:
+- `npm` is logged in (or `NPM_TOKEN` is set)
+- `git` is on `main` with a clean working tree
+- For GitHub Releases: `GITHUB_TOKEN` (or `GH_TOKEN`)
+
 ## 📄 License
 
 MIT © [Peiiii](https://github.com/Peiiii)

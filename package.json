@@ -1,5 +1,5 @@
 {
-    "name": "skild",
+    "name": "skild-workspace",
     "version": "0.0.1",
     "private": true,
     "description": "The npm for Agent Skills — Discover, install, manage, and publish AI Agent Skills with ease.",
@@ -11,11 +11,14 @@
         "build:web": "pnpm --filter web build",
         "build:cli": "pnpm --filter skild build",
         "preview": "pnpm --filter web preview",
-        "lint": "pnpm -r lint",
-        "test": "pnpm -r test",
+        "lint": "pnpm -r --if-present lint",
+        "lint:cli": "pnpm -w exec eslint packages/cli/src --max-warnings=0",
+        "typecheck": "pnpm -r --if-present typecheck",
+        "typecheck:cli": "pnpm --filter skild typecheck",
+        "test": "pnpm -r --if-present test",
         "clean": "rm -rf apps/*/dist packages/*/dist node_modules/.cache",
         "cli": "node packages/cli/dist/index.js",
-        "release:cli": "node scripts/release-cli.js"
+        "release:cli": "node scripts/release-cli.cjs"
     },
     "keywords": [
         "agent-skills",
@@ -29,6 +32,14 @@
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Peiiii/skild.git"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.18.0",
+        "@release-it/conventional-changelog": "^9.0.3",
+        "conventional-changelog-conventionalcommits": "^8.0.0",
+        "eslint": "^9.18.0",
+        "release-it": "^18.1.2",
+        "typescript-eslint": "^8.19.0"
     },
     "engines": {
         "node": ">=18",
