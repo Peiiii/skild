@@ -57,7 +57,7 @@ pnpm clean
    | 设置项 | 值 |
    |--------|-----|
    | **Framework preset** | Astro |
-   | **Build command** | `cd apps/web && npm install && npm run build` |
+   | **Build command** | `pnpm build:web` |
    | **Build output directory** | `apps/web/dist` |
    | **Root directory** | `/` |
 
