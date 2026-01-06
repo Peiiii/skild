@@ -1,5 +1,6 @@
 import { execSync } from 'child_process';
 import path from 'path';
+import fs from 'fs';
 import chalk from 'chalk';
 import ora from 'ora';
 import { SKILLS_DIR, ensureSkillsDir, getSkillPath } from '../utils/config.js';
@@ -69,7 +70,7 @@ export async function install(source: string): Promise<void> {
 
         // Check for SKILL.md
         const skillMdPath = path.join(targetPath, 'SKILL.md');
-        const hasSkillMd = require('fs').existsSync(skillMdPath);
+        const hasSkillMd = fs.existsSync(skillMdPath);
 
         if (hasSkillMd) {
             console.log(chalk.dim(`  └─ SKILL.md found ✓`));
