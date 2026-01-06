@@ -11,6 +11,8 @@
 
 [Website](https://skild.sh) · [Documentation](./docs) · [Examples](./examples)
 
+English | **[简体中文](./README.zh-CN.md)**
+
 </div>
 
 ---
