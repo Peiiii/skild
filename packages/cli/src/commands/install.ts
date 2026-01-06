@@ -3,7 +3,12 @@ import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
 import ora from 'ora';
-import { SKILLS_DIR, ensureSkillsDir, getSkillPath } from '../utils/config.js';
+import { ensureSkillsDir, getSkillPath, Platform } from '../utils/config.js';
+
+export interface InstallOptions {
+    target?: Platform;
+    local?: boolean;
+}
 
 /**
  * Extract skill name from a GitHub URL.
@@ -51,14 +56,18 @@ function toDegitPath(url: string): string {
     return url;
 }
 
-export async function install(source: string): Promise<void> {
-    ensureSkillsDir();
+export async function install(source: string, options: InstallOptions = {}): Promise<void> {
+    const platform = options.target || 'claude';
+    const projectLevel = options.local || false;
+
+    ensureSkillsDir(platform, projectLevel);
 
     const skillName = extractSkillName(source);
-    const targetPath = getSkillPath(skillName);
+    const targetPath = getSkillPath(skillName, platform, projectLevel);
     const degitPath = toDegitPath(source);
 
-    const spinner = ora(`Installing ${chalk.cyan(skillName)}...`).start();
+    const locationLabel = projectLevel ? 'project' : 'global';
+    const spinner = ora(`Installing ${chalk.cyan(skillName)} to ${chalk.dim(platform)} (${locationLabel})...`).start();
 
     try {
         // Use degit to clone (fast, no .git folder)

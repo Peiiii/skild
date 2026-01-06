@@ -16,8 +16,13 @@ program
     .command('install <source>')
     .alias('i')
     .description('Install a Skill from a GitHub URL or registry name')
-    .action(async (source: string) => {
-        await install(source);
+    .option('-t, --target <platform>', 'Target platform: claude, codex, copilot', 'claude')
+    .option('-l, --local', 'Install to project-level directory instead of global')
+    .action(async (source: string, options: { target?: string; local?: boolean }) => {
+        await install(source, {
+            target: options.target as any,
+            local: options.local
+        });
     });
 
 program
