@@ -1,0 +1,46 @@
+{
+    "name": "skild",
+    "version": "0.0.1",
+    "description": "The npm for Agent Skills — Discover, install, manage, and publish AI Agent Skills with ease.",
+    "type": "module",
+    "main": "./dist/index.js",
+    "bin": {
+        "skild": "./dist/index.js"
+    },
+    "scripts": {
+        "build": "tsup src/index.ts --format esm --dts --clean",
+        "dev": "tsup src/index.ts --format esm --watch",
+        "start": "node dist/index.js"
+    },
+    "keywords": [
+        "agent-skills",
+        "ai",
+        "npm",
+        "cli",
+        "package-manager",
+        "claude",
+        "anthropic"
+    ],
+    "author": "Peiiii",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Peiiii/skild.git",
+        "directory": "packages/cli"
+    },
+    "homepage": "https://skild.sh",
+    "dependencies": {
+        "chalk": "^5.3.0",
+        "commander": "^12.1.0",
+        "degit": "^2.8.4",
+        "ora": "^8.0.1"
+    },
+    "devDependencies": {
+        "@types/node": "^20.10.0",
+        "tsup": "^8.0.0",
+        "typescript": "^5.3.0"
+    },
+    "engines": {
+        "node": ">=18"
+    }
+}
