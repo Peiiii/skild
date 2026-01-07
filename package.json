@@ -3,21 +3,32 @@
     "version": "0.0.1",
     "private": true,
     "description": "The npm for Agent Skills — Discover, install, manage, and publish AI Agent Skills with ease.",
+    "devDependencies": {
+        "@changesets/cli": "^2.29.8"
+    },
     "scripts": {
         "dev": "pnpm --filter web dev",
         "dev:web": "pnpm --filter web dev",
         "dev:cli": "pnpm --filter ./packages/cli dev",
         "build": "pnpm -r --filter './apps/*' --filter './packages/*' build",
         "build:web": "pnpm --filter web build",
-        "build:cli": "pnpm --filter ./packages/cli build",
+        "build:core": "pnpm --filter ./packages/core build",
+        "build:cli": "pnpm --filter ./packages/core build && pnpm --filter ./packages/cli build",
         "typecheck": "pnpm -r --if-present typecheck",
+        "typecheck:core": "pnpm --filter ./packages/core typecheck",
         "typecheck:cli": "pnpm --filter ./packages/cli typecheck",
         "preview": "pnpm --filter web preview",
         "lint": "pnpm -r --if-present lint",
         "test": "pnpm -r --if-present test",
         "clean": "rm -rf apps/*/dist packages/*/dist node_modules/.cache",
-        "cli": "node packages/cli/dist/index.js",
-        "release:cli": "pnpm -C packages/cli release"
+        "cli": "pnpm --filter ./packages/core build && node packages/cli/dist/index.js",
+        "changeset": "changeset",
+        "release:check": "pnpm build && pnpm lint && pnpm typecheck",
+        "release:version": "pnpm changeset version",
+        "release:status": "pnpm changeset status",
+        "release:publish": "pnpm release:check && pnpm changeset publish",
+        "release:dry": "pnpm release:check && (cd packages/core && npm publish --dry-run) && (cd packages/cli && npm publish --dry-run)",
+        "release": "pnpm release:publish"
     },
     "keywords": [
         "agent-skills",

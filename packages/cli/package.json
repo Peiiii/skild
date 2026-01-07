@@ -11,8 +11,7 @@
         "build": "tsup src/index.ts --format esm --dts --clean",
         "dev": "tsup src/index.ts --format esm --watch",
         "start": "node dist/index.js",
-        "typecheck": "pnpm -C ../core build && tsc -p tsconfig.json --noEmit",
-        "release": "pnpm build && bumpp && npm publish --access public"
+        "typecheck": "pnpm -C ../core build && tsc -p tsconfig.json --noEmit"
     },
     "files": [
         "dist",
@@ -40,14 +39,13 @@
     },
     "homepage": "https://skild.sh",
     "dependencies": {
-        "@skild/core": "0.1.0",
+        "@skild/core": "workspace:^",
         "chalk": "^5.3.0",
         "commander": "^12.1.0",
         "ora": "^8.0.1"
     },
     "devDependencies": {
         "@types/node": "^20.10.0",
-        "bumpp": "^10.3.2",
         "tsup": "^8.0.0",
         "typescript": "^5.3.0"
     },

@@ -38,6 +38,10 @@
 - `skild update [skill]`：更新单个或全部（基于本地元数据的 source）
 - `skild init <name>`：生成 Skill 模板（可立即 `validate`）
 
+### 🚢 Release（Changesets）
+
+- `docs/logs/v0.1.0-headless/2026-01-08-release-changesets.md`：发布流程升级与脚本说明
+
 ---
 
 ## 🧪 验证结果
@@ -62,4 +66,3 @@ pnpm cli uninstall hello-skill -t codex --local --force
 
 - registry / search / publish（任何云端数据存储）
 - Web UI 的业务逻辑（保持 UI 与业务解耦）
-
