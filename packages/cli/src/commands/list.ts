@@ -1,43 +1,35 @@
-/**
- * List Command - List installed skills
- */
+import chalk from 'chalk';
+import { listSkills, type Platform } from '@skild/core';
 
-import path from 'path';
-import { ensureSkillsDir } from '../utils/config.js';
-import { getSubdirectories, hasSkillMd } from '../utils/fs-helpers.js';
-import { logger } from '../utils/logger.js';
-import { DEFAULT_PLATFORM, ERROR_MESSAGES } from '../constants.js';
-import type { ListOptions, Platform } from '../types/index.js';
-
-// Re-export types for backward compatibility
-export type { ListOptions };
-
-/**
- * List all installed skills for a platform.
- * 
- * @param options - List options
- */
-export async function list(options: ListOptions = {}): Promise<void> {
-    const platform: Platform = options.target || DEFAULT_PLATFORM;
-    const projectLevel = options.local || false;
-    const skillsDir = ensureSkillsDir(platform, projectLevel);
-
-    const skills = getSubdirectories(skillsDir);
-
-    if (skills.length === 0) {
-        logger.dim(ERROR_MESSAGES.NO_SKILLS_INSTALLED);
-        logger.dim(ERROR_MESSAGES.INSTALL_HINT);
-        return;
-    }
-
-    const locationLabel = projectLevel ? 'project' : 'global';
-    logger.header(`\n📦 Installed Skills (${skills.length}) — ${platform} (${locationLabel}):\n`);
-
-    for (const skillName of skills) {
-        const skillPath = path.join(skillsDir, skillName);
-        const hasSkill = hasSkillMd(skillPath);
-        logger.skillEntry(skillName, skillPath, hasSkill);
-    }
-
-    console.log('');
+export interface ListCommandOptions {
+  target?: Platform | string;
+  local?: boolean;
+  json?: boolean;
 }
+
+export async function list(options: ListCommandOptions = {}): Promise<void> {
+  const platform = (options.target as Platform) || 'claude';
+  const scope = options.local ? 'project' : 'global';
+
+  const skills = listSkills({ platform, scope });
+
+  if (options.json) {
+    console.log(JSON.stringify(skills, null, 2));
+    return;
+  }
+
+  if (skills.length === 0) {
+    console.log(chalk.dim('No skills installed.'));
+    console.log(chalk.dim(`Use ${chalk.cyan('skild install <source>')} to install a skill.`));
+    return;
+  }
+
+  console.log(chalk.bold(`\n📦 Installed Skills (${skills.length}) — ${platform} (${scope}):\n`));
+  for (const s of skills) {
+    const status = s.hasSkillMd ? chalk.green('✓') : chalk.yellow('⚠');
+    console.log(`  ${status} ${chalk.cyan(s.name)}`);
+    console.log(chalk.dim(`    └─ ${s.installDir}`));
+  }
+  console.log('');
+}
+

@@ -47,7 +47,7 @@
             </div>
             <h3 class="text-2xl font-bold mb-4">Get a Skill</h3>
             <p class="text-white/40 mb-8">
-                Pick a target agent and install any skill from GitHub.
+                Pick a target agent and install any skill from GitHub or local.
             </p>
 
             <div class="w-full space-y-3">
@@ -62,13 +62,17 @@
                         class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-white/40 hover:text-white tab-btn"
                         data-target="codex">Codex</button
                     >
+                    <button
+                        class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-white/40 hover:text-white tab-btn"
+                        data-target="local">Local</button
+                    >
                 </div>
                 <!-- Claude Code -->
                 <div id="code-claude" class="code-snippet group relative">
                     <div
                         class="absolute -top-3 left-3 px-2 py-0.5 bg-indigo-500/10 text-[10px] text-indigo-300 border border-indigo-500/20 rounded uppercase font-black"
                     >
-                        Default
+                        Default (Global)
                     </div>
                     <code
                         class="block px-4 py-3 bg-black/40 rounded-xl border border-white/5 text-indigo-300 font-mono text-xs text-left leading-relaxed"
@@ -77,14 +81,27 @@
                         anthropics/skills/skills/pdf
                     </code>
                 </div>
-                <!-- Codex -->
+                <!-- Codex (Local) -->
                 <div id="code-codex" class="code-snippet hidden group relative">
+                    <div
+                        class="absolute -top-3 left-3 px-2 py-0.5 bg-emerald-500/10 text-[10px] text-emerald-300 border border-emerald-500/20 rounded uppercase font-black"
+                    >
+                        Project-level
+                    </div>
                     <code
                         class="block px-4 py-3 bg-black/40 rounded-xl border border-white/5 text-indigo-300 font-mono text-xs text-left leading-relaxed"
                     >
                         skild install <br />
                         anthropics/skills/skills/pdf <br />
-                        <span class="text-emerald-400">--target codex</span>
+                        <span class="text-emerald-400">-t codex --local</span>
+                    </code>
+                </div>
+                <!-- Local Path -->
+                <div id="code-local" class="code-snippet hidden group relative">
+                    <code
+                        class="block px-4 py-3 bg-black/40 rounded-xl border border-white/5 text-indigo-300 font-mono text-xs text-left leading-relaxed"
+                    >
+                        skild install <span class="text-white">./my-skill</span>
                     </code>
                 </div>
             </div>
@@ -127,7 +144,11 @@
         },
         codex: {
             el: document.getElementById("code-codex"),
-            path: "~/.codex/skills/pdf",
+            path: "./.codex/skills/pdf",
+        },
+        local: {
+            el: document.getElementById("code-local"),
+            path: "~/.claude/skills/my-skill",
         },
     };
     const pathPreview = document.getElementById("path-preview");

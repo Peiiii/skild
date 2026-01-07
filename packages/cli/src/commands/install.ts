@@ -1,49 +1,52 @@
-/**
- * Install Command - Install a skill from a source
- */
-
 import chalk from 'chalk';
-import { installSkillFromContext, resolveInstallContext } from '../services/skill-installer.js';
+import { installSkill, SkildError, type Platform } from '@skild/core';
 import { createSpinner, logger } from '../utils/logger.js';
-import { SUCCESS_MESSAGES } from '../constants.js';
-import type { InstallOptions } from '../types/index.js';
 
-// Re-export types for backward compatibility
-export type { InstallOptions };
+export interface InstallCommandOptions {
+  target?: Platform | string;
+  local?: boolean;
+  force?: boolean;
+  json?: boolean;
+}
 
-/**
- * Install a skill from a Git URL, degit shorthand, or local directory.
- * 
- * @param source - The source to install from
- * @param options - Installation options
- */
-export async function install(source: string, options: InstallOptions = {}): Promise<void> {
-    let context: ReturnType<typeof resolveInstallContext>;
-    try {
-        context = resolveInstallContext(source, options);
-    } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
-        console.error(chalk.red(message));
-        process.exitCode = 1;
-        return;
-    }
+export async function install(source: string, options: InstallCommandOptions = {}): Promise<void> {
+  const platform = (options.target as Platform) || 'claude';
+  const scope = options.local ? 'project' : 'global';
 
-    const spinner = createSpinner(
-        `Installing ${chalk.cyan(context.skillName)} to ${chalk.dim(context.platform)} (${context.locationLabel})...`
+  const spinner = createSpinner(`Installing ${chalk.cyan(source)} to ${chalk.dim(platform)} (${scope})...`);
+  try {
+    const record = await installSkill(
+      { source },
+      {
+        platform,
+        scope,
+        force: Boolean(options.force)
+      }
     );
 
-    try {
-        const result = await installSkillFromContext(context);
-        spinner.succeed(`Installed ${chalk.green(result.skillName)} to ${chalk.dim(result.targetPath)}`);
-        if (result.hasSkillMd) {
-            logger.installDetail(SUCCESS_MESSAGES.SKILL_MD_FOUND);
-        } else {
-            logger.installDetail(SUCCESS_MESSAGES.SKILL_MD_WARNING, true);
-        }
-    } catch (error: unknown) {
-        spinner.fail(`Failed to install ${chalk.red(context.skillName)}`);
-        const message = error instanceof Error ? error.message : String(error);
-        console.error(chalk.red(message));
-        process.exitCode = 1;
+    spinner.succeed(`Installed ${chalk.green(record.name)} to ${chalk.dim(record.installDir)}`);
+
+    if (options.json) {
+      console.log(JSON.stringify(record, null, 2));
+      return;
     }
+
+    if (record.hasSkillMd) {
+      logger.installDetail('SKILL.md found ✓');
+    } else {
+      logger.installDetail('Warning: No SKILL.md found', true);
+    }
+
+    if (record.skill?.validation && !record.skill.validation.ok) {
+      logger.installDetail(`Validation: ${chalk.yellow('failed')} (${record.skill.validation.issues.length} issues)`, true);
+    } else if (record.skill?.validation?.ok) {
+      logger.installDetail(`Validation: ${chalk.green('ok')}`);
+    }
+  } catch (error: unknown) {
+    spinner.fail(`Failed to install ${chalk.red(source)}`);
+    const message = error instanceof SkildError ? error.message : error instanceof Error ? error.message : String(error);
+    console.error(chalk.red(message));
+    process.exitCode = 1;
+  }
 }
+
