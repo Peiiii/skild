@@ -1,10 +1,16 @@
 #!/usr/bin/env node
 
+/**
+ * Skild CLI - The npm for Agent Skills
+ */
+
 import { Command } from 'commander';
 import chalk from 'chalk';
+import { createRequire } from 'module';
 import { install } from './commands/install.js';
 import { list } from './commands/list.js';
-import { createRequire } from 'module';
+import { isPlatform } from './types/index.js';
+import { DEFAULT_PLATFORM } from './constants.js';
 
 const require = createRequire(import.meta.url);
 const { version } = require('../package.json') as { version: string };
@@ -20,11 +26,12 @@ program
     .command('install <source>')
     .alias('i')
     .description('Install a Skill from a Git URL, degit shorthand, or local directory')
-    .option('-t, --target <platform>', 'Target platform: claude, codex, copilot', 'claude')
+    .option('-t, --target <platform>', 'Target platform: claude, codex, copilot', DEFAULT_PLATFORM)
     .option('-l, --local', 'Install to project-level directory instead of global')
     .action(async (source: string, options: { target?: string; local?: boolean }) => {
+        const platform = isPlatform(options.target) ? options.target : DEFAULT_PLATFORM;
         await install(source, {
-            target: options.target as any,
+            target: platform,
             local: options.local
         });
     });
@@ -33,11 +40,12 @@ program
     .command('list')
     .alias('ls')
     .description('List installed Skills')
-    .option('-t, --target <platform>', 'Target platform: claude, codex, copilot', 'claude')
+    .option('-t, --target <platform>', 'Target platform: claude, codex, copilot', DEFAULT_PLATFORM)
     .option('-l, --local', 'List project-level directory instead of global')
     .action(async (options: { target?: string; local?: boolean }) => {
+        const platform = isPlatform(options.target) ? options.target : DEFAULT_PLATFORM;
         await list({
-            target: options.target as any,
+            target: platform,
             local: options.local
         });
     });

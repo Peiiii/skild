@@ -1,152 +1,49 @@
-import path from 'path';
-import fs from 'fs';
+/**
+ * Install Command - Install a skill from a source
+ */
+
 import chalk from 'chalk';
-import ora from 'ora';
-import degit from 'degit';
-import { ensureSkillsDir, getSkillPath, Platform } from '../utils/config.js';
+import { installSkillFromContext, resolveInstallContext } from '../services/skill-installer.js';
+import { createSpinner, logger } from '../utils/logger.js';
+import { SUCCESS_MESSAGES } from '../constants.js';
+import type { InstallOptions } from '../types/index.js';
 
-export interface InstallOptions {
-    target?: Platform;
-    local?: boolean;
-}
-
-/**
- * Extract a reasonable skill name from a source (URL/degit shorthand/local path).
- * Examples:
- *   https://github.com/anthropics/skills/tree/main/pdf -> pdf
- *   https://github.com/user/skill-name -> skill-name
- *   anthropics/skills/pdf#main -> pdf
- */
-function extractSkillName(url: string): string {
-    // Handle local paths
-    const maybeLocalPath = path.resolve(url);
-    if (fs.existsSync(maybeLocalPath)) {
-        return path.basename(maybeLocalPath) || 'unknown-skill';
-    }
-
-    const cleaned = url.replace(/[#?].*$/, '');
-
-    // Handle tree URLs (subdirectory)
-    const treeMatch = cleaned.match(/\/tree\/[^/]+\/(.+?)(?:\/)?$/);
-    if (treeMatch) {
-        return treeMatch[1].split('/').pop() || 'unknown-skill';
-    }
-
-    // Handle standard repo URLs
-    const repoMatch = cleaned.match(/github\.com\/[^/]+\/([^/]+)/);
-    if (repoMatch) {
-        return repoMatch[1].replace(/\.git$/, '');
-    }
-
-    // Handle degit shorthand (owner/repo[/subpath])
-    const parts = cleaned.split('/').filter(Boolean);
-    if (parts.length >= 2) {
-        return parts[parts.length - 1] || 'unknown-skill';
-    }
-
-    return cleaned || 'unknown-skill';
-}
+// Re-export types for backward compatibility
+export type { InstallOptions };
 
 /**
- * Convert GitHub URL to degit-compatible format.
- * Examples:
- *   https://github.com/anthropics/skills/tree/main/pdf -> anthropics/skills/pdf#main
- *   https://github.com/user/repo -> user/repo
+ * Install a skill from a Git URL, degit shorthand, or local directory.
+ * 
+ * @param source - The source to install from
+ * @param options - Installation options
  */
-function toDegitPath(url: string): string {
-    // Handle tree URLs (subdirectory)
-    const treeMatch = url.match(/github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.+?)(?:\/)?$/);
-    if (treeMatch) {
-        const [, owner, repo, branch, subpath] = treeMatch;
-        return `${owner}/${repo}/${subpath}#${branch}`;
-    }
-
-    // Handle standard repo URLs
-    const repoMatch = url.match(/github\.com\/([^/]+\/[^/]+)/);
-    if (repoMatch) {
-        return repoMatch[1].replace(/\.git$/, '');
-    }
-
-    // Fallback: assume it's already in degit format
-    return url;
-}
-
-function isDirEmpty(dir: string): boolean {
-    try {
-        const entries = fs.readdirSync(dir);
-        return entries.length === 0;
-    } catch {
-        return true;
-    }
-}
-
-async function cloneRemote(degitSrc: string, targetPath: string): Promise<void> {
-    const emitter = degit(degitSrc, { force: true, verbose: false });
-    await emitter.clone(targetPath);
-}
-
 export async function install(source: string, options: InstallOptions = {}): Promise<void> {
-    const platform = options.target || 'claude';
-    const projectLevel = options.local || false;
+    let context: ReturnType<typeof resolveInstallContext>;
+    try {
+        context = resolveInstallContext(source, options);
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(chalk.red(message));
+        process.exitCode = 1;
+        return;
+    }
 
-    ensureSkillsDir(platform, projectLevel);
-
-    const skillName = extractSkillName(source);
-    const targetPath = getSkillPath(skillName, platform, projectLevel);
-
-    const locationLabel = projectLevel ? 'project' : 'global';
-    const spinner = ora(`Installing ${chalk.cyan(skillName)} to ${chalk.dim(platform)} (${locationLabel})...`).start();
+    const spinner = createSpinner(
+        `Installing ${chalk.cyan(context.skillName)} to ${chalk.dim(context.platform)} (${context.locationLabel})...`
+    );
 
     try {
-        if (fs.existsSync(targetPath)) {
-            fs.rmSync(targetPath, { recursive: true, force: true });
-        }
-
-        const resolvedSource = path.resolve(source);
-        if (fs.existsSync(resolvedSource)) {
-            const stat = fs.statSync(resolvedSource);
-            if (!stat.isDirectory()) {
-                throw new Error(`Source path is not a directory: ${resolvedSource}`);
-            }
-
-            fs.cpSync(resolvedSource, targetPath, { recursive: true });
+        const result = await installSkillFromContext(context);
+        spinner.succeed(`Installed ${chalk.green(result.skillName)} to ${chalk.dim(result.targetPath)}`);
+        if (result.hasSkillMd) {
+            logger.installDetail(SUCCESS_MESSAGES.SKILL_MD_FOUND);
         } else {
-            // "Registry name" (no slashes, not a URL) is not supported yet.
-            const looksLikeUrl = /^[a-z]+:\/\//i.test(source) || source.includes('github.com');
-            const looksLikeRepo = /^[^/]+\/[^/]+/.test(source);
-            if (!looksLikeUrl && !looksLikeRepo) {
-                throw new Error(
-                    `Unsupported source "${source}". Use a Git URL (e.g. https://github.com/owner/repo) or degit shorthand (e.g. owner/repo[/subdir][#ref]).`
-                );
-            }
-
-            const degitPath = toDegitPath(source);
-            await cloneRemote(degitPath, targetPath);
+            logger.installDetail(SUCCESS_MESSAGES.SKILL_MD_WARNING, true);
         }
-
-        if (isDirEmpty(targetPath)) {
-            throw new Error(
-                `Installed directory is empty. Source likely does not point to a valid subdirectory.\n` +
-                `Try: https://github.com/<owner>/<repo>/tree/<branch>/skills/<skill-name>\n` +
-                `Example: https://github.com/anthropics/skills/tree/main/skills/pdf`
-            );
-        }
-
-        spinner.succeed(`Installed ${chalk.green(skillName)} to ${chalk.dim(targetPath)}`);
-
-        // Check for SKILL.md
-        const skillMdPath = path.join(targetPath, 'SKILL.md');
-        const hasSkillMd = fs.existsSync(skillMdPath);
-
-        if (hasSkillMd) {
-            console.log(chalk.dim(`  └─ SKILL.md found ✓`));
-        } else {
-            console.log(chalk.yellow(`  └─ Warning: No SKILL.md found`));
-        }
-
-    } catch (error: any) {
-        spinner.fail(`Failed to install ${chalk.red(skillName)}`);
-        console.error(chalk.red(error.message || error));
-        process.exit(1);
+    } catch (error: unknown) {
+        spinner.fail(`Failed to install ${chalk.red(context.skillName)}`);
+        const message = error instanceof Error ? error.message : String(error);
+        console.error(chalk.red(message));
+        process.exitCode = 1;
     }
 }
