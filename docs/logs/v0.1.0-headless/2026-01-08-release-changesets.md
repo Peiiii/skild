@@ -27,6 +27,13 @@
   - `pnpm release:dry`：发布演练（npm dry-run，不触发真实 publish）
 - 文档：新增 `docs/release.md`
 
+## 2FA / OTP 说明
+
+如果 npm 账号开启了 “Authorization and writes”，发布时（`changeset publish` / `npm publish`）会要求输入一次性验证码（OTP）。
+
+- 本地发布：按提示输入 OTP，或执行 `pnpm release -- --otp=123456`
+- CI 发布：建议把 npm 2FA 调整为 “Authorization only”，并使用 automation token（`NPM_TOKEN`）
+
 ## 验证
 
 ```bash
@@ -35,4 +42,3 @@ pnpm lint
 pnpm typecheck
 pnpm release:dry
 ```
-
