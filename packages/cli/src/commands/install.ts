@@ -80,18 +80,6 @@ function isDirEmpty(dir: string): boolean {
     }
 }
 
-function addSkillsPrefixFallback(degitSrc: string): string | null {
-    const [pathPart, refPart] = degitSrc.split('#');
-    const parts = (pathPart || '').split('/').filter(Boolean);
-    if (parts.length < 3) return null;
-
-    const [owner, repo, ...subpath] = parts;
-    if (subpath[0] === 'skills') return null;
-
-    const next = `${owner}/${repo}/skills/${subpath.join('/')}${refPart ? `#${refPart}` : ''}`;
-    return next === degitSrc ? null : next;
-}
-
 async function cloneRemote(degitSrc: string, targetPath: string): Promise<void> {
     const emitter = degit(degitSrc, { force: true, verbose: false });
     await emitter.clone(targetPath);
@@ -134,18 +122,13 @@ export async function install(source: string, options: InstallOptions = {}): Pro
 
             const degitPath = toDegitPath(source);
             await cloneRemote(degitPath, targetPath);
-
-            if (isDirEmpty(targetPath)) {
-                const fallback = addSkillsPrefixFallback(degitPath);
-                if (fallback) {
-                    await cloneRemote(fallback, targetPath);
-                }
-            }
         }
 
         if (isDirEmpty(targetPath)) {
             throw new Error(
-                `Installed directory is empty. Source might not point to a valid subdirectory. Try a GitHub tree URL like https://github.com/<owner>/<repo>/tree/<branch>/skills/<skill-name>.`
+                `Installed directory is empty. Source likely does not point to a valid subdirectory.\n` +
+                `Try: https://github.com/<owner>/<repo>/tree/<branch>/skills/<skill-name>\n` +
+                `Example: https://github.com/anthropics/skills/tree/main/skills/pdf`
             );
         }
 

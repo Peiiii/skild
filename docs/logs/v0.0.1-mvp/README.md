@@ -31,6 +31,10 @@
   - `skild list` — 列出已安装 Skills
 - 技术栈：TypeScript + Commander.js + degit
 
+### 🧾 补充日志
+
+- `docs/logs/v0.0.1-mvp/2026-01-07-cli-ux-fixes.md`：CLI 使用路径/文档对齐与冒烟验证
+
 ### 📦 工程化
 - pnpm Monorepo 结构 (`apps/` + `packages/`)
 - 根目录快捷命令：
