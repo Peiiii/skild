@@ -26,7 +26,7 @@
         "release:check": "pnpm build && pnpm lint && pnpm typecheck",
         "release:version": "pnpm changeset version",
         "release:status": "pnpm changeset status",
-        "release:publish": "pnpm release:check && pnpm changeset publish",
+        "release:publish": "node scripts/release/publish.mjs",
         "release:dry": "pnpm release:check && (cd packages/core && npm publish --dry-run) && (cd packages/cli && npm publish --dry-run)",
         "release": "pnpm release:publish"
     },

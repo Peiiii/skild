@@ -4,7 +4,8 @@ This repo is a pnpm monorepo. We use Changesets to manage versions and npm publi
 
 ## One-time setup (maintainers)
 
-- `npm whoami` works (or `NPM_TOKEN` is set)
+- Recommended: create an npm **Automation Token** and export it as `NPM_TOKEN` (non-interactive, no OTP prompt)
+- Alternative: `npm whoami` works (via `npm login --auth-type=web`)
 - You have a clean git working tree on `main`
 
 ## 2FA / OTP (why you may be prompted)
@@ -13,9 +14,28 @@ If your npm account has 2FA enabled for **publishing** ("Authorization and write
 
 Options:
 
-- Enter the OTP from your authenticator when prompted.
-- Provide it explicitly: `pnpm release -- --otp=123456` (also works for `pnpm changeset publish --otp=...`).
-- For CI/non-interactive publish: set npm 2FA to **Authorization only** and publish using an **automation token** (`NPM_TOKEN`).
+- Recommended (local + CI): use an **Automation Token** via `NPM_TOKEN` (no OTP prompt).
+- If you do have an authenticator OTP: `pnpm release -- --otp=123456` (also works for `pnpm changeset publish --otp=...`).
+
+## Token setup (recommended)
+
+1) Create an **Automation Token** on npm (website).
+2) Export it in your shell:
+
+```bash
+export NPM_TOKEN="…"
+```
+
+3) Publish:
+
+```bash
+pnpm release
+```
+
+Notes:
+
+- Do not commit tokens. This repo reads the token from the environment (`NPM_TOKEN`) and routes it to npm via `.npmrc.publish`.
+- If you accidentally shared a token, revoke it on npm and create a new one.
 
 ## Day-to-day workflow
 

@@ -41,6 +41,7 @@
 ### 🚢 Release（Changesets）
 
 - `docs/logs/v0.1.0-headless/2026-01-08-release-changesets.md`：发布流程升级与脚本说明
+- `docs/logs/v0.1.0-headless/2026-01-08-release-npm-token.md`：用 `NPM_TOKEN` 消除 OTP/浏览器交互（无交互发布）
 
 ---
 
