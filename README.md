@@ -24,18 +24,14 @@ English | **[简体中文](./README.zh-CN.md)**
 curl -fsSL https://skild.sh/install | sh
 # or
 npm install -g skild
+# or (no install)
+npx skild@latest --help
 
 # Install a Skill from GitHub
-skild install https://github.com/anthropics/skills/tree/main/pdf
+skild install https://github.com/anthropics/skills/tree/main/skills/pdf
 
 # List installed Skills
 skild list
-
-# Create a new Skill
-skild init my-awesome-skill
-
-# Validate your Skill
-skild validate
 ```
 
 ## ✨ Features
@@ -56,15 +52,39 @@ skild validate
 
 | Command | Description |
 |---------|-------------|
-| `skild install <url>` | Install a Skill from Git URL |
-| `skild install <name>` | Install a Skill from registry |
-| `skild uninstall <skill>` | Uninstall a Skill |
+| `skild install <source>` | Install a Skill from Git URL / degit shorthand / local dir |
 | `skild list` | List installed Skills |
-| `skild info <skill>` | View Skill details |
-| `skild search <query>` | Search for Skills |
-| `skild init <name>` | Create a new Skill project |
-| `skild validate [path]` | Validate Skill format |
-| `skild publish` | Publish to registry |
+
+Planned (not implemented yet): `uninstall`, `info`, `search`, `init`, `validate`, `publish`.
+
+## 🎯 Where Skills are installed
+
+- Claude: `~/.claude/skills` (global) or `./.claude/skills` (project)
+- Codex CLI: `~/.codex/skills` (global) or `./.codex/skills` (project)
+- GitHub Copilot: `~/.github/skills` (global) or `./.github/skills` (project)
+
+Examples:
+
+```bash
+# Install into Codex (global)
+skild install https://github.com/anthropics/skills/tree/main/pdf -t codex
+
+# Install into this repo only (project-level)
+skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
+
+# List installed skills
+skild list -t codex --local
+```
+
+## 🧑‍💻 Using skild while developing this repo
+
+```bash
+pnpm i
+pnpm build:cli
+pnpm cli --help
+pnpm cli install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
+pnpm cli list -t codex --local
+```
 
 ## 📁 Project Structure
 
@@ -72,7 +92,8 @@ skild validate
 skild/
 ├── packages/
 │   ├── cli/                 # CLI tool (skild command)
-│   ├── core/                # Core library
+│   └── ...                  # More packages (WIP)
+├── apps/
 │   └── web/                 # Web UI (skild.sh)
 ├── docs/                    # Documentation
 └── examples/                # Example Skills

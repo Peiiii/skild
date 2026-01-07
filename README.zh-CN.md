@@ -24,18 +24,14 @@
 curl -fsSL https://skild.sh/install | sh
 # 或者
 npm install -g skild
+# 或者（免安装）
+npx skild@latest --help
 
 # 从 GitHub 安装 Skill
-skild install https://github.com/anthropics/skills/tree/main/pdf
+skild install https://github.com/anthropics/skills/tree/main/skills/pdf
 
 # 列出已安装的 Skills
 skild list
-
-# 创建新的 Skill
-skild init my-awesome-skill
-
-# 验证 Skill 格式
-skild validate
 ```
 
 ## ✨ 功能特性
@@ -56,15 +52,39 @@ skild validate
 
 | 命令 | 描述 |
 |------|------|
-| `skild install <url>` | 从 Git URL 安装 Skill |
-| `skild install <name>` | 从注册表安装 Skill |
-| `skild uninstall <skill>` | 卸载 Skill |
+| `skild install <source>` | 从 Git URL / degit 简写 / 本地目录安装 Skill |
 | `skild list` | 列出已安装的 Skills |
-| `skild info <skill>` | 查看 Skill 详情 |
-| `skild search <query>` | 搜索 Skills |
-| `skild init <name>` | 创建新的 Skill 项目 |
-| `skild validate [path]` | 验证 Skill 格式 |
-| `skild publish` | 发布到注册表 |
+
+计划中（暂未实现）：`uninstall`、`info`、`search`、`init`、`validate`、`publish`。
+
+## 🎯 Skills 会安装到哪里
+
+- Claude：`~/.claude/skills`（全局）或 `./.claude/skills`（项目级）
+- Codex CLI：`~/.codex/skills`（全局）或 `./.codex/skills`（项目级）
+- GitHub Copilot：`~/.github/skills`（全局）或 `./.github/skills`（项目级）
+
+示例：
+
+```bash
+# 安装到 Codex（全局）
+skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex
+
+# 只安装到当前项目（项目级）
+skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
+
+# 查看已安装
+skild list -t codex --local
+```
+
+## 🧑‍💻 在本仓库开发时如何使用 skild
+
+```bash
+pnpm i
+pnpm build:cli
+pnpm cli --help
+pnpm cli install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
+pnpm cli list -t codex --local
+```
 
 ## 📁 项目结构
 
@@ -72,7 +92,8 @@ skild validate
 skild/
 ├── packages/
 │   ├── cli/                 # CLI 工具 (skild 命令)
-│   ├── core/                # 核心库
+│   └── ...                  # 更多 packages（开发中）
+├── apps/
 │   └── web/                 # Web UI (skild.sh)
 ├── docs/                    # 文档
 └── examples/                # 示例 Skills

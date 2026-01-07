@@ -10,6 +10,8 @@
         "build": "pnpm -r --filter './apps/*' --filter './packages/*' build",
         "build:web": "pnpm --filter web build",
         "build:cli": "pnpm --filter ./packages/cli build",
+        "typecheck": "pnpm -r --if-present typecheck",
+        "typecheck:cli": "pnpm --filter ./packages/cli typecheck",
         "preview": "pnpm --filter web preview",
         "lint": "pnpm -r --if-present lint",
         "test": "pnpm -r --if-present test",

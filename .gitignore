@@ -2,6 +2,8 @@
 node_modules/
 .pnpm-store/
 
+.codex/skills
+
 # Build outputs
 dist/
 build/

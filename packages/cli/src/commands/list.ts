@@ -1,12 +1,19 @@
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
-import { SKILLS_DIR, ensureSkillsDir } from '../utils/config.js';
+import { DEFAULT_PLATFORM, ensureSkillsDir, Platform } from '../utils/config.js';
 
-export async function list(): Promise<void> {
-    ensureSkillsDir();
+export interface ListOptions {
+    target?: Platform;
+    local?: boolean;
+}
 
-    const entries = fs.readdirSync(SKILLS_DIR, { withFileTypes: true });
+export async function list(options: ListOptions = {}): Promise<void> {
+    const platform = options.target || DEFAULT_PLATFORM;
+    const projectLevel = options.local || false;
+    const skillsDir = ensureSkillsDir(platform, projectLevel);
+
+    const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
     const skills = entries.filter(e => e.isDirectory());
 
     if (skills.length === 0) {
@@ -15,10 +22,11 @@ export async function list(): Promise<void> {
         return;
     }
 
-    console.log(chalk.bold(`\n📦 Installed Skills (${skills.length}):\n`));
+    const locationLabel = projectLevel ? 'project' : 'global';
+    console.log(chalk.bold(`\n📦 Installed Skills (${skills.length}) — ${platform} (${locationLabel}):\n`));
 
     for (const skill of skills) {
-        const skillPath = path.join(SKILLS_DIR, skill.name);
+        const skillPath = path.join(skillsDir, skill.name);
         const skillMdPath = path.join(skillPath, 'SKILL.md');
         const hasSkillMd = fs.existsSync(skillMdPath);
 
