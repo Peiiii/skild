@@ -36,11 +36,13 @@ skild list
 
 ## ✨ 功能特性
 
-- **📦 一键安装** — 从任意 Git URL 安装 Skills
-- **🔍 发现** — 从社区搜索和浏览 Skills
-- **✅ 验证** — 确保你的 Skills 符合官方格式
-- **🚀 发布** — 与全世界分享你的 Skills
-- **🔄 同步** — 在 Claude Code、Claude.ai 等平台间保持同步
+- **📦 安装** — 支持 Git URL / degit / 本地目录安装 Skills
+- **✅ 校验** — 本地验证 Skill 格式
+- **🧾 元数据 + 锁文件** — 记录 source/目标/内容 hash
+- **🔄 更新** — 安全更新已安装 Skills（原子替换）
+- **🧹 卸载** — 干净卸载 Skills
+
+规划中：发现/registry、发布、跨平台同步。
 
 ## 📖 什么是 Agent Skills？
 
@@ -52,10 +54,15 @@ skild list
 
 | 命令 | 描述 |
 |------|------|
-| `skild install <source>` | 从 Git URL / degit 简写 / 本地目录安装 Skill |
+| `skild install <source>` | 安装 Skill（Git URL / degit 简写 / 本地目录） |
 | `skild list` | 列出已安装的 Skills |
+| `skild info <skill>` | 查看已安装 Skill 详情 |
+| `skild validate [path|skill]` | 校验 Skill 目录或已安装 Skill |
+| `skild uninstall <skill>` | 卸载 Skill |
+| `skild update [skill]` | 更新单个或全部已安装 Skill |
+| `skild init <name>` | 创建新的 Skill 项目 |
 
-计划中（暂未实现）：`uninstall`、`info`、`search`、`init`、`validate`、`publish`。
+注意：v0.1 是无头/本地优先版本，暂不包含 registry/search/publish。
 
 ## 🎯 Skills 会安装到哪里
 
@@ -74,6 +81,14 @@ skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex
 
 # 查看已安装
 skild list -t codex --local
+
+# 查看详情与校验
+skild info pdf -t codex --local
+skild validate pdf -t codex --local
+
+# 更新与卸载
+skild update pdf -t codex --local
+skild uninstall pdf -t codex --local
 ```
 
 ## 🧑‍💻 在本仓库开发时如何使用 skild
@@ -84,6 +99,8 @@ pnpm build:cli
 pnpm cli --help
 pnpm cli install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
 pnpm cli list -t codex --local
+pnpm cli info pdf -t codex --local
+pnpm cli validate pdf -t codex --local
 ```
 
 ## 📁 项目结构

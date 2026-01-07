@@ -4,6 +4,10 @@ node_modules/
 
 .codex/skills
 
+# Local skild state
+.skild/
+.tmp/
+
 # Build outputs
 dist/
 build/

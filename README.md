@@ -36,11 +36,13 @@ skild list
 
 ## ✨ Features
 
-- **📦 One-command install** — Install Skills from any Git URL
-- **🔍 Discover** — Search and browse Skills from the community
-- **✅ Validate** — Ensure your Skills follow the official format
-- **🚀 Publish** — Share your Skills with the world
-- **🔄 Sync** — Keep Skills in sync across Claude Code, Claude.ai, and more
+- **📦 Install** — Install Skills from Git URL / degit / local dir
+- **✅ Validate** — Verify Skill format locally
+- **🧾 Metadata + Lockfile** — Track source, target, and content hash
+- **🔄 Update** — Update installed Skills safely (atomic replace)
+- **🧹 Uninstall** — Remove Skills cleanly
+
+Planned: discovery/registry, publish, multi-platform sync.
 
 ## 📖 What are Agent Skills?
 
@@ -52,10 +54,15 @@ skild list
 
 | Command | Description |
 |---------|-------------|
-| `skild install <source>` | Install a Skill from Git URL / degit shorthand / local dir |
+| `skild install <source>` | Install a Skill (Git URL / degit shorthand / local dir) |
 | `skild list` | List installed Skills |
+| `skild info <skill>` | Show installed Skill details |
+| `skild validate [path|skill]` | Validate a Skill folder or installed Skill |
+| `skild uninstall <skill>` | Uninstall a Skill |
+| `skild update [skill]` | Update one or all installed Skills |
+| `skild init <name>` | Create a new Skill project |
 
-Planned (not implemented yet): `uninstall`, `info`, `search`, `init`, `validate`, `publish`.
+Note: v0.1 is headless/local-first only — no registry/search/publish yet.
 
 ## 🎯 Where Skills are installed
 
@@ -67,13 +74,21 @@ Examples:
 
 ```bash
 # Install into Codex (global)
-skild install https://github.com/anthropics/skills/tree/main/pdf -t codex
+skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex
 
 # Install into this repo only (project-level)
 skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
 
 # List installed skills
 skild list -t codex --local
+
+# Inspect and validate
+skild info pdf -t codex --local
+skild validate pdf -t codex --local
+
+# Update and uninstall
+skild update pdf -t codex --local
+skild uninstall pdf -t codex --local
 ```
 
 ## 🧑‍💻 Using skild while developing this repo
@@ -84,6 +99,8 @@ pnpm build:cli
 pnpm cli --help
 pnpm cli install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
 pnpm cli list -t codex --local
+pnpm cli info pdf -t codex --local
+pnpm cli validate pdf -t codex --local
 ```
 
 ## 📁 Project Structure

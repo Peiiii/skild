@@ -23,4 +23,13 @@ skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex
 
 # List installed skills
 skild list -t codex --local
+
+# Inspect / Validate / Update / Uninstall
+skild info pdf -t codex --local
+skild validate pdf -t codex --local
+skild update pdf -t codex --local
+skild uninstall pdf -t codex --local
+
+# Create a new Skill
+skild init my-skill
 ```
