@@ -12,7 +12,7 @@
         "dev": "tsup src/index.ts --format esm --watch",
         "start": "node dist/index.js",
         "typecheck": "pnpm -C ../core build && tsc -p tsconfig.json --noEmit",
-        "release": "pnpm build && bumpp && pnpm publish --no-git-checks"
+        "release": "pnpm build && bumpp && npm publish --access public"
     },
     "files": [
         "dist",

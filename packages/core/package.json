@@ -19,7 +19,8 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
     "dev": "tsup src/index.ts --format esm --watch",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "release": "pnpm build && bumpp && npm publish --access public"
   },
   "dependencies": {
     "degit": "^2.8.4",
@@ -43,4 +44,3 @@
     "directory": "packages/core"
   }
 }
-
