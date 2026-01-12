@@ -111,6 +111,13 @@ skild uninstall pdf -t codex --local
 
 ```bash
 pnpm i
+pnpm dev
+
+# or start only one piece:
+pnpm dev:console
+pnpm dev:registry
+pnpm dev:web
+
 pnpm build:cli
 pnpm cli --help
 pnpm cli install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local

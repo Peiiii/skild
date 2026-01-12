@@ -6,6 +6,8 @@ import { TokenNewPage } from './ui/pages/TokenNewPage';
 import { PublishPage } from './ui/pages/PublishPage';
 import { SkillsPage } from './ui/pages/SkillsPage';
 import { SkillDetailPage } from './ui/pages/SkillDetailPage';
+import { VerifyEmailPage } from './ui/pages/VerifyEmailPage';
+import { VerifyEmailRequestPage } from './ui/pages/VerifyEmailRequestPage';
 
 export const router = createBrowserRouter([
   {
@@ -15,10 +17,11 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/skills" replace /> },
       { path: 'signup', element: <SignupPage /> },
       { path: 'token/new', element: <TokenNewPage /> },
+      { path: 'verify-email', element: <VerifyEmailPage /> },
+      { path: 'verify-email/request', element: <VerifyEmailRequestPage /> },
       { path: 'publish', element: <PublishPage /> },
       { path: 'skills', element: <SkillsPage /> },
       { path: 'skills/:scope/:skill', element: <SkillDetailPage /> }
     ]
   }
 ]);
-

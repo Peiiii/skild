@@ -1,11 +1,23 @@
 export type ApiError = { ok: false; error: string };
 
 export type SignupResponse =
-  | { ok: true; publisher: { id: string; handle: string; email: string } }
+  | {
+      ok: true;
+      publisher: { id: string; handle: string; email: string; emailVerified: boolean };
+      verification: { requiredForPublish: boolean; sent: boolean; mode: string; consoleUrl: string };
+    }
   | ApiError;
 
 export type LoginResponse =
-  | { ok: true; token: string; publisher: { id: string; handle: string; email: string } }
+  | { ok: true; token: string; publisher: { id: string; handle: string; email: string; emailVerified: boolean } }
+  | ApiError;
+
+export type VerifyEmailResponse =
+  | { ok: true; publisher: { id: string; handle: string; email: string; emailVerified: boolean } | null }
+  | ApiError;
+
+export type RequestVerifyEmailResponse =
+  | { ok: true; alreadyVerified?: boolean; sent?: boolean; mode?: string; consoleUrl?: string }
   | ApiError;
 
 export interface SkillListItem {
@@ -43,4 +55,3 @@ export interface SkillDetail {
 export type SkillDetailResponse =
   | { ok: true; skill: SkillDetail; distTags: DistTagRow[]; versions: VersionRow[] }
   | ApiError;
-

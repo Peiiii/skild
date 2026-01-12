@@ -90,6 +90,11 @@ CLI (headless):
 skild signup
 ```
 
+Email verification:
+
+- Publishing requires a verified email.
+- After signup, check your inbox for a verification email (Console also provides a resend flow).
+
 ### Login / whoami / logout
 
 Login stores a token locally at:
@@ -144,12 +149,14 @@ Notes:
 
 - `--skill-version` overrides the version (we don’t use `--version` because it conflicts with the CLI’s own `--version`).
 - If your `name` is unscoped (like `hello-skill`), `skild publish` will infer your scope from the registry and publish as `@<your-handle>/hello-skill`.
+- If publish fails with `Email not verified` (HTTP 403), verify your email in the Publisher Console (`/verify-email`) first.
 
 ## Publisher Console (web)
 
 The Console is a minimal web UI for:
 
 - Signup
+- Email verification (required for publish)
 - Creating access tokens (shown once)
 - Searching and viewing Skill details
 - Publish instructions
@@ -174,4 +181,3 @@ If you have a custom domain configured, it should look like:
 - **Registry unreachable / hanging**: registry requests have timeouts; try rerunning with:
   - `--registry https://registry.skild.sh`
   - or set `SKILD_REGISTRY_URL`.
-

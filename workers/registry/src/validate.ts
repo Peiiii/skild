@@ -28,6 +28,13 @@ export function assertSemver(version: string): void {
   }
 }
 
+export function assertEmail(email: string): void {
+  // Minimal validation: strict enough to catch obvious mistakes, but not RFC-level.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error("Invalid email.");
+  }
+}
+
 export function parseScopeFromSkillName(name: string): string {
   const match = name.match(/^@([^/]+)\//);
   if (!match) throw new Error("Invalid skill name.");

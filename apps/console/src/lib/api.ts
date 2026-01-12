@@ -1,6 +1,13 @@
 import { getRegistryUrl } from './env';
 import { fetchJson } from './http';
-import type { LoginResponse, SignupResponse, SkillDetailResponse, SkillsListResponse } from './api-types';
+import type {
+  LoginResponse,
+  SignupResponse,
+  SkillDetailResponse,
+  SkillsListResponse,
+  VerifyEmailResponse,
+  RequestVerifyEmailResponse
+} from './api-types';
 
 export function canonicalToRoute(name: string): { scope: string; skill: string } | null {
   const match = name.match(/^@([^/]+)\/(.+)$/);
@@ -36,6 +43,32 @@ export async function login(handleOrEmail: string, password: string, tokenName?:
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ handleOrEmail, password, tokenName })
+    },
+    10_000
+  );
+}
+
+export async function verifyEmail(token: string): Promise<VerifyEmailResponse> {
+  const base = getRegistryUrl();
+  return fetchJson<VerifyEmailResponse>(
+    `${base}/auth/verify-email`,
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ token })
+    },
+    10_000
+  );
+}
+
+export async function requestVerifyEmail(handleOrEmail: string, password: string): Promise<RequestVerifyEmailResponse> {
+  const base = getRegistryUrl();
+  return fetchJson<RequestVerifyEmailResponse>(
+    `${base}/auth/verify-email/request`,
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ handleOrEmail, password })
     },
     10_000
   );

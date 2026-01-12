@@ -90,6 +90,11 @@ CLI（无头）：
 skild signup
 ```
 
+邮箱验证：
+
+- 发布（publish）要求邮箱已验证。
+- 注册后检查邮箱的验证邮件（Console 也提供重发流程）。
+
 ### login / whoami / logout
 
 登录后 token 会保存到本地：
@@ -144,12 +149,14 @@ skild publish --dir ./path/to/skill
 
 - 用 `--skill-version` 覆盖版本（不使用 `--version`，因为会和 CLI 自己的 `--version` 冲突）。
 - 如果 name 是未带 scope 的（例如 `hello-skill`），`skild publish` 会从 registry 推断 scope，并发布为 `@<你的-handle>/hello-skill`。
+- 如果 publish 返回 `Email not verified`（HTTP 403），需要先在 Publisher Console（`/verify-email`）完成邮箱验证。
 
 ## Publisher Console（Web）
 
 Console 是一个最小可用的 Web 界面，用于：
 
 - 注册（Signup）
+- 邮箱验证（发布前置条件）
 - 创建 access token（只展示一次）
 - 搜索与查看 Skill 详情
 - 发布指引
@@ -174,4 +181,3 @@ Console 是一个最小可用的 Web 界面，用于：
 - **registry 不通 / 卡住**：请求有超时机制；可尝试：
   - `--registry https://registry.skild.sh`
   - 或设置 `SKILD_REGISTRY_URL`。
-

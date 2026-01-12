@@ -9,11 +9,17 @@
 ### 本地开发
 
 ```bash
-# 启动 web 应用开发服务器
+# 启动联合调试（registry worker + console）
 pnpm dev
 
-# 指定特定 app（当有多个 app 时）
+# 仅启动 web（skild.sh）
 pnpm dev:web
+
+# 仅启动 console（并自动指向本地 registry）
+pnpm dev:console
+
+# 仅启动本地 registry worker（wrangler dev）
+pnpm dev:registry
 
 # 构建所有 apps
 pnpm build

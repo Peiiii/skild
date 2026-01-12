@@ -15,12 +15,14 @@ export function TokenNewPage(): JSX.Element {
   const [error, setError] = React.useState<string | null>(null);
   const [token, setToken] = React.useState<string | null>(null);
   const [publisherHandle, setPublisherHandle] = React.useState<string | null>(null);
+  const [emailVerified, setEmailVerified] = React.useState<boolean | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     setError(null);
     setToken(null);
     setPublisherHandle(null);
+    setEmailVerified(null);
     setBusy(true);
     try {
       const res = await login(handleOrEmail.trim(), password, tokenName.trim() || undefined);
@@ -30,6 +32,7 @@ export function TokenNewPage(): JSX.Element {
       }
       setToken(res.token);
       setPublisherHandle(res.publisher.handle);
+      setEmailVerified(res.publisher.emailVerified);
       setPassword('');
     } catch (err: unknown) {
       if (err instanceof HttpError) setError(err.bodyText || `HTTP ${err.status}`);
@@ -72,6 +75,11 @@ export function TokenNewPage(): JSX.Element {
                 </Button>
               </div>
               <div className="mt-3 text-xs text-muted-foreground">
+                {emailVerified === false && (
+                  <div className="mb-2">
+                    Publishing requires email verification. Go to <a className="underline" href="/verify-email/request">Verify Email</a> to resend the verification email.
+                  </div>
+                )}
                 CLI:
                 <div className="mt-1 rounded-md bg-muted p-2 font-mono text-xs">
                   skild login --registry https://registry.skild.sh --handle-or-email {publisherHandle ?? '<handle>'} --password *** (or paste token when supported)
@@ -103,4 +111,3 @@ export function TokenNewPage(): JSX.Element {
     </Card>
   );
 }
-

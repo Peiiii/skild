@@ -1,9 +1,10 @@
 import { Hono } from "hono";
 import type { Env } from "./env.js";
 import { newSalt, pbkdf2Sha256, randomToken, sha256Hex, timingSafeEqual } from "./crypto.js";
-import { getPublisherByHandleOrEmail } from "./db.js";
+import { consumeEmailVerificationToken, getPublisherByHandleOrEmail, insertEmailVerificationToken, markPublisherEmailVerified } from "./db.js";
 import { requireAuth } from "./auth.js";
-import { assertHandle, assertSemver, assertSkillName, assertSkillSegment } from "./validate.js";
+import { assertEmail, assertHandle, assertSemver, assertSkillName, assertSkillSegment } from "./validate.js";
+import { getConsolePublicUrl, getEmailVerifyTtlHours, sendVerificationEmail } from "./email.js";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -11,26 +12,47 @@ function errorJson(c: any, message: string, status = 400) {
   return c.json({ ok: false, error: message }, status);
 }
 
-const ALLOWED_ORIGINS = new Set([
-  "https://skild.sh",
-  "https://www.skild.sh",
-  "https://console.skild.sh",
-  "https://skild-console.pages.dev",
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-]);
+function isAllowedOrigin(origin: string | null | undefined): string | null {
+  if (!origin) return null;
+  try {
+    const url = new URL(origin);
+    const protocol = url.protocol;
+    const hostname = url.hostname;
+    const port = url.port;
+
+    // Local dev
+    if (protocol === "http:" && port === "5173" && (hostname === "localhost" || hostname === "127.0.0.1")) {
+      return origin;
+    }
+
+    if (protocol !== "https:") return null;
+
+    // Production
+    if (hostname === "skild.sh") return origin;
+    if (hostname === "www.skild.sh") return origin;
+    if (hostname === "console.skild.sh") return origin;
+
+    // Cloudflare Pages (project domain + preview deployments)
+    if (hostname === "skild-console.pages.dev") return origin;
+    if (hostname.endsWith(".skild-console.pages.dev")) return origin;
+
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 app.use("*", async (c, next) => {
   const origin = c.req.header("origin");
-  const allowed = origin && ALLOWED_ORIGINS.has(origin);
+  const allowedOrigin = isAllowedOrigin(origin);
 
-  if (allowed && origin) {
-    c.header("access-control-allow-origin", origin);
+  if (allowedOrigin) {
+    c.header("access-control-allow-origin", allowedOrigin);
     c.header("vary", "Origin");
   }
 
   if (c.req.method === "OPTIONS") {
-    if (allowed) {
+    if (allowedOrigin) {
       c.header("access-control-allow-methods", "GET, POST, OPTIONS");
       c.header("access-control-allow-headers", "content-type, authorization");
       c.header("access-control-max-age", "86400");
@@ -50,6 +72,7 @@ app.post("/auth/signup", async (c) => {
     const handle = body.handle?.trim().toLowerCase();
     const password = body.password || "";
     if (!email || !handle || !password) return errorJson(c as any, "Missing email/handle/password.", 400);
+    assertEmail(email);
     assertHandle(handle);
 
     const exists = await c.env.DB.prepare("SELECT 1 FROM publishers WHERE handle = ?1 OR email = ?2 LIMIT 1")
@@ -69,7 +92,24 @@ app.post("/auth/signup", async (c) => {
       .bind(publisherId, handle, email, salt, hash, now)
       .run();
 
-    return c.json({ ok: true, publisher: { id: publisherId, handle, email } });
+    const ttlHours = getEmailVerifyTtlHours(c.env);
+    const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000).toISOString();
+    const verifyToken = randomToken(32);
+    const tokenHash = await sha256Hex(new TextEncoder().encode(verifyToken).buffer);
+    await insertEmailVerificationToken(c.env, { publisherId, tokenHash, expiresAt });
+
+    const sent = await sendVerificationEmail(c.env, { toEmail: email, handle, token: verifyToken });
+
+    return c.json({
+      ok: true,
+      publisher: { id: publisherId, handle, email, emailVerified: false },
+      verification: {
+        requiredForPublish: true,
+        sent: sent.ok,
+        mode: sent.mode,
+        consoleUrl: getConsolePublicUrl(c.env),
+      },
+    });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
   }
@@ -107,7 +147,77 @@ app.post("/auth/login", async (c) => {
     return c.json({
       ok: true,
       token: `${tokenId}.${tokenSecret}`,
-      publisher: { id: publisher.id, handle: publisher.handle, email: publisher.email },
+      publisher: {
+        id: publisher.id,
+        handle: publisher.handle,
+        email: publisher.email,
+        emailVerified: Boolean(publisher.email_verified),
+      },
+    });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/auth/verify-email", async (c) => {
+  try {
+    const body = await c.req.json<{ token: string }>();
+    const token = body.token?.trim();
+    if (!token) return errorJson(c as any, "Missing token.", 400);
+    const tokenHash = await sha256Hex(new TextEncoder().encode(token).buffer);
+
+    const consumed = await consumeEmailVerificationToken(c.env, tokenHash);
+    if (!consumed) return errorJson(c as any, "Invalid or expired token.", 400);
+
+    await markPublisherEmailVerified(c.env, consumed.publisherId);
+
+    const publisher = await c.env.DB.prepare("SELECT id, handle, email, email_verified, created_at FROM publishers WHERE id = ?1 LIMIT 1")
+      .bind(consumed.publisherId)
+      .first<{ id: string; handle: string; email: string; email_verified: number; created_at: string }>();
+
+    return c.json({
+      ok: true,
+      publisher: publisher
+        ? { id: publisher.id, handle: publisher.handle, email: publisher.email, emailVerified: Boolean(publisher.email_verified) }
+        : null,
+    });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/auth/verify-email/request", async (c) => {
+  try {
+    const body = await c.req.json<{ handleOrEmail: string; password: string }>();
+    const handleOrEmail = body.handleOrEmail?.trim().toLowerCase();
+    const password = body.password || "";
+    if (!handleOrEmail || !password) return errorJson(c as any, "Missing credentials.", 400);
+
+    const publisher = await getPublisherByHandleOrEmail(c.env, handleOrEmail);
+    if (!publisher) return errorJson(c as any, "Invalid credentials.", 401);
+
+    const iterations = Number.parseInt(c.env.PBKDF2_ITERATIONS || "100000", 10);
+    const computed = await pbkdf2Sha256(password, publisher.password_salt, iterations);
+    if (!timingSafeEqual(computed, publisher.password_hash)) {
+      return errorJson(c as any, "Invalid credentials.", 401);
+    }
+
+    if (publisher.email_verified) {
+      return c.json({ ok: true, alreadyVerified: true });
+    }
+
+    const ttlHours = getEmailVerifyTtlHours(c.env);
+    const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000).toISOString();
+    const verifyToken = randomToken(32);
+    const tokenHash = await sha256Hex(new TextEncoder().encode(verifyToken).buffer);
+    await insertEmailVerificationToken(c.env, { publisherId: publisher.id, tokenHash, expiresAt });
+
+    const sent = await sendVerificationEmail(c.env, { toEmail: publisher.email, handle: publisher.handle, token: verifyToken });
+    return c.json({
+      ok: true,
+      sent: sent.ok,
+      mode: sent.mode,
+      consoleUrl: getConsolePublicUrl(c.env),
     });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
@@ -117,10 +227,15 @@ app.post("/auth/login", async (c) => {
 app.get("/auth/me", async (c) => {
   try {
     const auth = await requireAuth(c);
-    const publisher = await c.env.DB.prepare("SELECT id, handle, email, created_at FROM publishers WHERE id = ?1 LIMIT 1")
+    const publisher = await c.env.DB.prepare("SELECT id, handle, email, email_verified, created_at FROM publishers WHERE id = ?1 LIMIT 1")
       .bind(auth.publisherId)
-      .first();
-    return c.json({ ok: true, publisher });
+      .first<{ id: string; handle: string; email: string; email_verified: number; created_at: string }>();
+    return c.json({
+      ok: true,
+      publisher: publisher
+        ? { id: publisher.id, handle: publisher.handle, email: publisher.email, created_at: publisher.created_at, emailVerified: Boolean(publisher.email_verified) }
+        : null,
+    });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), c.res.status || 401);
   }
@@ -256,12 +371,21 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
     assertSkillName(name);
 
     const auth = await requireAuth(c);
-    const publisher = await c.env.DB.prepare("SELECT id, handle FROM publishers WHERE id = ?1 LIMIT 1")
+    const publisher = await c.env.DB.prepare("SELECT id, handle, email_verified FROM publishers WHERE id = ?1 LIMIT 1")
       .bind(auth.publisherId)
-      .first<{ id: string; handle: string }>();
+      .first<{ id: string; handle: string; email_verified: number }>();
     if (!publisher) return errorJson(c as any, "Invalid publisher.", 401);
 
     if (scope !== publisher.handle) return errorJson(c as any, "Scope is not owned by this publisher.", 403);
+
+    if (!publisher.email_verified) {
+      const consoleUrl = getConsolePublicUrl(c.env);
+      return errorJson(
+        c as any,
+        `Email not verified. Verify your email in the Publisher Console first: ${consoleUrl}/verify-email/request`,
+        403,
+      );
+    }
 
     const form = await c.req.formData();
     const version = String(form.get("version") || "").trim();

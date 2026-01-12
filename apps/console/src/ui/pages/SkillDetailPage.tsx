@@ -4,7 +4,6 @@ import { getSkillDetail, routeToCanonical } from '@/lib/api';
 import type { DistTagRow, VersionRow } from '@/lib/api-types';
 import { HttpError } from '@/lib/http';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 function findLatest(distTags: DistTagRow[]): string | null {
@@ -63,7 +62,7 @@ export function SkillDetailPage(): JSX.Element {
     await navigator.clipboard.writeText(`skild install ${canonicalName}`);
   }
 
-  if (busy) return <div className="text-sm text-muted-foreground">Loading…</div>;
+  if (busy) return <div className="text-muted-foreground py-8">Loading…</div>;
 
   if (error) {
     return (
@@ -72,8 +71,8 @@ export function SkillDetailPage(): JSX.Element {
           <AlertTitle>Failed to load skill</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-        <Link className="text-sm underline" to="/skills">
-          Back to search
+        <Link className="text-sm text-muted-foreground hover:text-foreground transition-colors" to="/skills">
+          ← Back to search
         </Link>
       </div>
     );
@@ -86,8 +85,8 @@ export function SkillDetailPage(): JSX.Element {
           <AlertTitle>Skill not found</AlertTitle>
           <AlertDescription>Unable to load this skill.</AlertDescription>
         </Alert>
-        <Link className="text-sm underline" to="/skills">
-          Back to search
+        <Link className="text-sm text-muted-foreground hover:text-foreground transition-colors" to="/skills">
+          ← Back to search
         </Link>
       </div>
     );
@@ -97,76 +96,67 @@ export function SkillDetailPage(): JSX.Element {
   const install = `skild install ${canonicalName}`;
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
+    <div className="space-y-8">
+      <div className="space-y-3">
         <div className="text-sm text-muted-foreground">
-          <Link className="underline" to="/skills">
+          <Link className="hover:text-foreground transition-colors" to="/skills">
             Skills
           </Link>
-          <span className="mx-2">/</span>
-          <span className="font-mono">{canonicalName}</span>
+          <span className="mx-2 opacity-50">/</span>
+          <code className="text-foreground/80">{canonicalName}</code>
         </div>
-        <div className="text-2xl font-semibold">{data.name}</div>
-        <div className="text-sm text-muted-foreground">{data.description || 'No description.'}</div>
+        <h1 className="text-3xl font-bold tracking-tight">{data.name}</h1>
+        <p className="text-muted-foreground">{data.description || 'No description.'}</p>
       </div>
 
-      <Card>
-        <CardHeader className="py-4">
-          <CardTitle className="text-base">Install</CardTitle>
-          <CardDescription>Copy and run in your terminal.</CardDescription>
-        </CardHeader>
-        <CardContent className="pb-4 pt-0">
-          <div className="rounded-md bg-muted p-3 font-mono text-xs">{install}</div>
-          <div className="mt-3 flex gap-2">
-            <Button type="button" variant="secondary" onClick={copyInstall}>
-              Copy
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="rounded-lg border border-border/50 bg-card p-6 space-y-4">
+        <div>
+          <h2 className="font-semibold mb-1">Install</h2>
+          <p className="text-sm text-muted-foreground">Copy and run in your terminal.</p>
+        </div>
+        <div className="rounded-md bg-black/50 border border-border/30 p-4 font-mono text-sm text-foreground/90">
+          {install}
+        </div>
+        <Button type="button" variant="secondary" onClick={copyInstall}>
+          Copy command
+        </Button>
+      </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
-        <Card>
-          <CardHeader className="py-4">
-            <CardTitle className="text-base">Dist-tags</CardTitle>
-          </CardHeader>
-          <CardContent className="pb-4 pt-0 text-sm">
-            {data.distTags.length ? (
-              <ul className="space-y-1">
-                {data.distTags.map(t => (
-                  <li key={t.tag} className="flex justify-between">
-                    <span className="font-mono">{t.tag}</span>
-                    <span className="font-mono">{t.version}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-muted-foreground">No tags.</div>
-            )}
-            {latest && <div className="mt-2 text-xs text-muted-foreground">latest → {latest}</div>}
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-lg border border-border/50 bg-card p-5">
+          <h3 className="font-semibold mb-3">Dist-tags</h3>
+          {data.distTags.length ? (
+            <ul className="space-y-2 text-sm">
+              {data.distTags.map(t => (
+                <li key={t.tag} className="flex justify-between">
+                  <code className="text-muted-foreground">{t.tag}</code>
+                  <code>{t.version}</code>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-sm text-muted-foreground">No tags.</div>
+          )}
+          {latest && <div className="mt-3 text-xs text-muted-foreground">latest → {latest}</div>}
+        </div>
 
-        <Card>
-          <CardHeader className="py-4">
-            <CardTitle className="text-base">Versions</CardTitle>
-          </CardHeader>
-          <CardContent className="pb-4 pt-0 text-sm">
-            {data.versions.length ? (
-              <ul className="space-y-1">
-                {data.versions.slice(0, 10).map(v => (
-                  <li key={v.version} className="flex justify-between">
-                    <span className="font-mono">{v.version}</span>
-                    <span className="font-mono text-xs text-muted-foreground">{v.integrity.slice(0, 12)}…</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-muted-foreground">No versions.</div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="rounded-lg border border-border/50 bg-card p-5">
+          <h3 className="font-semibold mb-3">Versions</h3>
+          {data.versions.length ? (
+            <ul className="space-y-2 text-sm">
+              {data.versions.slice(0, 10).map(v => (
+                <li key={v.version} className="flex justify-between">
+                  <code>{v.version}</code>
+                  <code className="text-xs text-muted-foreground">{v.integrity.slice(0, 12)}…</code>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-sm text-muted-foreground">No versions.</div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
