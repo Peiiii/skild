@@ -92,7 +92,7 @@ skild signup
 
 邮箱验证：
 
-- 发布（publish）要求邮箱已验证。
+- 发布（publish）可能要求邮箱已验证（取决于服务端策略）。
 - 注册后检查邮箱的验证邮件（Console 也提供重发流程）。
 - 本地联调说明：当 registry 以 `EMAIL_MODE=log` 运行时，不会真正发邮件，而是把验证链接打印在 registry 的 dev 日志里。
 
@@ -157,7 +157,7 @@ skild publish --dir ./path/to/skill
 Console 是一个最小可用的 Web 界面，用于：
 
 - 注册（Signup）
-- 邮箱验证（发布前置条件）
+- 邮箱验证（可能是发布前置条件，取决于服务端策略）
 - 创建 access token（只展示一次）
 - 搜索与查看 Skill 详情
 - 发布指引

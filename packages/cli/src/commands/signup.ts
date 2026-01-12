@@ -76,6 +76,9 @@ export async function signup(options: SignupCommandOptions): Promise<void> {
         console.log(chalk.yellow('Verification email was not sent. You may need to resend from the Console.'));
       }
       console.log(chalk.dim(`Verify/resend in Console: ${(parsed.verification.consoleUrl || 'https://console.skild.sh').replace(/\/+$/, '')}/verify-email/request`));
+    } else if (parsed.verification) {
+      console.log(chalk.dim('Email verification is recommended. Publishing may be restricted in the future.'));
+      console.log(chalk.dim(`Verify/resend in Console: ${(parsed.verification.consoleUrl || 'https://console.skild.sh').replace(/\/+$/, '')}/verify-email/request`));
     }
   } catch {
     // ignore non-JSON responses

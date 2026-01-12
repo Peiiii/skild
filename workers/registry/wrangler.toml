@@ -21,6 +21,9 @@ EMAIL_FROM = "no-reply@skild.sh"
 EMAIL_FROM_NAME = "skild"
 EMAIL_VERIFY_TTL_HOURS = "24"
 
+# Temporarily allow publishing without email verification (recommended for early-stage DX).
+REQUIRE_EMAIL_VERIFICATION_FOR_PUBLISH = "false"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "skild-registry"

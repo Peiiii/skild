@@ -130,6 +130,11 @@ skild signup
 
 Or use the [Publisher Console](https://console.skild.sh).
 
+Email verification:
+
+- Email verification may be required for publishing (depending on server policy).
+- If email sending is disabled in local dev (`EMAIL_MODE=log`), the registry prints the verification link in the registry dev logs.
+
 ### 2. Login
 
 ```bash
@@ -154,6 +159,8 @@ Then:
 ```bash
 skild publish --dir ./my-skill
 ```
+
+If publish fails with `Email not verified` (HTTP 403), verify your email in the Publisher Console first.
 
 ---
 

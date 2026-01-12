@@ -12,6 +12,11 @@ function errorJson(c: any, message: string, status = 400) {
   return c.json({ ok: false, error: message }, status);
 }
 
+function isRequireEmailVerificationForPublish(env: Env): boolean {
+  const raw = (env.REQUIRE_EMAIL_VERIFICATION_FOR_PUBLISH ?? "true").trim().toLowerCase();
+  return raw === "1" || raw === "true" || raw === "yes";
+}
+
 function isAllowedOrigin(origin: string | null | undefined): string | null {
   if (!origin) return null;
   try {
@@ -99,12 +104,13 @@ app.post("/auth/signup", async (c) => {
     await insertEmailVerificationToken(c.env, { publisherId, tokenHash, expiresAt });
 
     const sent = await sendVerificationEmail(c.env, { toEmail: email, handle, token: verifyToken });
+    const requireEmailVerification = isRequireEmailVerificationForPublish(c.env);
 
     return c.json({
       ok: true,
       publisher: { id: publisherId, handle, email, emailVerified: false },
       verification: {
-        requiredForPublish: true,
+        requiredForPublish: requireEmailVerification,
         sent: sent.dispatched,
         mode: sent.mode,
         consoleUrl: getConsolePublicUrl(c.env),
@@ -378,12 +384,20 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
 
     if (scope !== publisher.handle) return errorJson(c as any, "Scope is not owned by this publisher.", 403);
 
-    if (!publisher.email_verified) {
+    const requireEmailVerification = isRequireEmailVerificationForPublish(c.env);
+    const warnings: string[] = [];
+
+    if (!publisher.email_verified && requireEmailVerification) {
       const consoleUrl = getConsolePublicUrl(c.env);
       return errorJson(
         c as any,
         `Email not verified. Verify your email in the Publisher Console first: ${consoleUrl}/verify-email/request`,
         403,
+      );
+    }
+    if (!publisher.email_verified && !requireEmailVerification) {
+      warnings.push(
+        "Email not verified. Publishing is temporarily allowed, but verification may be required in the future.",
       );
     }
 
@@ -442,6 +456,8 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
       version,
       integrity,
       tag,
+      publisherEmailVerified: Boolean(publisher.email_verified),
+      warnings: warnings.length ? warnings : undefined,
     });
   } catch (e) {
     const status = e instanceof Error && c.res.status ? c.res.status : 400;

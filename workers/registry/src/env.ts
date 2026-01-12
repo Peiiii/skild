@@ -8,4 +8,5 @@ export interface Env {
   EMAIL_FROM?: string;
   EMAIL_FROM_NAME?: string;
   EMAIL_VERIFY_TTL_HOURS?: string;
+  REQUIRE_EMAIL_VERIFICATION_FOR_PUBLISH?: string;
 }

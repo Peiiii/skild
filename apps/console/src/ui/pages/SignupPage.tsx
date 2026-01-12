@@ -13,7 +13,13 @@ export function SignupPage(): JSX.Element {
   const [password, setPassword] = React.useState('');
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [success, setSuccess] = React.useState<{ handle: string; email: string; verificationSent: boolean; verificationMode: string } | null>(null);
+  const [success, setSuccess] = React.useState<{
+    handle: string;
+    email: string;
+    requiredForPublish: boolean;
+    verificationSent: boolean;
+    verificationMode: string;
+  } | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
@@ -29,6 +35,7 @@ export function SignupPage(): JSX.Element {
       setSuccess({
         handle: res.publisher.handle,
         email: res.publisher.email,
+        requiredForPublish: res.verification.requiredForPublish,
         verificationSent: res.verification.sent,
         verificationMode: res.verification.mode
       });
@@ -60,7 +67,7 @@ export function SignupPage(): JSX.Element {
             <AlertDescription>
               You now own <span className="font-mono">@{success.handle}/*</span>.
               <div className="mt-2 text-sm">
-                Email verification is required for publishing.{' '}
+                {success.requiredForPublish ? 'Email verification is required for publishing.' : 'Email verification is recommended.'}{' '}
                 {success.verificationMode === 'log' ? (
                   <span>Dev mode: email sending is disabled. Check the registry dev logs for the verification link.</span>
                 ) : success.verificationSent ? (

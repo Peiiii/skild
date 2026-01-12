@@ -209,3 +209,4 @@
 - `docs/logs/v0.2.0-registry/2026-01-12-email-verification-deploy.md`：邮箱验证上线部署记录（含 Pages 预览域名 CORS 修复）
 - `docs/logs/v0.2.0-registry/2026-01-13-local-dev-stack-registry-console.md`：`pnpm dev` 一键启动 registry + console（本地联合调试）
 - `docs/logs/v0.2.0-registry/2026-01-13-email-mode-log-ux-fix.md`：本地 `EMAIL_MODE=log` 文案纠正
+- `docs/logs/v0.2.0-registry/2026-01-13-disable-email-verification-gate-prod.md`：线上暂时关闭“发布必须邮箱验证”

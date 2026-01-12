@@ -77,7 +77,7 @@ export function TokenNewPage(): JSX.Element {
               <div className="mt-3 text-xs text-muted-foreground">
                 {emailVerified === false && (
                   <div className="mb-2">
-                    Publishing requires email verification. Go to <a className="underline" href="/verify-email/request">Verify Email</a> to resend the verification email.
+                    Email not verified. Publishing may be restricted by server policy. Go to <a className="underline" href="/verify-email/request">Verify Email</a>.
                   </div>
                 )}
                 CLI:

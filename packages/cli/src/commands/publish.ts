@@ -158,6 +158,14 @@ export async function publish(options: PublishCommandOptions = {}): Promise<void
     }
 
     spinner.succeed(`Published ${chalk.green(`${name}@${version}`)} (sha256:${integrity.slice(0, 12)}…)`);
+
+    try {
+      const parsed = JSON.parse(text) as { warnings?: unknown };
+      const warnings = Array.isArray(parsed.warnings) ? parsed.warnings.map(String).filter(Boolean) : [];
+      for (const w of warnings) console.warn(chalk.yellow(`Warning: ${w}`));
+    } catch {
+      // ignore non-JSON responses
+    }
   } catch (error: unknown) {
     spinner.fail('Publish failed');
     const message = error instanceof SkildError ? error.message : error instanceof Error ? error.message : String(error);

@@ -62,7 +62,7 @@ export function VerifyEmailPage(): JSX.Element {
     <Card>
       <CardHeader>
         <CardTitle>Verify email</CardTitle>
-        <CardDescription>Required for publishing Skills.</CardDescription>
+        <CardDescription>May be required for publishing Skills (depending on server policy).</CardDescription>
       </CardHeader>
       <CardContent>
         {status.kind === 'error' && (
@@ -107,4 +107,3 @@ export function VerifyEmailPage(): JSX.Element {
     </Card>
   );
 }
-

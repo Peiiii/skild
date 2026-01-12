@@ -10,7 +10,8 @@ export function PublishPage(): JSX.Element {
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
         <div className="rounded-md border p-3 text-xs text-muted-foreground">
-          Publishing requires email verification. If publish fails with a 403, go to <a className="underline" href="/verify-email/request">Verify Email</a>.
+          Email verification may be required for publishing (depending on server policy). If publish fails with a 403, go to{' '}
+          <a className="underline" href="/verify-email/request">Verify Email</a>.
         </div>
         <div className="space-y-2">
           <div className="font-medium">1) Login</div>
