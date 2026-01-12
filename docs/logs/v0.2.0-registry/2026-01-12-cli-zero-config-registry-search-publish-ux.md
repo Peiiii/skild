@@ -21,6 +21,7 @@
 - `resolveRegistryUrl()`：显式 `--registry` → `SKILD_REGISTRY_URL` → 默认 registry
 - registry 安装记录补齐 `registryUrl`（为后续 update 可复现；旧记录向后兼容）
 - 新增 registry 搜索：`searchRegistrySkills()`
+- 网络鲁棒性：registry 相关请求增加超时（避免网络/本地 registry 不可用时命令“卡住”）
 
 ### CLI（`packages/cli`）
 
@@ -30,6 +31,7 @@
   - `--registry` 可选（默认使用当前登录对应 registry；否则默认 registry）
   - `--name` 支持无 scope 名称：自动推断 `@handle/<name>`
 - 新增：`skild search <query> [--limit] [--registry]`
+- `skild whoami/login/signup/publish`：增加请求超时与更友好提示（例如建议 `skild logout`）
 
 ## 验证（怎么确认符合预期）
 
@@ -61,4 +63,4 @@ pnpm -s cli list -t codex --local
 - `skild login/signup/install/search` 不需要 `--registry` 也能正常访问 `https://registry.skild.sh`
 - `skild publish --name hello-skill` 会补齐为 `@<handle>/hello-skill` 并发布成功
 - `skild search` 不会卡住（默认指向官方 registry；不依赖本地 dev registry 的登录状态）
-
+- 未登录或 registry 不可达时，`skild whoami` 会快速失败并给出下一步提示（不会无限等待）

@@ -3,6 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import * as tar from 'tar';
 import { SkildError } from './errors.js';
+import { fetchWithTimeout } from './http.js';
 
 export const DEFAULT_REGISTRY_URL = 'https://registry.skild.sh';
 
@@ -66,7 +67,7 @@ export function resolveRegistryUrl(explicit?: string): string {
 export async function resolveRegistryVersion(registryUrl: string, spec: RegistrySpecifier): Promise<RegistryResolvedVersion> {
   const { scope, name } = splitCanonicalName(spec.canonicalName);
   const url = `${registryUrl}/skills/${encodeURIComponent(scope)}/${encodeURIComponent(name)}/versions/${encodeURIComponent(spec.versionOrTag)}`;
-  const res = await fetch(url, { headers: { accept: 'application/json' } });
+  const res = await fetchWithTimeout(url, { headers: { accept: 'application/json' } }, 10_000);
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new SkildError('REGISTRY_RESOLVE_FAILED', `Failed to resolve ${spec.canonicalName}@${spec.versionOrTag} (${res.status}). ${text}`.trim());
@@ -102,7 +103,7 @@ export async function searchRegistrySkills(
   if (q) url.searchParams.set('q', q);
   url.searchParams.set('limit', String(Math.min(Math.max(limit, 1), 100)));
 
-  const res = await fetch(url.toString(), { headers: { accept: 'application/json' } });
+  const res = await fetchWithTimeout(url.toString(), { headers: { accept: 'application/json' } }, 10_000);
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new SkildError('REGISTRY_RESOLVE_FAILED', `Failed to search skills (${res.status}). ${text}`.trim());
@@ -115,7 +116,7 @@ export async function searchRegistrySkills(
 }
 
 export async function downloadAndExtractTarball(resolved: RegistryResolvedVersion, tempRoot: string, stagingDir: string): Promise<void> {
-  const res = await fetch(resolved.tarballUrl);
+  const res = await fetchWithTimeout(resolved.tarballUrl, {}, 30_000);
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new SkildError('REGISTRY_DOWNLOAD_FAILED', `Failed to download tarball (${res.status}). ${text}`.trim());

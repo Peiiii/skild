@@ -4,7 +4,7 @@ import path from 'path';
 import crypto from 'crypto';
 import * as tar from 'tar';
 import chalk from 'chalk';
-import { loadRegistryAuth, resolveRegistryUrl, SkildError, splitCanonicalName, validateSkillDir } from '@skild/core';
+import { fetchWithTimeout, loadRegistryAuth, resolveRegistryUrl, SkildError, splitCanonicalName, validateSkillDir } from '@skild/core';
 import { createSpinner } from '../utils/logger.js';
 
 export interface PublishCommandOptions {
@@ -74,7 +74,11 @@ export async function publish(options: PublishCommandOptions = {}): Promise<void
       return;
     }
 
-    const meRes = await fetch(`${registry}/auth/me`, { headers: { authorization: `Bearer ${token}` } });
+    const meRes = await fetchWithTimeout(
+      `${registry}/auth/me`,
+      { headers: { authorization: `Bearer ${token}` } },
+      10_000
+    );
     const meText = await meRes.text();
     if (!meRes.ok) {
       console.error(chalk.red(`Failed to infer publisher scope (${meRes.status}): ${meText}`));
@@ -130,11 +134,15 @@ export async function publish(options: PublishCommandOptions = {}): Promise<void
     form.append('tarball', new Blob([buf], { type: 'application/gzip' }), 'skill.tgz');
 
     const { scope, name: skillName } = splitCanonicalName(name);
-    const res = await fetch(`${registry}/skills/${encodeURIComponent(scope)}/${encodeURIComponent(skillName)}/publish`, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${token}` },
-      body: form as any
-    });
+    const res = await fetchWithTimeout(
+      `${registry}/skills/${encodeURIComponent(scope)}/${encodeURIComponent(skillName)}/publish`,
+      {
+        method: 'POST',
+        headers: { authorization: `Bearer ${token}` },
+        body: form as any
+      },
+      30_000
+    );
 
     const text = await res.text();
     if (!res.ok) {

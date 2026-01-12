@@ -9,7 +9,8 @@ export type SkildErrorCode =
   | 'MISSING_REGISTRY_CONFIG'
   | 'REGISTRY_RESOLVE_FAILED'
   | 'REGISTRY_DOWNLOAD_FAILED'
-  | 'INTEGRITY_MISMATCH';
+  | 'INTEGRITY_MISMATCH'
+  | 'NETWORK_TIMEOUT';
 
 export class SkildError extends Error {
   readonly code: SkildErrorCode;

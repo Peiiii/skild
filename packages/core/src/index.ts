@@ -19,6 +19,7 @@ export { loadOrCreateGlobalConfig, loadRegistryAuth, saveRegistryAuth, clearRegi
 export { getSkillsDir, getSkillInstallDir } from './paths.js';
 export { validateSkillDir } from './skill.js';
 export { initSkill } from './init.js';
+export { fetchWithTimeout } from './http.js';
 export {
   DEFAULT_REGISTRY_URL,
   canonicalNameToInstallDirName,
