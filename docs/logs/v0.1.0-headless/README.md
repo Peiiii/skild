@@ -43,6 +43,7 @@
 - `docs/logs/v0.1.0-headless/2026-01-08-release-changesets.md`：发布流程升级与脚本说明
 - `docs/logs/v0.1.0-headless/2026-01-08-release-npm-token.md`：用 `NPM_TOKEN` 消除 OTP/浏览器交互（无交互发布）
 - `docs/logs/v0.1.0-headless/2026-01-12-list-all-platforms.md`：`skild list` 默认列出所有平台（降低首次使用门槛）
+- `docs/logs/v0.1.0-headless/2026-01-12-release-v0.1.3.md`：发布 v0.1.3（list 体验修复 + 发布认证更稳）
 
 ---
 

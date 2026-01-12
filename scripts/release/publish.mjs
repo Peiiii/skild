@@ -1,6 +1,10 @@
 import { spawn } from "node:child_process";
 import path from "node:path";
-import { ensureNpmAuth, hasNpmToken } from "./ensure-npm-auth.mjs";
+import {
+  ensureNpmAuth,
+  getRepoLocalPublishNpmrcPath,
+  hasNpmToken,
+} from "./ensure-npm-auth.mjs";
 
 function run(command, args, options = {}) {
   return new Promise((resolve, reject) => {
@@ -21,8 +25,8 @@ if (process.exitCode) process.exit(process.exitCode);
 await run("pnpm", ["release:check"]);
 
 const publishEnv = { ...process.env };
-if (hasNpmToken()) {
-  publishEnv.NPM_CONFIG_USERCONFIG = path.resolve(process.cwd(), ".npmrc.publish");
-}
+const repoLocalUserconfig = getRepoLocalPublishNpmrcPath();
+if (repoLocalUserconfig) publishEnv.NPM_CONFIG_USERCONFIG = repoLocalUserconfig;
+else if (hasNpmToken()) publishEnv.NPM_CONFIG_USERCONFIG = path.resolve(process.cwd(), ".npmrc.publish");
 
 await run("pnpm", ["changeset", "publish", ...extraArgs], { env: publishEnv });

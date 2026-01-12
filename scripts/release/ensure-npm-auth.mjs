@@ -1,11 +1,18 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { pathToFileURL } from "node:url";
+import fs from "node:fs";
+import path from "node:path";
 
 const execFileAsync = promisify(execFile);
 
 export function hasNpmToken() {
   return Boolean(process.env.NPM_TOKEN?.trim());
+}
+
+export function getRepoLocalPublishNpmrcPath() {
+  const localPath = path.resolve(process.cwd(), ".npmrc.publish.local");
+  return fs.existsSync(localPath) ? localPath : null;
 }
 
 function hasOtpArg(args) {
@@ -39,6 +46,8 @@ async function getTwoFactorMode() {
 }
 
 export async function ensureNpmAuth(args = process.argv.slice(2)) {
+  if (getRepoLocalPublishNpmrcPath()) return;
+
   const hasToken = hasNpmToken();
   if (hasToken) return;
 
@@ -49,7 +58,8 @@ export async function ensureNpmAuth(args = process.argv.slice(2)) {
         "Missing npm auth for publishing.",
         "",
         "Fix options:",
-        "- Recommended (non-interactive): set an npm Automation Token as NPM_TOKEN.",
+        "- Recommended (non-interactive): create `.npmrc.publish.local` (ignored by git) with an Automation Token.",
+        "- Or set an npm Automation Token as NPM_TOKEN.",
         "- Or login: npm login --auth-type=web",
         "- Or pass OTP: pnpm release -- --otp=123456",
       ].join("\n"),
