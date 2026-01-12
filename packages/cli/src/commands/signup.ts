@@ -1,16 +1,31 @@
 import chalk from 'chalk';
 import { fetchWithTimeout, resolveRegistryUrl, SkildError } from '@skild/core';
+import { promptLine, promptPassword } from '../utils/prompt.js';
 
 export interface SignupCommandOptions {
   registry?: string;
-  email: string;
-  handle: string;
-  password: string;
+  email?: string;
+  handle?: string;
+  password?: string;
   json?: boolean;
 }
 
 export async function signup(options: SignupCommandOptions): Promise<void> {
   const registry = resolveRegistryUrl(options.registry);
+  const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY);
+
+  const email = options.email?.trim() || '';
+  const handle = options.handle?.trim() || '';
+  const password = options.password || '';
+  if ((!email || !handle || !password) && (!interactive || options.json)) {
+    console.error(chalk.red('Missing signup fields. Use --email/--handle/--password, or run `skild signup` interactively.'));
+    process.exitCode = 1;
+    return;
+  }
+
+  const finalEmail = email || (await promptLine('Email'));
+  const finalHandle = handle || (await promptLine('Handle (publisher scope)', undefined)).toLowerCase();
+  const finalPassword = password || (await promptPassword('Password'));
 
   let text = '';
   try {
@@ -20,9 +35,9 @@ export async function signup(options: SignupCommandOptions): Promise<void> {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          email: options.email,
-          handle: options.handle,
-          password: options.password
+          email: finalEmail,
+          handle: finalHandle,
+          password: finalPassword
         })
       },
       10_000
@@ -47,5 +62,5 @@ export async function signup(options: SignupCommandOptions): Promise<void> {
   }
 
   console.log(chalk.green('Signup successful.'));
-  console.log(chalk.dim('Next: run `skild login --registry <url> --handle-or-email <...> --password <...>`'));
+  console.log(chalk.dim('Next: run `skild login`'));
 }

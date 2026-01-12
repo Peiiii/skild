@@ -197,3 +197,8 @@
 - `docs/logs/v0.2.0-registry/2026-01-12-registry-worker-move-and-prod-deploy-fix.md`：Worker 目录调整 + 线上部署修复
 - `docs/logs/v0.2.0-registry/2026-01-12-cli-zero-config-registry-search-publish-ux.md`：默认 registry + 零配置登录/安装 + 搜索 + 发布体验优化
 - `docs/logs/v0.2.0-registry/2026-01-12-auth-npm-style-web-login.plan.md`：对齐 npm 心智的 Web 登录方案（规划）
+- `docs/logs/v0.2.0-registry/2026-01-13-cli-interactive-login-minimal.md`：先对齐 npm 的最小交互式登录（不做 Web/device flow）
+- `docs/logs/v0.2.0-registry/2026-01-13-web-signup-minimal.plan.md`：最小可用 Web 注册页（不做复杂登录流）
+- `docs/logs/v0.2.0-registry/2026-01-13-publisher-console-mvp.prd.md`：Publisher Console MVP（对标 npm 的平台形态）PRD
+- `docs/logs/v0.2.0-registry/2026-01-13-console-mvp-implementation.md`：Publisher Console MVP 端到端实现记录
+- `docs/logs/v0.2.0-registry/2026-01-13-console-pages-deploy.md`：根目录脚本 + Cloudflare Pages 部署

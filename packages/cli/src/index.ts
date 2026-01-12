@@ -101,9 +101,9 @@ program
     .command('signup')
     .description('Create a publisher account in the registry (no GitHub required)')
     .option('--registry <url>', 'Registry base URL (default: https://registry.skild.sh)')
-    .requiredOption('--email <email>', 'Email')
-    .requiredOption('--handle <handle>', 'Publisher handle (owns @handle/* scope)')
-    .requiredOption('--password <password>', 'Password')
+    .option('--email <email>', 'Email (optional; will prompt)')
+    .option('--handle <handle>', 'Publisher handle (owns @handle/* scope) (optional; will prompt)')
+    .option('--password <password>', 'Password (optional; will prompt)')
     .option('--json', 'Output JSON')
     .action(async (options: any) => signup(options));
 
@@ -111,8 +111,8 @@ program
     .command('login')
     .description('Login to a registry and store an access token locally')
     .option('--registry <url>', 'Registry base URL (default: https://registry.skild.sh)')
-    .requiredOption('--handle-or-email <value>', 'Handle or email')
-    .requiredOption('--password <password>', 'Password')
+    .option('--handle-or-email <value>', 'Handle or email (optional; will prompt)')
+    .option('--password <password>', 'Password (optional; will prompt)')
     .option('--token-name <name>', 'Token label')
     .option('--json', 'Output JSON')
     .action(async (options: any) => login(options));

@@ -11,6 +11,36 @@ function errorJson(c: any, message: string, status = 400) {
   return c.json({ ok: false, error: message }, status);
 }
 
+const ALLOWED_ORIGINS = new Set([
+  "https://skild.sh",
+  "https://www.skild.sh",
+  "https://console.skild.sh",
+  "https://skild-console.pages.dev",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+
+app.use("*", async (c, next) => {
+  const origin = c.req.header("origin");
+  const allowed = origin && ALLOWED_ORIGINS.has(origin);
+
+  if (allowed && origin) {
+    c.header("access-control-allow-origin", origin);
+    c.header("vary", "Origin");
+  }
+
+  if (c.req.method === "OPTIONS") {
+    if (allowed) {
+      c.header("access-control-allow-methods", "GET, POST, OPTIONS");
+      c.header("access-control-allow-headers", "content-type, authorization");
+      c.header("access-control-max-age", "86400");
+    }
+    return c.body(null, 204);
+  }
+
+  await next();
+});
+
 app.get("/health", (c) => c.json({ ok: true }));
 
 app.post("/auth/signup", async (c) => {

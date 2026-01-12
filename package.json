@@ -10,14 +10,17 @@
         "dev": "pnpm --filter web dev",
         "dev:web": "pnpm --filter web dev",
         "dev:cli": "pnpm --filter ./packages/cli dev",
+        "dev:console": "pnpm -C apps/console dev",
         "build": "pnpm -r --filter './apps/*' --filter './workers/*' --filter './packages/*' build",
         "build:web": "pnpm --filter web build",
         "build:core": "pnpm --filter ./packages/core build",
         "build:cli": "pnpm --filter ./packages/core build && pnpm --filter ./packages/cli build",
+        "build:console": "pnpm -C apps/console build",
         "typecheck": "pnpm -r --if-present typecheck",
         "typecheck:core": "pnpm --filter ./packages/core typecheck",
         "typecheck:cli": "pnpm --filter ./packages/cli typecheck",
         "preview": "pnpm --filter web preview",
+        "preview:console": "pnpm -C apps/console preview",
         "lint": "pnpm -r --if-present lint",
         "test": "pnpm -r --if-present test",
         "clean": "rm -rf apps/*/dist workers/*/dist packages/*/dist node_modules/.cache",
@@ -28,7 +31,8 @@
         "release:status": "pnpm changeset status",
         "release:publish": "node scripts/release/publish.mjs",
         "release:dry": "pnpm release:check && (cd packages/core && npm publish --dry-run) && (cd packages/cli && npm publish --dry-run)",
-        "release": "pnpm release:publish"
+        "release": "pnpm release:publish",
+        "deploy:console": "node scripts/deploy/console-pages.mjs"
     },
     "keywords": [
         "agent-skills",
