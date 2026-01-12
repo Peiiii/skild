@@ -44,3 +44,17 @@ pnpm build
 pnpm lint
 pnpm typecheck
 ```
+
+## 发布 / 部署
+
+这次变更会影响 `@skild/core` 与 `skild`（CLI 默认行为变化），按标准发布流程走：
+
+```bash
+pnpm changeset
+pnpm release:check
+pnpm release:dry
+pnpm release:version
+pnpm release
+```
+
+详细说明见：`docs/release.md`
