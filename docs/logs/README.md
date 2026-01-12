@@ -2,6 +2,7 @@
 
 - `docs/logs/v0.0.1-mvp/README.md`
 - `docs/logs/v0.1.0-headless/README.md`
+- `docs/logs/v0.2.0-registry/README.md`
 
 ## 写日志的标准
 
@@ -12,3 +13,7 @@
 - 怎么发布/部署（如果会影响 npm 包/线上环境；详细流程引用 `docs/release.md`）
 
 模板：`docs/logs/TEMPLATE.md`
+
+## 规划规则
+
+- 规划文档禁止写具体花费时间/工期（例如“3 天”“1 周”）；只写里程碑顺序、交付物与验收标准。
