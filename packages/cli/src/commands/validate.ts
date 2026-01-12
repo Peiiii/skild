@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { validateSkill, type Platform } from '@skild/core';
+import { canonicalNameToInstallDirName, validateSkill, type Platform } from '@skild/core';
 
 export interface ValidateCommandOptions {
   target?: Platform | string;
@@ -11,8 +11,9 @@ export async function validate(target: string | undefined, options: ValidateComm
   const platform = (options.target as Platform) || 'claude';
   const scope = options.local ? 'project' : 'global';
   const value = target || '.';
+  const resolvedValue = value.trim().startsWith('@') && value.includes('/') ? canonicalNameToInstallDirName(value.trim()) : value;
 
-  const result = validateSkill(value, { platform, scope });
+  const result = validateSkill(resolvedValue, { platform, scope });
 
   if (options.json) {
     console.log(JSON.stringify(result, null, 2));
@@ -33,4 +34,3 @@ export async function validate(target: string | undefined, options: ValidateComm
   }
   process.exitCode = 1;
 }
-

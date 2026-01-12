@@ -10,7 +10,7 @@
         "dev": "pnpm --filter web dev",
         "dev:web": "pnpm --filter web dev",
         "dev:cli": "pnpm --filter ./packages/cli dev",
-        "build": "pnpm -r --filter './apps/*' --filter './packages/*' build",
+        "build": "pnpm -r --filter './apps/*' --filter './workers/*' --filter './packages/*' build",
         "build:web": "pnpm --filter web build",
         "build:core": "pnpm --filter ./packages/core build",
         "build:cli": "pnpm --filter ./packages/core build && pnpm --filter ./packages/cli build",
@@ -20,7 +20,7 @@
         "preview": "pnpm --filter web preview",
         "lint": "pnpm -r --if-present lint",
         "test": "pnpm -r --if-present test",
-        "clean": "rm -rf apps/*/dist packages/*/dist node_modules/.cache",
+        "clean": "rm -rf apps/*/dist workers/*/dist packages/*/dist node_modules/.cache",
         "cli": "pnpm -s --filter ./packages/core build && pnpm -s --filter ./packages/cli build && node packages/cli/dist/index.js",
         "changeset": "changeset",
         "release:check": "pnpm build && pnpm lint && pnpm typecheck",
@@ -47,5 +47,12 @@
         "node": ">=18",
         "pnpm": ">=8"
     },
-    "packageManager": "pnpm@10.12.3"
+    "packageManager": "pnpm@10.12.3",
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "esbuild",
+            "sharp",
+            "workerd"
+        ]
+    }
 }

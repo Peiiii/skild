@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { updateSkill, SkildError, type Platform } from '@skild/core';
+import { canonicalNameToInstallDirName, updateSkill, SkildError, type Platform } from '@skild/core';
 import { createSpinner } from '../utils/logger.js';
 
 export interface UpdateCommandOptions {
@@ -13,10 +13,11 @@ export async function update(skill: string | undefined, options: UpdateCommandOp
   const scope = options.local ? 'project' : 'global';
 
   const label = skill ? skill : 'all skills';
+  const resolvedName = skill && skill.trim().startsWith('@') && skill.includes('/') ? canonicalNameToInstallDirName(skill.trim()) : skill;
   const spinner = createSpinner(`Updating ${chalk.cyan(label)} on ${chalk.dim(platform)} (${scope})...`);
 
   try {
-    const results = await updateSkill(skill, { platform, scope });
+    const results = await updateSkill(resolvedName, { platform, scope });
     spinner.succeed(`Updated ${chalk.green(results.length.toString())} skill(s).`);
     if (options.json) {
       console.log(JSON.stringify(results, null, 2));
@@ -28,4 +29,3 @@ export async function update(skill: string | undefined, options: UpdateCommandOp
     process.exitCode = 1;
   }
 }
-

@@ -104,10 +104,10 @@
 ## API（最小集合）
 
 - `GET /skills`（列表/搜索基础）
-- `GET /skills/:name`（详情：dist-tags、版本摘要）
-- `GET /skills/:name/versions/:version`（解析与元数据：integrity、artifact）
+- `GET /skills/:scope/:skill`（详情：dist-tags、版本摘要）
+- `GET /skills/:scope/:skill/versions/:versionOrTag`（解析与元数据：integrity、artifact）
 - `POST /auth/*`（登录/令牌）
-- `POST /skills/:name/publish`（上传发布）
+- `POST /skills/:scope/:skill/publish`（上传发布）
 
 ---
 
@@ -139,14 +139,14 @@
 
 ### Milestone 1：Registry Read（可发现/可安装）
 
-- API：`GET /skills`, `GET /skills/:name`, `GET /skills/:name/versions/:version`
+- API：`GET /skills`, `GET /skills/:scope/:skill`, `GET /skills/:scope/:skill/versions/:versionOrTag`
 - CLI：`install @scope/name` 可用
 - Web：列表/详情最小可用
 
 ### Milestone 2：Registry Write（发布闭环）
 
 - Auth：登录 + token（CLI）
-- Publish：`skild publish` → `POST /skills/:name/publish` → R2 artifact
+- Publish：`skild publish` → `POST /skills/:scope/:skill/publish` → R2 artifact
 - dist-tags：`latest` 可用
 
 ### Milestone 3：可复现与治理
@@ -180,7 +180,7 @@
 
 ## 发布 / 部署（本迭代会新增）
 
-- Registry 服务端的部署形态（待定）：`apps/registry`（server）+ `apps/web`（UI）
+- Registry 服务端的部署形态（待定）：`workers/registry`（Worker）+ `apps/web`（UI）
 - 版本发布：
   - npm（CLI/core）：沿用 `pnpm release`（Changesets）
   - Web/Server：引入独立的 deploy pipeline（不与 npm publish 混在一起）
@@ -193,3 +193,5 @@
 
 - `docs/logs/v0.2.0-registry/README.md`：v0.2.0 Iteration 1 规划（纯 registry）
 - `docs/logs/v0.2.0-registry/2026-01-12-iteration-split.md`：规划拆分记录（为什么拆、拆成什么）
+- `docs/logs/v0.2.0-registry/2026-01-12-registry-iteration1-mvp.md`：Iteration 1 实现记录（registry MVP + 验证/部署）
+- `docs/logs/v0.2.0-registry/2026-01-12-registry-worker-move-and-prod-deploy-fix.md`：Worker 目录调整 + 线上部署修复

@@ -5,7 +5,11 @@ export type SkildErrorCode =
   | 'ALREADY_INSTALLED'
   | 'SKILL_NOT_FOUND'
   | 'MISSING_METADATA'
-  | 'INVALID_SKILL';
+  | 'INVALID_SKILL'
+  | 'MISSING_REGISTRY_CONFIG'
+  | 'REGISTRY_RESOLVE_FAILED'
+  | 'REGISTRY_DOWNLOAD_FAILED'
+  | 'INTEGRITY_MISMATCH';
 
 export class SkildError extends Error {
   readonly code: SkildErrorCode;
@@ -17,4 +21,3 @@ export class SkildError extends Error {
     this.details = details;
   }
 }
-

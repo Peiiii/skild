@@ -11,15 +11,25 @@ export type {
   SkillValidationIssue,
   InstallRecord,
   Lockfile,
-  GlobalConfig
+  GlobalConfig,
+  RegistryAuth
 } from './types.js';
 
-export { loadOrCreateGlobalConfig } from './storage.js';
+export { loadOrCreateGlobalConfig, loadRegistryAuth, saveRegistryAuth, clearRegistryAuth } from './storage.js';
 export { getSkillsDir, getSkillInstallDir } from './paths.js';
 export { validateSkillDir } from './skill.js';
 export { initSkill } from './init.js';
 export {
+  canonicalNameToInstallDirName,
+  splitCanonicalName,
+  parseRegistrySpecifier,
+  resolveRegistryUrl,
+  resolveRegistryVersion,
+  downloadAndExtractTarball
+} from './registry.js';
+export {
   installSkill,
+  installRegistrySkill,
   listAllSkills,
   listSkills,
   getSkillInfo,

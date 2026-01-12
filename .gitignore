@@ -9,6 +9,9 @@ node_modules/
 .skild/
 .tmp/
 
+# Cloudflare Wrangler
+.wrangler/
+
 # Build outputs
 dist/
 build/

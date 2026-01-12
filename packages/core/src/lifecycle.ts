@@ -9,6 +9,7 @@ import { SkildError } from './errors.js';
 import { readInstallRecord, writeInstallRecord, upsertLockEntry, loadOrCreateGlobalConfig, removeLockEntry } from './storage.js';
 import { validateSkillDir } from './skill.js';
 import { PLATFORMS } from './types.js';
+import { downloadAndExtractTarball, parseRegistrySpecifier, resolveRegistryUrl, resolveRegistryVersion, canonicalNameToInstallDirName } from './registry.js';
 
 export interface InstallInput {
   source: string;
@@ -119,6 +120,75 @@ export async function installSkill(input: InstallInput, options: InstallOptions 
   }
 }
 
+export async function installRegistrySkill(
+  input: { spec: string; registryUrl?: string; nameOverride?: string },
+  options: InstallOptions = {}
+): Promise<InstallRecord> {
+  const { platform, scope } = resolvePlatformAndScope(options);
+  const registryUrl = resolveRegistryUrl(input.registryUrl);
+  const spec = parseRegistrySpecifier(input.spec);
+  const canonicalName = spec.canonicalName;
+
+  const skillsDir = getSkillsDir(platform, scope);
+  ensureDir(skillsDir);
+
+  const installName = input.nameOverride || canonicalNameToInstallDirName(canonicalName);
+  const installDir = getSkillInstallDir(platform, scope, installName);
+
+  if (fs.existsSync(installDir) && !options.force) {
+    throw new SkildError('ALREADY_INSTALLED', `Skill "${canonicalName}" is already installed at ${installDir}. Use --force, or uninstall first.`, {
+      skillName: canonicalName,
+      installDir
+    });
+  }
+
+  const tempRoot = createTempDir(skillsDir, installName);
+  const stagingDir = path.join(tempRoot, 'staging');
+
+  try {
+    const resolved = await resolveRegistryVersion(registryUrl, spec);
+    await downloadAndExtractTarball(resolved, tempRoot, stagingDir);
+    assertNonEmptyInstall(stagingDir, input.spec);
+
+    replaceDirAtomic(stagingDir, installDir);
+
+    const contentHash = hashDirectoryContent(installDir);
+    const validation = validateSkillDir(installDir);
+
+    const record: InstallRecord = {
+      schemaVersion: 1,
+      name: installName,
+      canonicalName,
+      platform,
+      scope,
+      source: input.spec,
+      sourceType: 'registry',
+      installedAt: new Date().toISOString(),
+      installDir,
+      contentHash,
+      hasSkillMd: fs.existsSync(path.join(installDir, 'SKILL.md')),
+      skill: { validation, frontmatter: validation.frontmatter }
+    };
+
+    writeInstallRecord(installDir, record);
+    const lockEntry: LockEntry = {
+      name: installName,
+      platform,
+      scope,
+      source: input.spec,
+      sourceType: 'registry',
+      installedAt: record.installedAt,
+      installDir: record.installDir,
+      contentHash: record.contentHash
+    };
+    upsertLockEntry(scope, lockEntry);
+
+    return record;
+  } finally {
+    removeDir(tempRoot);
+  }
+}
+
 export interface ListedSkill {
   name: string;
   installDir: string;
@@ -207,8 +277,15 @@ export async function updateSkill(name?: string, options: UpdateOptions = {}): P
   const results: InstallRecord[] = [];
   for (const target of targets) {
     const record = getSkillInfo(target.name, { platform, scope });
-    const updated = await installSkill({ source: record.source, nameOverride: record.name }, { platform, scope, force: true });
-    updated.updatedAt = new Date().toISOString();
+    const now = new Date().toISOString();
+
+    const updated =
+      record.sourceType === 'registry'
+        ? await installRegistrySkill({ spec: record.source, nameOverride: record.name }, { platform, scope, force: true })
+        : await installSkill({ source: record.source, nameOverride: record.name }, { platform, scope, force: true });
+
+    updated.installedAt = record.installedAt;
+    updated.updatedAt = now;
     writeInstallRecord(updated.installDir, updated);
     results.push(updated);
   }

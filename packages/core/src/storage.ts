@@ -1,10 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import type { GlobalConfig, InstallRecord, Lockfile, LockEntry } from './types.js';
+import type { GlobalConfig, InstallRecord, Lockfile, LockEntry, RegistryAuth } from './types.js';
 import {
   ensureDir,
   getGlobalConfigPath,
   getGlobalLockPath,
+  getGlobalRegistryAuthPath,
   getProjectLockPath,
   getSkillInstallRecordPath,
   getSkillMetadataDir
@@ -21,6 +22,16 @@ function writeJsonFile(filePath: string, value: unknown): void {
   fs.writeFileSync(filePath, JSON.stringify(value, null, 2) + '\n', 'utf8');
 }
 
+function writeJsonFilePrivate(filePath: string, value: unknown): void {
+  ensureDir(path.dirname(filePath));
+  fs.writeFileSync(filePath, JSON.stringify(value, null, 2) + '\n', 'utf8');
+  try {
+    fs.chmodSync(filePath, 0o600);
+  } catch {
+    // Best-effort on non-POSIX environments.
+  }
+}
+
 export function loadOrCreateGlobalConfig(): GlobalConfig {
   const filePath = getGlobalConfigPath();
   const existing = readJsonFile<GlobalConfig>(filePath);
@@ -33,6 +44,19 @@ export function loadOrCreateGlobalConfig(): GlobalConfig {
   };
   writeJsonFile(filePath, created);
   return created;
+}
+
+export function loadRegistryAuth(): RegistryAuth | null {
+  return readJsonFile<RegistryAuth>(getGlobalRegistryAuthPath());
+}
+
+export function saveRegistryAuth(auth: RegistryAuth): void {
+  writeJsonFilePrivate(getGlobalRegistryAuthPath(), auth);
+}
+
+export function clearRegistryAuth(): void {
+  const filePath = getGlobalRegistryAuthPath();
+  if (fs.existsSync(filePath)) fs.rmSync(filePath);
 }
 
 export function loadLockfile(lockPath: string): Lockfile | null {
@@ -80,4 +104,3 @@ export function writeInstallRecord(installDir: string, record: InstallRecord): v
   const filePath = getSkillInstallRecordPath(installDir);
   writeJsonFile(filePath, record);
 }
-

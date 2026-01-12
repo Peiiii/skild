@@ -43,6 +43,10 @@ export function getGlobalConfigPath(): string {
   return path.join(getSkildGlobalDir(), 'config.json');
 }
 
+export function getGlobalRegistryAuthPath(): string {
+  return path.join(getSkildGlobalDir(), 'registry-auth.json');
+}
+
 export function getGlobalLockPath(): string {
   return path.join(getSkildGlobalDir(), 'lock.json');
 }
@@ -58,4 +62,3 @@ export function getSkillMetadataDir(skillInstallDir: string): string {
 export function getSkillInstallRecordPath(skillInstallDir: string): string {
   return path.join(getSkillMetadataDir(skillInstallDir), 'install.json');
 }
-

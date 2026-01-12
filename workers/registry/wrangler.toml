@@ -1,0 +1,20 @@
+name = "skild-registry"
+main = "src/index.ts"
+compatibility_date = "2025-01-12"
+
+routes = [
+  { pattern = "registry.skild.sh/*", zone_name = "skild.sh" }
+]
+
+[vars]
+# Cloudflare Workers WebCrypto PBKDF2 has an iteration upper bound (100000).
+PBKDF2_ITERATIONS = "100000"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "skild-registry"
+database_id = "3ffc8dc6-d318-41a6-9f79-db8a80642df6"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "skild-registry-artifacts"

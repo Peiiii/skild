@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "degit": "^2.8.4",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "tar": "^7.4.3"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",

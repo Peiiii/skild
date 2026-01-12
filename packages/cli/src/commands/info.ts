@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { getSkillInfo, SkildError, type Platform } from '@skild/core';
+import { canonicalNameToInstallDirName, getSkillInfo, SkildError, type Platform } from '@skild/core';
 
 export interface InfoCommandOptions {
   target?: Platform | string;
@@ -12,13 +12,15 @@ export async function info(skill: string, options: InfoCommandOptions = {}): Pro
   const scope = options.local ? 'project' : 'global';
 
   try {
-    const record = getSkillInfo(skill, { platform, scope });
+    const resolvedName = skill.trim().startsWith('@') && skill.includes('/') ? canonicalNameToInstallDirName(skill.trim()) : skill;
+    const record = getSkillInfo(resolvedName, { platform, scope });
     if (options.json) {
       console.log(JSON.stringify(record, null, 2));
       return;
     }
 
-    console.log(chalk.bold(`\n${chalk.cyan(record.name)}\n`));
+    const displayName = record.canonicalName || record.name;
+    console.log(chalk.bold(`\n${chalk.cyan(displayName)}\n`));
     console.log(`  ${chalk.dim('Path:')} ${record.installDir}`);
     console.log(`  ${chalk.dim('Source:')} ${record.source}`);
     console.log(`  ${chalk.dim('Target:')} ${record.platform} (${record.scope})`);
@@ -45,4 +47,3 @@ export async function info(skill: string, options: InfoCommandOptions = {}): Pro
     process.exitCode = 1;
   }
 }
-

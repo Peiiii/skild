@@ -14,6 +14,11 @@ import { uninstall } from './commands/uninstall.js';
 import { update } from './commands/update.js';
 import { validate } from './commands/validate.js';
 import { init } from './commands/init.js';
+import { signup } from './commands/signup.js';
+import { login } from './commands/login.js';
+import { logout } from './commands/logout.js';
+import { whoami } from './commands/whoami.js';
+import { publish } from './commands/publish.js';
 import { PLATFORMS } from '@skild/core';
 
 const require = createRequire(import.meta.url);
@@ -33,6 +38,7 @@ program
     .option('-t, --target <platform>', `Target platform: ${PLATFORMS.join(', ')}`, 'claude')
     .option('-l, --local', 'Install to project-level directory instead of global')
     .option('-f, --force', 'Overwrite existing installation')
+    .option('--registry <url>', 'Registry base URL (required for @publisher/skill)')
     .option('--json', 'Output JSON')
     .action(async (source: string, options: { target?: string; local?: boolean }) => {
         await install(source, options as any);
@@ -89,6 +95,50 @@ program
     .option('--description <text>', 'Skill description')
     .option('-f, --force', 'Overwrite target directory if it exists')
     .action(async (name: string, options: any) => init(name, options));
+
+program
+    .command('signup')
+    .description('Create a publisher account in the registry (no GitHub required)')
+    .requiredOption('--registry <url>', 'Registry base URL')
+    .requiredOption('--email <email>', 'Email')
+    .requiredOption('--handle <handle>', 'Publisher handle (owns @handle/* scope)')
+    .requiredOption('--password <password>', 'Password')
+    .option('--json', 'Output JSON')
+    .action(async (options: any) => signup(options));
+
+program
+    .command('login')
+    .description('Login to a registry and store an access token locally')
+    .requiredOption('--registry <url>', 'Registry base URL')
+    .requiredOption('--handle-or-email <value>', 'Handle or email')
+    .requiredOption('--password <password>', 'Password')
+    .option('--token-name <name>', 'Token label')
+    .option('--json', 'Output JSON')
+    .action(async (options: any) => login(options));
+
+program
+    .command('logout')
+    .description('Remove stored registry credentials')
+    .action(async () => logout());
+
+program
+    .command('whoami')
+    .description('Show current registry identity')
+    .action(async () => whoami());
+
+program
+    .command('publish')
+    .description('Publish a Skill directory to the registry (hosted tarball)')
+    .option('--dir <path>', 'Skill directory (defaults to cwd)')
+    .option('--name <@publisher/skill>', 'Override skill name (defaults to SKILL.md frontmatter)')
+    // NOTE: Do not use `--version` here; it conflicts with Commander’s built-in `--version`.
+    .option('--skill-version <semver>', 'Override version (defaults to SKILL.md frontmatter)')
+    .option('--description <text>', 'Override description (defaults to SKILL.md frontmatter)')
+    .option('--targets <list>', 'Comma-separated target platforms metadata (optional)')
+    .option('--tag <tag>', 'Dist-tag (default: latest)', 'latest')
+    .option('--registry <url>', 'Registry base URL (defaults to saved login)')
+    .option('--json', 'Output JSON')
+    .action(async (options: any) => publish(options));
 
 // Default action: show help
 program.action(() => {

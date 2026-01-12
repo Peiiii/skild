@@ -1,11 +1,12 @@
 import chalk from 'chalk';
-import { installSkill, SkildError, type Platform } from '@skild/core';
+import { installRegistrySkill, installSkill, SkildError, type Platform } from '@skild/core';
 import { createSpinner, logger } from '../utils/logger.js';
 
 export interface InstallCommandOptions {
   target?: Platform | string;
   local?: boolean;
   force?: boolean;
+  registry?: string;
   json?: boolean;
 }
 
@@ -15,16 +16,16 @@ export async function install(source: string, options: InstallCommandOptions = {
 
   const spinner = createSpinner(`Installing ${chalk.cyan(source)} to ${chalk.dim(platform)} (${scope})...`);
   try {
-    const record = await installSkill(
-      { source },
-      {
-        platform,
-        scope,
-        force: Boolean(options.force)
-      }
-    );
+    const record =
+      source.trim().startsWith('@') && source.includes('/')
+        ? await installRegistrySkill(
+            { spec: source, registryUrl: options.registry },
+            { platform, scope, force: Boolean(options.force) }
+          )
+        : await installSkill({ source }, { platform, scope, force: Boolean(options.force) });
 
-    spinner.succeed(`Installed ${chalk.green(record.name)} to ${chalk.dim(record.installDir)}`);
+    const displayName = record.canonicalName || record.name;
+    spinner.succeed(`Installed ${chalk.green(displayName)} to ${chalk.dim(record.installDir)}`);
 
     if (options.json) {
       console.log(JSON.stringify(record, null, 2));
@@ -49,4 +50,3 @@ export async function install(source: string, options: InstallCommandOptions = {
     process.exitCode = 1;
   }
 }
-

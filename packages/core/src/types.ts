@@ -2,7 +2,7 @@ export const PLATFORMS = ['claude', 'codex', 'copilot'] as const;
 export type Platform = (typeof PLATFORMS)[number];
 export type InstallScope = 'global' | 'project';
 
-export type SourceType = 'local' | 'github-url' | 'degit-shorthand';
+export type SourceType = 'local' | 'github-url' | 'degit-shorthand' | 'registry';
 
 export interface InstallOptions {
   platform?: Platform;
@@ -47,6 +47,11 @@ export interface SkillValidationResult {
 export interface InstallRecord {
   schemaVersion: 1;
   name: string;
+  /**
+   * Optional stable identifier for display and CLI input.
+   * Example: "@publisher/skill" (directory name remains filesystem-safe).
+   */
+  canonicalName?: string;
   platform: Platform;
   scope: InstallScope;
   source: string;
@@ -86,6 +91,18 @@ export interface GlobalConfig {
   defaultScope: InstallScope;
 }
 
+export interface RegistryAuth {
+  schemaVersion: 1;
+  registryUrl: string;
+  token: string;
+  publisher?: {
+    id?: string;
+    handle?: string;
+    email?: string;
+  };
+  updatedAt: string;
+}
+
 export type JsonValue =
   | null
   | boolean
@@ -93,4 +110,3 @@ export type JsonValue =
   | string
   | JsonValue[]
   | { [key: string]: JsonValue };
-

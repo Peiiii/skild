@@ -28,7 +28,8 @@ export async function list(options: ListCommandOptions = {}): Promise<void> {
     console.log(chalk.bold(`\n📦 Installed Skills (${skills.length}) — ${platform} (${scope}):\n`));
     for (const s of skills) {
       const status = s.hasSkillMd ? chalk.green('✓') : chalk.yellow('⚠');
-      console.log(`  ${status} ${chalk.cyan(s.name)}`);
+      const displayName = s.record?.canonicalName || s.name;
+      console.log(`  ${status} ${chalk.cyan(displayName)}`);
       console.log(chalk.dim(`    └─ ${s.installDir}`));
     }
     console.log('');
@@ -62,7 +63,8 @@ export async function list(options: ListCommandOptions = {}): Promise<void> {
     }
     for (const s of platformSkills) {
       const status = s.hasSkillMd ? chalk.green('✓') : chalk.yellow('⚠');
-      console.log(`    ${status} ${chalk.cyan(s.name)}`);
+      const displayName = s.record?.canonicalName || s.name;
+      console.log(`    ${status} ${chalk.cyan(displayName)}`);
       console.log(chalk.dim(`      └─ ${s.installDir}`));
     }
   }
