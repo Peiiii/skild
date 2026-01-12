@@ -1,8 +1,17 @@
-## Documentation
+# Documentation
 
-- CLI usage: `docs/cli.md`
-- Full user guide (CLI + registry + console): `docs/usage.md` / `docs/usage.zh-CN.md`
-- Design notes: `docs/design/`
-- Deployment guide: `docs/deployment-guide.md`
-- Release logs: `docs/logs/README.md`
-- Releasing: `docs/release.md`
+## For Users
+
+| Document | Description |
+|----------|-------------|
+| **[Usage Guide](./usage.md)** | Complete CLI + registry + publishing reference |
+| **[中文文档](./usage.zh-CN.md)** | Chinese version |
+
+## For Maintainers
+
+| Document | Description |
+|----------|-------------|
+| [Deployment Guide](./deployment-guide.md) | Self-hosting the registry |
+| [Release Process](./release.md) | How to publish new versions |
+| [Design Notes](./design/) | Architecture and design decisions |
+| [Development Logs](./logs/) | Changelog and progress notes |

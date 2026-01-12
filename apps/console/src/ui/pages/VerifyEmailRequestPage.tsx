@@ -18,10 +18,12 @@ export function VerifyEmailRequestPage(): JSX.Element {
   const [password, setPassword] = React.useState('');
   const [busy, setBusy] = React.useState(false);
   const [result, setResult] = React.useState<Result>({ kind: 'none' });
+  const [mode, setMode] = React.useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     setResult({ kind: 'none' });
+    setMode(null);
     setBusy(true);
     try {
       const res = await requestVerifyEmail(handleOrEmail.trim(), password);
@@ -29,6 +31,7 @@ export function VerifyEmailRequestPage(): JSX.Element {
         setResult({ kind: 'error', message: res.error });
         return;
       }
+      setMode(res.mode ?? null);
       if (res.alreadyVerified) {
         setResult({ kind: 'alreadyVerified' });
         return;
@@ -63,7 +66,13 @@ export function VerifyEmailRequestPage(): JSX.Element {
         {result.kind === 'sent' && (
           <Alert className="mb-4">
             <AlertTitle>Email sent</AlertTitle>
-            <AlertDescription>Check your inbox for the verification link, then open it to finish verification.</AlertDescription>
+            <AlertDescription>
+              {mode === 'log' ? (
+                <span>Dev mode: email sending is disabled. Check the registry dev logs for the verification link.</span>
+              ) : (
+                <span>Check your inbox (and spam) for the verification link, then open it to finish verification.</span>
+              )}
+            </AlertDescription>
           </Alert>
         )}
         {result.kind === 'alreadyVerified' && (
@@ -91,4 +100,3 @@ export function VerifyEmailRequestPage(): JSX.Element {
     </Card>
   );
 }
-

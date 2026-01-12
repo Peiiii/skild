@@ -5,15 +5,15 @@
     "description": "The npm for Agent Skills — Discover, install, manage, and publish AI Agent Skills with ease.",
     "devDependencies": {
         "@changesets/cli": "^2.29.8",
-        "concurrently": "^9.1.2",
         "cross-env": "^7.0.3"
     },
     "scripts": {
-        "dev": "concurrently -k -n registry,console -c blue,magenta \"pnpm dev:registry\" \"pnpm dev:console\"",
+        "dev": "node scripts/dev/dev-stack.mjs",
+        "dev:smoke": "cross-env SKILD_DEV_SMOKE=1 node scripts/dev/dev-stack.mjs",
         "dev:web": "pnpm --filter web dev",
         "dev:cli": "pnpm --filter ./packages/cli dev",
-        "dev:console": "cross-env VITE_REGISTRY_URL=http://127.0.0.1:18787 pnpm -C apps/console dev",
-        "dev:registry": "pnpm -C workers/registry exec wrangler dev src/index.ts --env local --local --port 18787 --persist-to .wrangler/state",
+        "dev:console": "cross-env VITE_REGISTRY_URL=http://127.0.0.1:18787 pnpm -C apps/console dev -- --port 5173",
+        "dev:registry": "pnpm -C workers/registry exec wrangler dev src/index.ts --local --port 18787 --persist-to .wrangler/state --var EMAIL_MODE:log --var REGISTRY_PUBLIC_URL:http://127.0.0.1:18787 --var CONSOLE_PUBLIC_URL:http://localhost:5173",
         "build": "pnpm -r --filter './apps/*' --filter './workers/*' --filter './packages/*' build",
         "build:web": "pnpm --filter web build",
         "build:core": "pnpm --filter ./packages/core build",

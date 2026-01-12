@@ -63,10 +63,18 @@ export async function signup(options: SignupCommandOptions): Promise<void> {
 
   console.log(chalk.green('Signup successful.'));
   try {
-    const parsed = JSON.parse(text) as { ok: boolean; verification?: { requiredForPublish?: boolean; sent?: boolean; consoleUrl?: string } };
+    const parsed = JSON.parse(text) as {
+      ok: boolean;
+      verification?: { requiredForPublish?: boolean; sent?: boolean; mode?: string; consoleUrl?: string };
+    };
     if (parsed.verification?.requiredForPublish) {
-      if (parsed.verification.sent) console.log(chalk.dim('Verification email sent. Check your inbox.'));
-      else console.log(chalk.yellow('Verification email was not sent. You may need to resend from the Console.'));
+      if (parsed.verification.mode === 'log') {
+        console.log(chalk.dim('Dev mode: email sending is disabled. Check the registry dev logs for the verification link.'));
+      } else if (parsed.verification.sent) {
+        console.log(chalk.dim('Verification email sent. Check your inbox (and spam).'));
+      } else {
+        console.log(chalk.yellow('Verification email was not sent. You may need to resend from the Console.'));
+      }
       console.log(chalk.dim(`Verify/resend in Console: ${(parsed.verification.consoleUrl || 'https://console.skild.sh').replace(/\/+$/, '')}/verify-email/request`));
     }
   } catch {

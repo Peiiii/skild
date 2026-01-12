@@ -9,7 +9,7 @@
 [![npm version](https://img.shields.io/npm/v/skild.svg)](https://www.npmjs.com/package/skild)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-[Website](https://skild.sh) · [Documentation](./docs) · [Examples](./examples)
+[Website](https://skild.sh) · [Documentation](./docs/usage.md) · [Console](https://console.skild.sh)
 
 English | **[简体中文](./README.zh-CN.md)**
 
@@ -17,144 +17,60 @@ English | **[简体中文](./README.zh-CN.md)**
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
-# Install skild
-curl -fsSL https://skild.sh/install | sh
-# or
-npm install -g skild
-# or (no install)
-npx skild@latest --help
+# Install
+npm i -g skild
 
-# Install a Skill from GitHub
-skild install https://github.com/anthropics/skills/tree/main/skills/pdf
-
-# Install a Skill from the registry (by name)
-skild install @peiiii/hello-skill
+# Install a Skill (from GitHub)
+skild install anthropics/skills/skills/pdf
 
 # List installed Skills
 skild list
 ```
 
-Full usage guide:
+That's it. Your agent now has the `pdf` skill.
 
-- `docs/usage.md`
-- `docs/usage.zh-CN.md`
+## What is this?
 
-## ✨ Features
+[Agent Skills](https://agentskills.io) is an open standard by Anthropic for extending AI agents. **skild** is the package manager for these Skills — like npm, but for AI agents.
 
-- **📦 Install** — Install Skills from Git URL / degit / local dir
-- **✅ Validate** — Verify Skill format locally
-- **🧾 Metadata + Lockfile** — Track source, target, and content hash
-- **🔄 Update** — Update installed Skills safely (atomic replace)
-- **🧹 Uninstall** — Remove Skills cleanly
-- **🔎 Search** — Search Skills in the registry
-- **🚀 Publish** — Publish Skills to the registry
-
-Publisher Console (web) exists for signup/token/discovery (UI polish is ongoing).
-
-## 📖 What are Agent Skills?
-
-[Agent Skills](https://agentskills.io) is an open standard by Anthropic for extending AI agents with specialized knowledge and workflows. Skills are organized folders containing instructions, scripts, and resources that agents can dynamically discover and load.
-
-**skild** makes it easy to manage these Skills — think of it as npm for AI agents.
-
-## 🛠️ Commands
+## Commands
 
 | Command | Description |
 |---------|-------------|
-| `skild install <source>` | Install a Skill (Git URL / degit shorthand / local dir) |
+| `skild install <source>` | Install a Skill (Git URL / degit / local / registry) |
 | `skild list` | List installed Skills |
-| `skild info <skill>` | Show installed Skill details |
-| `skild validate [path|skill]` | Validate a Skill folder or installed Skill |
-| `skild uninstall <skill>` | Uninstall a Skill |
-| `skild update [skill]` | Update one or all installed Skills |
+| `skild info <skill>` | Show Skill details |
+| `skild validate <path>` | Validate a Skill folder |
+| `skild update [skill]` | Update installed Skills |
+| `skild uninstall <skill>` | Remove a Skill |
 | `skild init <name>` | Create a new Skill project |
-| `skild signup` | Create a publisher account in the registry |
-| `skild login` | Login to the registry (stores a token locally) |
-| `skild whoami` | Show current registry identity |
-| `skild logout` | Remove stored registry credentials |
-| `skild search <query>` | Search Skills in the registry |
-| `skild publish` | Publish a Skill directory to the registry |
+| `skild search <query>` | Search the registry |
+| `skild publish` | Publish a Skill to the registry |
 
-Tip: run `skild <command> --help` for full options (platform/scope/registry).
+Run `skild <command> --help` for full options.
 
-## 🎯 Where Skills are installed
-
-- Claude: `~/.claude/skills` (global) or `./.claude/skills` (project)
-- Codex CLI: `~/.codex/skills` (global) or `./.codex/skills` (project)
-- GitHub Copilot: `~/.github/skills` (global) or `./.github/skills` (project)
-
-Examples:
+## Multi-platform Support
 
 ```bash
-# Install into Codex (global)
-skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex
+# Claude (default)
+skild install anthropics/skills/skills/pdf
 
-# Install into this repo only (project-level)
-skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
+# Codex CLI
+skild install anthropics/skills/skills/pdf -t codex
 
-# List installed skills
-skild list --local
-
-# Inspect and validate
-skild info pdf -t codex --local
-skild validate pdf -t codex --local
-
-# Update and uninstall
-skild update pdf -t codex --local
-skild uninstall pdf -t codex --local
+# Project-level (instead of global)
+skild install anthropics/skills/skills/pdf --local
 ```
 
-## 🧑‍💻 Using skild while developing this repo
+## Documentation
 
-```bash
-pnpm i
-pnpm dev
+- **[Full Usage Guide](./docs/usage.md)** — Complete reference for CLI + registry + publishing
+- **[中文文档](./docs/usage.zh-CN.md)**
 
-# or start only one piece:
-pnpm dev:console
-pnpm dev:registry
-pnpm dev:web
-
-pnpm build:cli
-pnpm cli --help
-pnpm cli install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
-pnpm cli list -t codex --local
-pnpm cli info pdf -t codex --local
-pnpm cli validate pdf -t codex --local
-```
-
-## 📁 Project Structure
-
-```
-skild/
-├── packages/
-│   ├── cli/                 # CLI tool (skild command)
-│   └── ...                  # More packages (WIP)
-├── apps/
-│   └── web/                 # Web UI (skild.sh)
-├── docs/                    # Documentation
-└── examples/                # Example Skills
-```
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
-
-## 🚢 Releasing (Maintainers)
-
-```bash
-pnpm release
-```
-
-Prereqs:
-- `npm` is logged in (or `NPM_TOKEN` is set)
-- `git` is on `main` with a clean working tree
-- For GitHub Releases: `GITHUB_TOKEN` (or `GH_TOKEN`)
-
-## 📄 License
+## License
 
 MIT © [Peiiii](https://github.com/Peiiii)
 
@@ -162,8 +78,6 @@ MIT © [Peiiii](https://github.com/Peiiii)
 
 <div align="center">
 
-**🛡️ skild.sh**
-
-*Get your agents skilled.*
+**🛡️ [skild.sh](https://skild.sh)**
 
 </div>

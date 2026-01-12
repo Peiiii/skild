@@ -60,7 +60,10 @@ async function sendViaMailChannels(env: Env, input: { toEmail: string; subject: 
 export async function sendVerificationEmail(
   env: Env,
   input: { toEmail: string; handle: string; token: string },
-): Promise<{ ok: true; mode: string } | { ok: false; mode: string; error: string; verificationLink: string }> {
+): Promise<
+  | { ok: true; mode: string; dispatched: boolean }
+  | { ok: false; mode: string; dispatched: boolean; error: string }
+> {
   const mode = (env.EMAIL_MODE || "mailchannels").trim().toLowerCase();
   const verificationLink = computeVerificationLink(env, input.token);
   const subject = "Verify your email for skild";
@@ -79,14 +82,13 @@ export async function sendVerificationEmail(
     if (mode === "log") {
       // Dev-mode: do not send email, but still produce a link in logs.
       console.log(`[skild] verify-email link for ${input.toEmail}: ${verificationLink}`);
-      return { ok: true, mode };
+      return { ok: true, mode, dispatched: false };
     }
     await sendViaMailChannels(env, { toEmail: input.toEmail, subject, text });
-    return { ok: true, mode };
+    return { ok: true, mode, dispatched: true };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.warn(`[skild] verification email failed: ${msg}`);
-    return { ok: false, mode, error: msg, verificationLink };
+    return { ok: false, mode, dispatched: false, error: msg };
   }
 }
-

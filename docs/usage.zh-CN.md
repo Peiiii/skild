@@ -94,6 +94,7 @@ skild signup
 
 - 发布（publish）要求邮箱已验证。
 - 注册后检查邮箱的验证邮件（Console 也提供重发流程）。
+- 本地联调说明：当 registry 以 `EMAIL_MODE=log` 运行时，不会真正发邮件，而是把验证链接打印在 registry 的 dev 日志里。
 
 ### login / whoami / logout
 

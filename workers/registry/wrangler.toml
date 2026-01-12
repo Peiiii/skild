@@ -21,14 +21,6 @@ EMAIL_FROM = "no-reply@skild.sh"
 EMAIL_FROM_NAME = "skild"
 EMAIL_VERIFY_TTL_HOURS = "24"
 
-[env.local.vars]
-REGISTRY_PUBLIC_URL = "http://127.0.0.1:18787"
-CONSOLE_PUBLIC_URL = "http://localhost:5173"
-EMAIL_MODE = "log"
-EMAIL_FROM = "no-reply@skild.sh"
-EMAIL_FROM_NAME = "skild"
-EMAIL_VERIFY_TTL_HOURS = "24"
-
 [[d1_databases]]
 binding = "DB"
 database_name = "skild-registry"

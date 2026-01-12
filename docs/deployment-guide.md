@@ -12,6 +12,12 @@
 # 启动联合调试（registry worker + console）
 pnpm dev
 
+# 可选：固定端口
+# SKILD_CONSOLE_PORT=5173 SKILD_REGISTRY_PORT=18787 pnpm dev
+
+# 可选：启动后自动退出的 smoke（用于快速验证脚本可用）
+pnpm dev:smoke
+
 # 仅启动 web（skild.sh）
 pnpm dev:web
 

@@ -105,7 +105,7 @@ app.post("/auth/signup", async (c) => {
       publisher: { id: publisherId, handle, email, emailVerified: false },
       verification: {
         requiredForPublish: true,
-        sent: sent.ok,
+        sent: sent.dispatched,
         mode: sent.mode,
         consoleUrl: getConsolePublicUrl(c.env),
       },
@@ -215,7 +215,7 @@ app.post("/auth/verify-email/request", async (c) => {
     const sent = await sendVerificationEmail(c.env, { toEmail: publisher.email, handle: publisher.handle, token: verifyToken });
     return c.json({
       ok: true,
-      sent: sent.ok,
+      sent: sent.dispatched,
       mode: sent.mode,
       consoleUrl: getConsolePublicUrl(c.env),
     });

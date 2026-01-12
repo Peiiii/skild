@@ -1,65 +1,114 @@
-# Usage
+# Usage Guide
 
-This is the end-to-end user guide for **skild** (CLI + registry + publisher console).
+Complete reference for **skild** — CLI, registry, and publishing.
 
-## Install skild
+## Quick Start
 
 ```bash
+# Install skild
 npm i -g skild
-# or (no install)
+
+# Install a Skill from GitHub
+skild install anthropics/skills/skills/pdf
+
+# List installed Skills
+skild list
+```
+
+Done. Your agent now has the `pdf` skill installed at `~/.claude/skills/pdf`.
+
+---
+
+## Installation
+
+```bash
+# npm (recommended)
+npm i -g skild
+
+# or run without installing
 npx skild@latest --help
 ```
 
-Optional (macOS/Linux): install from the website script:
+Requirements: Node.js ≥18
+
+---
+
+## Installing Skills
+
+### From GitHub
 
 ```bash
-curl -fsSL https://skild.sh/install | sh
-```
-
-Requirements: Node.js `>=18`.
-
-## Concepts
-
-- **Skill**: a folder containing `SKILL.md` (plus optional scripts/resources).
-- **Target platform**: where the Skill is installed to:
-  - `claude` → `~/.claude/skills` or `./.claude/skills`
-  - `codex` → `~/.codex/skills` or `./.codex/skills`
-  - `copilot` → `~/.github/skills` or `./.github/skills`
-- **Scope**: `global` (default) vs `project` (`--local`)
-- **Registry identity**: `@publisher/skill[@version|tag]` (example: `@peiiii/pdf@latest`)
-
-## Common workflows (local-first)
-
-### Install from GitHub / local directory
-
-```bash
-# GitHub URL
+# Full URL
 skild install https://github.com/anthropics/skills/tree/main/skills/pdf
 
-# Local directory
+# Shorthand (degit style)
+skild install anthropics/skills/skills/pdf
+```
+
+### From Local Directory
+
+```bash
 skild install ./path/to/your-skill
-
-# Target platform + project-level install
-skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
 ```
 
-### List / info / validate
+### From Registry
 
 ```bash
+skild install @peiiii/hello-skill
+skild install @peiiii/hello-skill@1.0.0
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `-t, --target` | Platform: `claude` (default), `codex`, `copilot` |
+| `--local` | Install to project (`./.claude/skills`) instead of global |
+| `--force` | Overwrite existing Skill |
+
+---
+
+## Managing Skills
+
+```bash
+# List installed
 skild list
-skild info pdf -t codex --local
-skild validate pdf -t codex --local
+
+# Show details
+skild info pdf
+
+# Validate structure
+skild validate pdf
+
+# Update
+skild update pdf
+
+# Remove
+skild uninstall pdf
 ```
 
-### Update / uninstall
+All commands accept `-t <platform>` and `--local` options.
+
+---
+
+## Target Platforms
+
+| Platform | Global Path | Project Path |
+|----------|-------------|--------------|
+| `claude` | `~/.claude/skills` | `./.claude/skills` |
+| `codex` | `~/.codex/skills` | `./.codex/skills` |
+| `copilot` | `~/.github/skills` | `./.github/skills` |
+
+Example:
 
 ```bash
-skild update
-skild update pdf -t codex --local
-skild uninstall pdf -t codex --local
+# Install to Codex, project-level
+skild install anthropics/skills/skills/pdf -t codex --local
 ```
 
-### Create a new Skill project
+---
+
+## Creating Skills
 
 ```bash
 skild init my-skill
@@ -67,117 +116,83 @@ cd my-skill
 skild validate .
 ```
 
-## Registry workflows (search + publish)
+This creates a folder with `SKILL.md` template.
 
-### Default registry
+---
 
-By default, skild uses:
+## Publishing to Registry
 
-- `https://registry.skild.sh`
-
-Overrides:
-
-- CLI flag: `--registry <url>` (for registry-related commands)
-- Environment: `SKILD_REGISTRY_URL`
-
-### Signup (create a publisher account)
-
-Recommended: use the **Publisher Console** (web) for signup and token management.
-
-CLI (headless):
+### 1. Create Account
 
 ```bash
 skild signup
 ```
 
-Email verification:
+Or use the [Publisher Console](https://console.skild.sh).
 
-- Publishing requires a verified email.
-- After signup, check your inbox for a verification email (Console also provides a resend flow).
-
-### Login / whoami / logout
-
-Login stores a token locally at:
-
-- `~/.skild/registry-auth.json`
+### 2. Login
 
 ```bash
 skild login
-skild whoami
-skild logout
+skild whoami  # verify
 ```
 
-### Search Skills
+### 3. Publish
 
-```bash
-skild search pdf
-```
-
-### Install from registry
-
-If the install source looks like `@publisher/skill`, skild installs from the registry:
-
-```bash
-skild install @peiiii/hello-skill
-skild install @peiiii/hello-skill@latest
-skild install @peiiii/hello-skill@1.2.3
-
-# Optional: target + project-level
-skild install @peiiii/hello-skill -t codex --local
-```
-
-### Publish to registry
-
-1) Ensure your Skill folder has a valid `SKILL.md` frontmatter:
+Your `SKILL.md` needs frontmatter:
 
 ```md
 ---
-name: hello-skill
-description: ...
+name: my-skill
+description: What this skill does
 version: 0.1.0
 ---
 ```
 
-2) Login, then publish:
+Then:
 
 ```bash
-skild login
-skild publish --dir ./path/to/skill
+skild publish --dir ./my-skill
 ```
 
-Notes:
+---
 
-- `--skill-version` overrides the version (we don’t use `--version` because it conflicts with the CLI’s own `--version`).
-- If your `name` is unscoped (like `hello-skill`), `skild publish` will infer your scope from the registry and publish as `@<your-handle>/hello-skill`.
-- If publish fails with `Email not verified` (HTTP 403), verify your email in the Publisher Console (`/verify-email`) first.
+## Registry Commands
 
-## Publisher Console (web)
+| Command | Description |
+|---------|-------------|
+| `skild signup` | Create publisher account |
+| `skild login` | Store credentials locally |
+| `skild whoami` | Show current identity |
+| `skild logout` | Remove credentials |
+| `skild search <query>` | Search registry |
 
-The Console is a minimal web UI for:
+Default registry: `https://registry.skild.sh`
 
-- Signup
-- Email verification (required for publish)
-- Creating access tokens (shown once)
-- Searching and viewing Skill details
-- Publish instructions
+Override: `--registry <url>` or `SKILD_REGISTRY_URL` env var.
 
-If you have a custom domain configured, it should look like:
+---
 
-- `https://console.skild.sh`
+## Files Written by skild
 
-## Files written by skild
+| Path | Purpose |
+|------|---------|
+| `~/.skild/config.json` | Global config |
+| `~/.skild/registry-auth.json` | Registry credentials |
+| `~/.skild/lock.json` | Global lockfile |
+| `./.skild/lock.json` | Project lockfile |
+| `<skill>/.skild/install.json` | Install metadata |
 
-- Global config: `~/.skild/config.json`
-- Registry auth: `~/.skild/registry-auth.json`
-- Global lock: `~/.skild/lock.json`
-- Project lock: `./.skild/lock.json`
-- Install metadata per Skill: `<skill-dir>/.skild/install.json`
+---
 
 ## Troubleshooting
 
-- **“skild login does not exist”**: make sure you’re on a recent version:
-  - `npm view skild@latest version`
-  - `npx skild@latest -- --help` should list `login`.
-- **Registry unreachable / hanging**: registry requests have timeouts; try rerunning with:
-  - `--registry https://registry.skild.sh`
-  - or set `SKILD_REGISTRY_URL`.
+**"Command not found"**
+```bash
+npm i -g skild
+```
+
+**Registry timeout**
+```bash
+skild search pdf --registry https://registry.skild.sh
+```

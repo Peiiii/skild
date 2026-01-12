@@ -13,7 +13,7 @@ export function SignupPage(): JSX.Element {
   const [password, setPassword] = React.useState('');
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [success, setSuccess] = React.useState<{ handle: string; email: string; verificationSent: boolean } | null>(null);
+  const [success, setSuccess] = React.useState<{ handle: string; email: string; verificationSent: boolean; verificationMode: string } | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
@@ -26,7 +26,12 @@ export function SignupPage(): JSX.Element {
         setError(res.error);
         return;
       }
-      setSuccess({ handle: res.publisher.handle, email: res.publisher.email, verificationSent: res.verification.sent });
+      setSuccess({
+        handle: res.publisher.handle,
+        email: res.publisher.email,
+        verificationSent: res.verification.sent,
+        verificationMode: res.verification.mode
+      });
       setPassword('');
     } catch (err: unknown) {
       if (err instanceof HttpError) setError(err.bodyText || `HTTP ${err.status}`);
@@ -55,7 +60,14 @@ export function SignupPage(): JSX.Element {
             <AlertDescription>
               You now own <span className="font-mono">@{success.handle}/*</span>.
               <div className="mt-2 text-sm">
-                Email verification is required for publishing. {success.verificationSent ? 'We sent you a verification email.' : 'We could not send the verification email.'}{' '}
+                Email verification is required for publishing.{' '}
+                {success.verificationMode === 'log' ? (
+                  <span>Dev mode: email sending is disabled. Check the registry dev logs for the verification link.</span>
+                ) : success.verificationSent ? (
+                  <span>We sent you a verification email.</span>
+                ) : (
+                  <span>We could not send the verification email.</span>
+                )}{' '}
                 You can resend it in <a className="underline" href="/verify-email/request">Verify Email</a>.
               </div>
               <div className="mt-2 text-sm">
