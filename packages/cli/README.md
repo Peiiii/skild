@@ -22,7 +22,7 @@ skild install ./path/to/your-skill
 skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
 
 # List installed skills
-skild list -t codex --local
+skild list --local
 
 # Inspect / Validate / Update / Uninstall
 skild info pdf -t codex --local

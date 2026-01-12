@@ -8,7 +8,7 @@
         "skild": "dist/index.js"
     },
     "scripts": {
-        "build": "tsup src/index.ts --format esm --dts --clean",
+        "build": "tsup src/index.ts --format esm --dts --clean --silent",
         "dev": "tsup src/index.ts --format esm --watch",
         "start": "node dist/index.js",
         "typecheck": "pnpm -C ../core build && tsc -p tsconfig.json --noEmit"

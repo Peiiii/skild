@@ -20,10 +20,10 @@ export { validateSkillDir } from './skill.js';
 export { initSkill } from './init.js';
 export {
   installSkill,
+  listAllSkills,
   listSkills,
   getSkillInfo,
   uninstallSkill,
   updateSkill,
   validateSkill
 } from './lifecycle.js';
-

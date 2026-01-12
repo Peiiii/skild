@@ -42,7 +42,7 @@ program
     .command('list')
     .alias('ls')
     .description('List installed Skills')
-    .option('-t, --target <platform>', `Target platform: ${PLATFORMS.join(', ')}`, 'claude')
+    .option('-t, --target <platform>', `Target platform: ${PLATFORMS.join(', ')} (optional; omit to list all)`)
     .option('-l, --local', 'List project-level directory instead of global')
     .option('--json', 'Output JSON')
     .action(async (options: any) => list(options));

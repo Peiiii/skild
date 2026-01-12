@@ -8,6 +8,7 @@ import { ensureDir, getSkillInstallDir, getSkillsDir } from './paths.js';
 import { SkildError } from './errors.js';
 import { readInstallRecord, writeInstallRecord, upsertLockEntry, loadOrCreateGlobalConfig, removeLockEntry } from './storage.js';
 import { validateSkillDir } from './skill.js';
+import { PLATFORMS } from './types.js';
 
 export interface InstallInput {
   source: string;
@@ -125,12 +126,19 @@ export interface ListedSkill {
   record?: InstallRecord | null;
 }
 
+export interface ListedSkillWithContext extends ListedSkill {
+  platform: Platform;
+  scope: InstallScope;
+}
+
 export function listSkills(options: ListOptions = {}): ListedSkill[] {
   const { platform, scope } = resolvePlatformAndScope(options);
   const skillsDir = getSkillsDir(platform, scope);
   if (!fs.existsSync(skillsDir)) return [];
 
-  const entries = fs.readdirSync(skillsDir, { withFileTypes: true }).filter(e => e.isDirectory());
+  const entries = fs
+    .readdirSync(skillsDir, { withFileTypes: true })
+    .filter(e => e.isDirectory() && !e.name.startsWith('.'));
   return entries
     .map(e => {
       const dir = path.join(skillsDir, e.name);
@@ -139,6 +147,18 @@ export function listSkills(options: ListOptions = {}): ListedSkill[] {
       return { name: e.name, installDir: dir, hasSkillMd, record };
     })
     .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function listAllSkills(options: { scope?: InstallScope } = {}): ListedSkillWithContext[] {
+  const scope = (options.scope || loadOrCreateGlobalConfig().defaultScope) as InstallScope;
+
+  return PLATFORMS.flatMap(platform =>
+    listSkills({ platform, scope }).map(s => ({
+      ...s,
+      platform,
+      scope
+    }))
+  );
 }
 
 export function getSkillInfo(name: string, options: ListOptions = {}): InstallRecord {
@@ -194,4 +214,3 @@ export async function updateSkill(name?: string, options: UpdateOptions = {}): P
   }
   return results;
 }
-

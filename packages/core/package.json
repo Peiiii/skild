@@ -17,7 +17,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean",
+    "build": "tsup src/index.ts --format esm --dts --clean --silent",
     "dev": "tsup src/index.ts --format esm --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
