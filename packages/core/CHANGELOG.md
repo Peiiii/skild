@@ -1,5 +1,11 @@
 # @skild/core
 
+## 0.1.4
+
+### Patch Changes
+
+- Ship registry commands (`login/signup/logout/whoami/publish/search`) in the published CLI package; add `prepack`/`prepublishOnly` builds to prevent stale `dist/` on publish.
+
 ## 0.1.3
 
 ### Patch Changes

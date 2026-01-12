@@ -202,3 +202,6 @@
 - `docs/logs/v0.2.0-registry/2026-01-13-publisher-console-mvp.prd.md`：Publisher Console MVP（对标 npm 的平台形态）PRD
 - `docs/logs/v0.2.0-registry/2026-01-13-console-mvp-implementation.md`：Publisher Console MVP 端到端实现记录
 - `docs/logs/v0.2.0-registry/2026-01-13-console-pages-deploy.md`：根目录脚本 + Cloudflare Pages 部署
+- `docs/logs/v0.2.0-registry/2026-01-13-docs-wrangler-pnpm-exec-fix.md`：文档命令统一为 `pnpm exec wrangler`
+- `docs/logs/v0.2.0-registry/2026-01-13-npm-cli-login-release-fix.md`：修复 npm `skild@latest` 缺少 `login` 等 registry 命令
+- `docs/logs/v0.2.0-registry/2026-01-13-user-facing-usage-docs.md`：用户完整使用文档 + README 入口

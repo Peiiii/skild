@@ -30,9 +30,17 @@ npx skild@latest --help
 # Install a Skill from GitHub
 skild install https://github.com/anthropics/skills/tree/main/skills/pdf
 
+# Install a Skill from the registry (by name)
+skild install @peiiii/hello-skill
+
 # List installed Skills
 skild list
 ```
+
+Full usage guide:
+
+- `docs/usage.md`
+- `docs/usage.zh-CN.md`
 
 ## ✨ Features
 
@@ -41,8 +49,10 @@ skild list
 - **🧾 Metadata + Lockfile** — Track source, target, and content hash
 - **🔄 Update** — Update installed Skills safely (atomic replace)
 - **🧹 Uninstall** — Remove Skills cleanly
+- **🔎 Search** — Search Skills in the registry
+- **🚀 Publish** — Publish Skills to the registry
 
-Planned: discovery/registry, publish, multi-platform sync.
+Publisher Console (web) exists for signup/token/discovery (UI polish is ongoing).
 
 ## 📖 What are Agent Skills?
 
@@ -61,8 +71,14 @@ Planned: discovery/registry, publish, multi-platform sync.
 | `skild uninstall <skill>` | Uninstall a Skill |
 | `skild update [skill]` | Update one or all installed Skills |
 | `skild init <name>` | Create a new Skill project |
+| `skild signup` | Create a publisher account in the registry |
+| `skild login` | Login to the registry (stores a token locally) |
+| `skild whoami` | Show current registry identity |
+| `skild logout` | Remove stored registry credentials |
+| `skild search <query>` | Search Skills in the registry |
+| `skild publish` | Publish a Skill directory to the registry |
 
-Note: v0.1 is headless/local-first only — no registry/search/publish yet.
+Tip: run `skild <command> --help` for full options (platform/scope/registry).
 
 ## 🎯 Where Skills are installed
 
@@ -123,7 +139,7 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 ## 🚢 Releasing (Maintainers)
 
 ```bash
-pnpm release:cli
+pnpm release
 ```
 
 Prereqs:

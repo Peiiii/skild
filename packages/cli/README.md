@@ -33,3 +33,8 @@ skild uninstall pdf -t codex --local
 # Create a new Skill
 skild init my-skill
 ```
+
+Full user guide (CLI + registry + console):
+
+- `docs/usage.md`
+- `docs/usage.zh-CN.md`

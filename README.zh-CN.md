@@ -30,9 +30,17 @@ npx skild@latest --help
 # 从 GitHub 安装 Skill
 skild install https://github.com/anthropics/skills/tree/main/skills/pdf
 
+# 从 registry 通过名字安装
+skild install @peiiii/hello-skill
+
 # 列出已安装的 Skills
 skild list
 ```
+
+完整使用文档：
+
+- `docs/usage.zh-CN.md`
+- `docs/usage.md`
 
 ## ✨ 功能特性
 
@@ -42,7 +50,10 @@ skild list
 - **🔄 更新** — 安全更新已安装 Skills（原子替换）
 - **🧹 卸载** — 干净卸载 Skills
 
-规划中：发现/registry、发布、跨平台同步。
+- **🔎 搜索** — 在 registry 里搜索 Skills
+- **🚀 发布** — 发布 Skills 到 registry
+
+Publisher Console（Web）已具备注册/创建 token/发现/详情（UI 细节持续优化中）。
 
 ## 📖 什么是 Agent Skills？
 
@@ -61,8 +72,14 @@ skild list
 | `skild uninstall <skill>` | 卸载 Skill |
 | `skild update [skill]` | 更新单个或全部已安装 Skill |
 | `skild init <name>` | 创建新的 Skill 项目 |
+| `skild signup` | 创建 registry 发布者账号 |
+| `skild login` | 登录 registry（把 token 保存到本地） |
+| `skild whoami` | 查看当前 registry 身份 |
+| `skild logout` | 清除本地登录信息 |
+| `skild search <query>` | 在 registry 搜索 Skills |
+| `skild publish` | 发布 Skill 目录到 registry |
 
-注意：v0.1 是无头/本地优先版本，暂不包含 registry/search/publish。
+提示：可以用 `skild <命令> --help` 查看完整参数（平台/安装位置/registry）。
 
 ## 🎯 Skills 会安装到哪里
 
@@ -123,7 +140,7 @@ skild/
 ## 🚢 发布（维护者）
 
 ```bash
-pnpm release:cli
+pnpm release
 ```
 
 前置条件：

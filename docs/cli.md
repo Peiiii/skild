@@ -1,5 +1,9 @@
 # CLI
 
+For the full end-to-end guide (CLI + registry + publisher console), see:
+
+- `docs/usage.md`
+
 ## Install
 
 ```bash

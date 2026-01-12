@@ -1,6 +1,6 @@
 {
   "name": "@skild/core",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Skild core library (headless) for installing, validating, and managing Agent Skills locally.",
   "type": "module",
   "main": "./dist/index.js",
@@ -19,6 +19,8 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --silent",
     "dev": "tsup src/index.ts --format esm --watch",
+    "prepack": "pnpm build",
+    "prepublishOnly": "pnpm build",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

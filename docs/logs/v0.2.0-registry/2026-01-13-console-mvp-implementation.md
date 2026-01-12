@@ -40,7 +40,7 @@ pnpm typecheck
 pnpm dev:console
 
 # 可选：本地 registry dev（如需）
-# pnpm -C workers/registry wrangler dev src/index.ts --local --port 18787 --persist-to .wrangler/state
+# pnpm -C workers/registry exec wrangler dev src/index.ts --local --port 18787 --persist-to .wrangler/state
 # 然后在 console 里用：VITE_REGISTRY_URL=http://127.0.0.1:18787
 ```
 
@@ -54,7 +54,7 @@ pnpm dev:console
 
 ```bash
 # 1) 部署 registry（CORS 生效）
-pnpm -C workers/registry wrangler deploy
+pnpm -C workers/registry exec wrangler deploy
 
 # 2) 部署 console 到 Cloudflare Pages
 pnpm deploy:console

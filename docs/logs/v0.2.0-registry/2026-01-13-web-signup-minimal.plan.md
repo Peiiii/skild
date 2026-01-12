@@ -83,4 +83,4 @@ curl -fsS -X POST https://registry.skild.sh/auth/signup \
 ## 部署 / 发布
 
 - Web（`apps/console`）：部署到 `skild.sh` 的子路径或独立子域（推荐 `console.skild.sh`）
-- Registry（`workers/registry`）：`pnpm -C workers/registry wrangler deploy`
+- Registry（`workers/registry`）：`pnpm -C workers/registry exec wrangler deploy`

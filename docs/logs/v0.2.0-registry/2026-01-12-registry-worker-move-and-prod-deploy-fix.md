@@ -59,10 +59,10 @@ curl -fsS "$BASE/auth/me" -H "authorization: Bearer $TOKEN"
 
 ```bash
 # 迁移（远端 D1）
-pnpm -C workers/registry wrangler d1 migrations apply skild-registry --remote
+pnpm -C workers/registry exec wrangler d1 migrations apply skild-registry --remote
 
 # 部署 Worker
-pnpm -C workers/registry wrangler deploy
+pnpm -C workers/registry exec wrangler deploy
 ```
 
 备注：

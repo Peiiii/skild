@@ -55,8 +55,8 @@ pnpm typecheck
 
 ```bash
 # 1) 启动 registry（local dev：D1/R2 都走本地 .wrangler/state）
-pnpm -C workers/registry wrangler d1 migrations apply skild-registry --local
-pnpm -C workers/registry wrangler dev src/index.ts --local --port 18787 --persist-to .wrangler/state
+pnpm -C workers/registry exec wrangler d1 migrations apply skild-registry --local
+pnpm -C workers/registry exec wrangler dev src/index.ts --local --port 18787 --persist-to .wrangler/state
 
 # 2) 创建账号并登录（获得 publish token）
 pnpm -s cli signup --registry http://127.0.0.1:18787 --email you@example.com --handle acme --password '...'
@@ -87,14 +87,14 @@ pnpm -s cli list -t codex --local
 
 ```bash
 # 创建资源（示例，按你实际命名）
-pnpm -C workers/registry wrangler d1 create skild-registry
-pnpm -C workers/registry wrangler r2 bucket create skild-registry-artifacts
+pnpm -C workers/registry exec wrangler d1 create skild-registry
+pnpm -C workers/registry exec wrangler r2 bucket create skild-registry-artifacts
 
 # 迁移
-pnpm -C workers/registry wrangler d1 migrations apply skild-registry
+pnpm -C workers/registry exec wrangler d1 migrations apply skild-registry
 
 # 部署
-pnpm -C workers/registry wrangler deploy
+pnpm -C workers/registry exec wrangler deploy
 ```
 
 备注：
