@@ -55,12 +55,11 @@ export async function list(options: ListCommandOptions = {}): Promise<void> {
       .sort((a, b) => a.name.localeCompare(b.name));
 
     const header = `${p} (${platformSkills.length})`;
+    console.log(chalk.bold(`  ${header}`));
     if (platformSkills.length === 0) {
-      console.log(chalk.dim(`  - ${header}`));
+      console.log(chalk.dim('    (none)'));
       continue;
     }
-
-    console.log(chalk.bold(`  ${header}`));
     for (const s of platformSkills) {
       const status = s.hasSkillMd ? chalk.green('✓') : chalk.yellow('⚠');
       console.log(`    ${status} ${chalk.cyan(s.name)}`);
