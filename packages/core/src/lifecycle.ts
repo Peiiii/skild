@@ -6,7 +6,7 @@ import { classifySource, extractSkillName, resolveLocalPath, toDegitPath } from 
 import { createTempDir, copyDir, hashDirectoryContent, isDirEmpty, isDirectory, removeDir, replaceDirAtomic } from './fs.js';
 import { ensureDir, getSkillInstallDir, getSkillsDir } from './paths.js';
 import { SkildError } from './errors.js';
-import { readInstallRecord, writeInstallRecord, upsertLockEntry, loadOrCreateGlobalConfig, removeLockEntry } from './storage.js';
+import { readInstallRecord, writeInstallRecord, upsertLockEntry, loadOrCreateGlobalConfig, removeLockEntry, loadRegistryAuth } from './storage.js';
 import { validateSkillDir } from './skill.js';
 import { PLATFORMS } from './types.js';
 import { downloadAndExtractTarball, parseRegistrySpecifier, resolveRegistryUrl, resolveRegistryVersion, canonicalNameToInstallDirName } from './registry.js';
@@ -159,6 +159,7 @@ export async function installRegistrySkill(
       schemaVersion: 1,
       name: installName,
       canonicalName,
+      registryUrl,
       platform,
       scope,
       source: input.spec,
@@ -177,6 +178,7 @@ export async function installRegistrySkill(
       scope,
       source: input.spec,
       sourceType: 'registry',
+      registryUrl,
       installedAt: record.installedAt,
       installDir: record.installDir,
       contentHash: record.contentHash
@@ -281,7 +283,10 @@ export async function updateSkill(name?: string, options: UpdateOptions = {}): P
 
     const updated =
       record.sourceType === 'registry'
-        ? await installRegistrySkill({ spec: record.source, nameOverride: record.name }, { platform, scope, force: true })
+        ? await installRegistrySkill(
+            { spec: record.source, nameOverride: record.name, registryUrl: record.registryUrl || loadRegistryAuth()?.registryUrl },
+            { platform, scope, force: true }
+          )
         : await installSkill({ source: record.source, nameOverride: record.name }, { platform, scope, force: true });
 
     updated.installedAt = record.installedAt;

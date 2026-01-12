@@ -52,6 +52,11 @@ export interface InstallRecord {
    * Example: "@publisher/skill" (directory name remains filesystem-safe).
    */
   canonicalName?: string;
+  /**
+   * For `sourceType === "registry"`, the base registry URL used when resolving this Skill.
+   * Example: "https://registry.skild.sh"
+   */
+  registryUrl?: string;
   platform: Platform;
   scope: InstallScope;
   source: string;
@@ -73,6 +78,7 @@ export interface LockEntry {
   scope: InstallScope;
   source: string;
   sourceType: SourceType;
+  registryUrl?: string;
   installedAt: string;
   updatedAt?: string;
   installDir: string;

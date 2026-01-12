@@ -4,7 +4,7 @@ import path from 'path';
 import crypto from 'crypto';
 import * as tar from 'tar';
 import chalk from 'chalk';
-import { loadRegistryAuth, SkildError, splitCanonicalName, validateSkillDir } from '@skild/core';
+import { loadRegistryAuth, resolveRegistryUrl, SkildError, splitCanonicalName, validateSkillDir } from '@skild/core';
 import { createSpinner } from '../utils/logger.js';
 
 export interface PublishCommandOptions {
@@ -34,16 +34,11 @@ function parseTargets(raw?: string): string[] {
 
 export async function publish(options: PublishCommandOptions = {}): Promise<void> {
   const auth = loadRegistryAuth();
-  const registry = (options.registry || auth?.registryUrl || '').trim().replace(/\/+$/, '');
+  const registry = resolveRegistryUrl(options.registry || auth?.registryUrl);
   const token = auth?.token;
 
-  if (!registry) {
-    console.error(chalk.red('Missing registry URL. Use --registry <url> or run `skild login --registry <url> ...`.'));
-    process.exitCode = 1;
-    return;
-  }
   if (!token) {
-    console.error(chalk.red('Not logged in. Run `skild login --registry <url> ...` first.'));
+    console.error(chalk.red('Not logged in. Run `skild login` first.'));
     process.exitCode = 1;
     return;
   }
@@ -58,11 +53,43 @@ export async function publish(options: PublishCommandOptions = {}): Promise<void
   }
 
   const fm = validation.frontmatter!;
-  const name = (options.name || fm.name || '').trim();
+  let name = (options.name || fm.name || '').trim();
   const version = (options.skillVersion || fm.version || '').trim();
   const description = (options.description || fm.description || '').trim();
   const tag = (options.tag || 'latest').trim() || 'latest';
   const targets = parseTargets(options.targets);
+
+  if (!name) {
+    console.error(chalk.red('Missing name. Provide SKILL.md frontmatter.name or --name.'));
+    process.exitCode = 1;
+    return;
+  }
+
+  // Allow publishing with unscoped names by inferring the scope from the logged-in publisher.
+  if (!name.startsWith('@')) {
+    const seg = name.trim();
+    if (!/^[a-z0-9][a-z0-9-]{1,63}$/.test(seg)) {
+      console.error(chalk.red('Invalid name. Use @publisher/skill or a simple skill name (lowercase letters/digits/dashes).'));
+      process.exitCode = 1;
+      return;
+    }
+
+    const meRes = await fetch(`${registry}/auth/me`, { headers: { authorization: `Bearer ${token}` } });
+    const meText = await meRes.text();
+    if (!meRes.ok) {
+      console.error(chalk.red(`Failed to infer publisher scope (${meRes.status}): ${meText}`));
+      process.exitCode = 1;
+      return;
+    }
+    const meJson = JSON.parse(meText) as { ok: boolean; publisher?: { handle?: string } };
+    const handle = String(meJson?.publisher?.handle || '').trim().toLowerCase();
+    if (!handle) {
+      console.error(chalk.red('Failed to infer publisher scope from registry response.'));
+      process.exitCode = 1;
+      return;
+    }
+    name = `@${handle}/${seg}`;
+  }
 
   if (!/^@[a-z0-9][a-z0-9-]{1,31}\/[a-z0-9][a-z0-9-]{1,63}$/.test(name)) {
     console.error(chalk.red('Invalid publish name. Expected @publisher/skill (lowercase letters/digits/dashes).'));

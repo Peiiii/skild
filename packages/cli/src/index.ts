@@ -19,6 +19,7 @@ import { login } from './commands/login.js';
 import { logout } from './commands/logout.js';
 import { whoami } from './commands/whoami.js';
 import { publish } from './commands/publish.js';
+import { search } from './commands/search.js';
 import { PLATFORMS } from '@skild/core';
 
 const require = createRequire(import.meta.url);
@@ -38,7 +39,7 @@ program
     .option('-t, --target <platform>', `Target platform: ${PLATFORMS.join(', ')}`, 'claude')
     .option('-l, --local', 'Install to project-level directory instead of global')
     .option('-f, --force', 'Overwrite existing installation')
-    .option('--registry <url>', 'Registry base URL (required for @publisher/skill)')
+    .option('--registry <url>', 'Registry base URL (default: https://registry.skild.sh)')
     .option('--json', 'Output JSON')
     .action(async (source: string, options: { target?: string; local?: boolean }) => {
         await install(source, options as any);
@@ -99,7 +100,7 @@ program
 program
     .command('signup')
     .description('Create a publisher account in the registry (no GitHub required)')
-    .requiredOption('--registry <url>', 'Registry base URL')
+    .option('--registry <url>', 'Registry base URL (default: https://registry.skild.sh)')
     .requiredOption('--email <email>', 'Email')
     .requiredOption('--handle <handle>', 'Publisher handle (owns @handle/* scope)')
     .requiredOption('--password <password>', 'Password')
@@ -109,7 +110,7 @@ program
 program
     .command('login')
     .description('Login to a registry and store an access token locally')
-    .requiredOption('--registry <url>', 'Registry base URL')
+    .option('--registry <url>', 'Registry base URL (default: https://registry.skild.sh)')
     .requiredOption('--handle-or-email <value>', 'Handle or email')
     .requiredOption('--password <password>', 'Password')
     .option('--token-name <name>', 'Token label')
@@ -139,6 +140,14 @@ program
     .option('--registry <url>', 'Registry base URL (defaults to saved login)')
     .option('--json', 'Output JSON')
     .action(async (options: any) => publish(options));
+
+program
+    .command('search <query>')
+    .description('Search Skills in the registry')
+    .option('--registry <url>', 'Registry base URL (default: https://registry.skild.sh)')
+    .option('--limit <n>', 'Max results (default: 50)', '50')
+    .option('--json', 'Output JSON')
+    .action(async (query: string, options: any) => search(query, options));
 
 // Default action: show help
 program.action(() => {

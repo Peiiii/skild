@@ -3,7 +3,8 @@ import path from 'path';
 import crypto from 'crypto';
 import * as tar from 'tar';
 import { SkildError } from './errors.js';
-import { loadRegistryAuth } from './storage.js';
+
+export const DEFAULT_REGISTRY_URL = 'https://registry.skild.sh';
 
 export interface RegistrySpecifier {
   canonicalName: string; // @publisher/skill
@@ -59,12 +60,7 @@ export function resolveRegistryUrl(explicit?: string): string {
   const fromEnv = process.env.SKILD_REGISTRY_URL?.trim();
   if (explicit?.trim()) return explicit.trim().replace(/\/+$/, '');
   if (fromEnv) return fromEnv.replace(/\/+$/, '');
-  const saved = loadRegistryAuth();
-  if (saved?.registryUrl) return saved.registryUrl.replace(/\/+$/, '');
-  throw new SkildError(
-    'MISSING_REGISTRY_CONFIG',
-    'Missing registry URL. Use --registry <url> or set SKILD_REGISTRY_URL, or run `skild login --registry <url>`.'
-  );
+  return DEFAULT_REGISTRY_URL;
 }
 
 export async function resolveRegistryVersion(registryUrl: string, spec: RegistrySpecifier): Promise<RegistryResolvedVersion> {
@@ -94,6 +90,28 @@ function sha256Hex(buffer: Buffer): string {
   const h = crypto.createHash('sha256');
   h.update(buffer);
   return h.digest('hex');
+}
+
+export async function searchRegistrySkills(
+  registryUrl: string,
+  query: string,
+  limit = 50
+): Promise<Array<{ name: string; description?: string; targets_json?: string; created_at?: string; updated_at?: string }>> {
+  const q = query.trim();
+  const url = new URL(`${registryUrl}/skills`);
+  if (q) url.searchParams.set('q', q);
+  url.searchParams.set('limit', String(Math.min(Math.max(limit, 1), 100)));
+
+  const res = await fetch(url.toString(), { headers: { accept: 'application/json' } });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new SkildError('REGISTRY_RESOLVE_FAILED', `Failed to search skills (${res.status}). ${text}`.trim());
+  }
+  const json = (await res.json()) as { ok: boolean; skills: any[] };
+  if (!json?.ok || !Array.isArray(json.skills)) {
+    throw new SkildError('REGISTRY_RESOLVE_FAILED', 'Invalid registry response for /skills.');
+  }
+  return json.skills as any;
 }
 
 export async function downloadAndExtractTarball(resolved: RegistryResolvedVersion, tempRoot: string, stagingDir: string): Promise<void> {

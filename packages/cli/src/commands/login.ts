@@ -1,8 +1,8 @@
 import chalk from 'chalk';
-import { saveRegistryAuth } from '@skild/core';
+import { resolveRegistryUrl, saveRegistryAuth } from '@skild/core';
 
 export interface LoginCommandOptions {
-  registry: string;
+  registry?: string;
   handleOrEmail: string;
   password: string;
   tokenName?: string;
@@ -10,12 +10,7 @@ export interface LoginCommandOptions {
 }
 
 export async function login(options: LoginCommandOptions): Promise<void> {
-  const registry = options.registry?.trim().replace(/\/+$/, '');
-  if (!registry) {
-    console.error(chalk.red('Missing --registry <url>.'));
-    process.exitCode = 1;
-    return;
-  }
+  const registry = resolveRegistryUrl(options.registry);
 
   const res = await fetch(`${registry}/auth/login`, {
     method: 'POST',
@@ -55,4 +50,3 @@ export async function login(options: LoginCommandOptions): Promise<void> {
 
   console.log(chalk.green(`Logged in as ${chalk.cyan(json.publisher.handle)}.`));
 }
-

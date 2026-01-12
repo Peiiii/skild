@@ -1,7 +1,8 @@
 import chalk from 'chalk';
+import { resolveRegistryUrl } from '@skild/core';
 
 export interface SignupCommandOptions {
-  registry: string;
+  registry?: string;
   email: string;
   handle: string;
   password: string;
@@ -9,12 +10,7 @@ export interface SignupCommandOptions {
 }
 
 export async function signup(options: SignupCommandOptions): Promise<void> {
-  const registry = options.registry?.trim().replace(/\/+$/, '');
-  if (!registry) {
-    console.error(chalk.red('Missing --registry <url>.'));
-    process.exitCode = 1;
-    return;
-  }
+  const registry = resolveRegistryUrl(options.registry);
 
   const res = await fetch(`${registry}/auth/signup`, {
     method: 'POST',
@@ -41,4 +37,3 @@ export async function signup(options: SignupCommandOptions): Promise<void> {
   console.log(chalk.green('Signup successful.'));
   console.log(chalk.dim('Next: run `skild login --registry <url> --handle-or-email <...> --password <...>`'));
 }
-

@@ -20,12 +20,14 @@ export { getSkillsDir, getSkillInstallDir } from './paths.js';
 export { validateSkillDir } from './skill.js';
 export { initSkill } from './init.js';
 export {
+  DEFAULT_REGISTRY_URL,
   canonicalNameToInstallDirName,
   splitCanonicalName,
   parseRegistrySpecifier,
   resolveRegistryUrl,
   resolveRegistryVersion,
-  downloadAndExtractTarball
+  downloadAndExtractTarball,
+  searchRegistrySkills
 } from './registry.js';
 export {
   installSkill,

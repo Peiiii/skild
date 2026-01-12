@@ -195,3 +195,4 @@
 - `docs/logs/v0.2.0-registry/2026-01-12-iteration-split.md`：规划拆分记录（为什么拆、拆成什么）
 - `docs/logs/v0.2.0-registry/2026-01-12-registry-iteration1-mvp.md`：Iteration 1 实现记录（registry MVP + 验证/部署）
 - `docs/logs/v0.2.0-registry/2026-01-12-registry-worker-move-and-prod-deploy-fix.md`：Worker 目录调整 + 线上部署修复
+- `docs/logs/v0.2.0-registry/2026-01-12-cli-zero-config-registry-search-publish-ux.md`：默认 registry + 零配置登录/安装 + 搜索 + 发布体验优化
