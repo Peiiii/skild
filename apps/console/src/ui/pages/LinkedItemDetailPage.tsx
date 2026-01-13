@@ -7,6 +7,8 @@ import { formatRelativeTime } from '@/lib/time';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Github, Tag, Folder, Shield, User, Clock, Check, Copy } from 'lucide-react';
 
 function buildGithubTreeUrl(repo: string, path: string | null, ref: string | null): string {
   const url = new URL(`https://github.com/${repo}/tree/${ref ?? 'main'}`);
@@ -93,12 +95,27 @@ export function LinkedItemDetailPage(): JSX.Element {
         ← Back to Catalog
       </Link>
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between gap-3">
-            <CardTitle>{item.title}</CardTitle>
-            <span className="text-xs text-muted-foreground">Linked</span>
+        <CardHeader className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="space-y-1">
+              <CardTitle className="text-2xl font-bold">{item.title}</CardTitle>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Github className="h-4 w-4" />
+                <a
+                  href={upstreamUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-primary transition-colors font-medium border-b border-border/40 hover:border-primary/40"
+                >
+                  {item.source.repo}{item.source.path ? ` / ${item.source.path}` : ''}
+                </a>
+              </div>
+            </div>
+            <Badge variant="emerald" className="h-6">Linked Item</Badge>
           </div>
-          <CardDescription>{item.description}</CardDescription>
+          <CardDescription className="text-base text-foreground/80 leading-relaxed">
+            {item.description || 'No description provided.'}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-3">
@@ -121,22 +138,84 @@ export function LinkedItemDetailPage(): JSX.Element {
             </Button>
           </div>
 
-          <div className="space-y-2 text-sm">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Source</div>
-            <div>Repo: <span className="font-mono">{item.source.repo}</span></div>
-            <div>Path: <span className="font-mono">{item.source.path || '(root)'}</span></div>
-            <div>Ref: <span className="font-mono">{item.source.ref || '(default)'}</span></div>
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-4">
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 px-1">Source Details</div>
+                <div className="rounded-lg border border-border/40 bg-muted/20 p-4 space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Repository</span>
+                    <span className="font-mono text-foreground/90">{item.source.repo}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Path</span>
+                    <span className="font-mono text-foreground/90">{item.source.path || '(root)'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Reference</span>
+                    <span className="font-mono text-foreground/90 text-xs bg-muted px-1.5 py-0.5 rounded border border-border/40 leading-none">
+                      {item.source.ref || 'main'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                <Button asChild type="button" variant="outline" className="flex-1">
+                  <a href={upstreamUrl} target="_blank" rel="noreferrer">
+                    <Github className="mr-2 h-4 w-4" />
+                    View on GitHub
+                  </a>
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 px-1">Metadata</div>
+                <div className="rounded-lg border border-border/40 bg-muted/20 p-4 space-y-3 text-sm">
+                  <div className="flex items-start gap-3">
+                    <Tag className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <div className="text-xs text-muted-foreground mb-1 leading-none">Tags</div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {item.tags.length > 0 ? (
+                          item.tags.map(t => <Badge key={t} variant="secondary" className="px-1.5 py-0 normal-case tracking-normal h-5">{t}</Badge>)
+                        ) : (
+                          <span className="text-muted-foreground italic">none</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Folder className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <div className="text-xs text-muted-foreground mb-1 leading-none">Category</div>
+                      <span className="text-foreground/90 capitalize">{item.category || 'none'}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Shield className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <div className="text-xs text-muted-foreground mb-1 leading-none">License</div>
+                      <span className="text-foreground/90 font-medium">{item.license || 'unknown'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-2 text-sm">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Metadata</div>
-            <div>🏷️ Tags: {item.tags.length > 0 ? item.tags.join(', ') : 'none'}</div>
-            <div>📂 Category: {item.category || 'none'}</div>
-            <div>📜 License: {item.license || 'unknown'}</div>
-          </div>
-
-          <div className="text-xs text-muted-foreground">
-            Submitted by {item.submittedBy ? <span className="font-mono">@{item.submittedBy.handle}</span> : 'unknown'} · {formatRelativeTime(item.createdAt)}
+          <div className="pt-4 border-t border-border/20 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <User className="h-3.5 w-3.5" />
+              <span>Submitted by</span>
+              <span className="text-foreground/90 font-medium">@{item.submittedBy?.handle || 'unknown'}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" />
+              <span>{formatRelativeTime(item.createdAt)}</span>
+            </div>
           </div>
         </CardContent>
       </Card>

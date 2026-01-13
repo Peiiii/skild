@@ -9,6 +9,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import {
+  Plus,
+  Search,
+  Github,
+  Tag,
+  User,
+  Clock,
+  Check,
+  Copy,
+  ExternalLink
+} from 'lucide-react';
 
 export function LinkedItemsPage(): JSX.Element {
   const auth = useAuth();
@@ -102,14 +114,17 @@ export function LinkedItemsPage(): JSX.Element {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <form className="flex flex-wrap items-center gap-3" onSubmit={onSearch}>
-          <Input
-            value={queryInput}
-            onChange={e => setQueryInput(e.currentTarget.value)}
-            placeholder="Search skills..."
-            className="min-w-[220px] flex-1"
-          />
-          <Button type="submit" variant="outline">Search</Button>
+        <form className="relative flex gap-2" onSubmit={onSearch}>
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={queryInput}
+              onChange={e => setQueryInput(e.currentTarget.value)}
+              placeholder="Search catalog items..."
+              className="pl-9 bg-secondary/30 border-border/40"
+            />
+          </div>
+          <Button type="submit" variant="secondary">Search</Button>
         </form>
 
         {error && (
@@ -136,34 +151,73 @@ export function LinkedItemsPage(): JSX.Element {
         ) : (
           <div className="grid gap-4">
             {items.map(item => (
-              <div key={item.id} className="rounded-md border border-border/60 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="min-w-0">
+              <div key={item.id} className="group relative rounded-xl border border-border/40 bg-card p-6 transition-all hover:border-border/80 hover:bg-muted/5">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Link to={`/linked/${item.id}`} className="font-medium hover:underline">
+                      <Link to={`/linked/${item.id}`} className="text-lg font-bold hover:text-primary transition-colors">
                         {item.title}
                       </Link>
-                      <span className="text-xs text-muted-foreground">Linked</span>
+                      <Badge variant="emerald">Linked</Badge>
                     </div>
-                    <div className="mt-1 text-sm text-muted-foreground">{item.description}</div>
-                    <div className="mt-2 text-xs text-muted-foreground">
-                      {(() => {
-                        const meta: string[] = [];
-                        if (item.tags.length > 0) meta.push(`🏷️ ${item.tags.join(', ')}`);
-                        if (item.submittedBy) meta.push(`👤 @${item.submittedBy.handle}`);
-                        if (item.createdAt) meta.push(formatRelativeTime(item.createdAt));
-                        return meta.join(' · ');
-                      })()}
+
+                    {/* Repository Source */}
+                    <div className="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
+                      <Github className="h-4 w-4 text-muted-foreground" />
+                      <a
+                        href={`https://github.com/${item.source.repo}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:underline hover:text-primary transition-colors"
+                      >
+                        {item.source.repo}{item.source.path ? ` / ${item.source.path}` : ''}
+                      </a>
+                    </div>
+
+                    <div className="text-sm text-muted-foreground leading-relaxed mt-1">
+                      {item.description || <span className="italic opacity-60">No description provided</span>}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2 text-[11px] text-muted-foreground">
+                      {item.submittedBy && (
+                        <div className="flex items-center gap-1">
+                          <User className="h-3 w-3" />
+                          <span>Submitted by:</span>
+                          <span className="text-foreground/80 font-medium">@{item.submittedBy.handle}</span>
+                        </div>
+                      )}
+                      {item.tags.length > 0 && (
+                        <div className="flex items-center gap-1">
+                          <Tag className="h-3 w-3" />
+                          <span className="text-foreground/80">{item.tags.join(', ')}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        <span>{formatRelativeTime(item.createdAt)}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="mt-4 rounded-md border border-border/60 bg-muted/30 p-3 text-xs font-mono break-all">
-                  {item.install}
-                </div>
-                <div className="mt-3 flex justify-end">
-                  <Button type="button" variant="outline" onClick={() => copyInstall(item.id, item.install)}>
-                    {copiedId === item.id ? '✓ Copied!' : 'Copy'}
-                  </Button>
+
+                  <div className="flex flex-col gap-3 min-w-[180px]">
+                    <div className="space-y-1.5">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Install</div>
+                      <div className="relative">
+                        <div className="rounded-lg bg-black/40 border border-border/40 p-3 font-mono text-[11px] break-all pr-9 min-h-[40px] flex items-center">
+                          {item.install}
+                        </div>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                          onClick={() => void copyInstall(item.id, item.install)}
+                        >
+                          {copiedId === item.id ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}

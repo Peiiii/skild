@@ -5,6 +5,8 @@ import type { DistTagRow, VersionRow } from '@/lib/api-types';
 import { HttpError } from '@/lib/http';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Package, Hash, Layers, Check, Copy } from 'lucide-react';
 
 function findLatest(distTags: DistTagRow[]): string | null {
   const row = distTags.find(t => t.tag === 'latest');
@@ -101,16 +103,22 @@ export function SkillDetailPage(): JSX.Element {
 
   return (
     <div className="space-y-8">
-      <div className="space-y-3">
-        <div className="text-sm text-muted-foreground">
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Link className="hover:text-foreground transition-colors" to="/skills">
             Skills
           </Link>
-          <span className="mx-2 opacity-50">/</span>
-          <code className="text-foreground/80">{canonicalName}</code>
+          <span className="opacity-50">/</span>
+          <code className="text-foreground/80 bg-muted px-1.5 py-0.5 rounded border border-border/40">{canonicalName}</code>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight">{data.name}</h1>
-        <p className="text-muted-foreground">{data.description || 'No description.'}</p>
+
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-extrabold tracking-tight">{data.name}</h1>
+            <p className="text-lg text-muted-foreground max-w-2xl">{data.description || 'No description provided.'}</p>
+          </div>
+          <Badge variant="indigo" className="h-6">Registry Skill</Badge>
+        </div>
       </div>
 
       <div className="rounded-lg border border-border/50 bg-card p-6 space-y-4">
@@ -127,36 +135,51 @@ export function SkillDetailPage(): JSX.Element {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-lg border border-border/50 bg-card p-5">
-          <h3 className="font-semibold mb-3">Dist-tags</h3>
+        <div className="rounded-xl border border-border/40 bg-card p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Hash className="h-4 w-4 text-indigo-400" />
+            <h3 className="font-bold uppercase tracking-wider text-xs text-muted-foreground">Dist-tags</h3>
+          </div>
           {data.distTags.length ? (
-            <ul className="space-y-2 text-sm">
-              {data.distTags.map(t => (
-                <li key={t.tag} className="flex justify-between">
-                  <code className="text-muted-foreground">{t.tag}</code>
-                  <code>{t.version}</code>
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-3">
+              <ul className="space-y-2 text-sm">
+                {data.distTags.map(t => (
+                  <li key={t.tag} className="flex justify-between items-center py-1.5 border-b border-border/10 last:border-0">
+                    <code className="text-indigo-400 font-bold">{t.tag}</code>
+                    <Badge variant="secondary" className="font-mono h-5">{t.version}</Badge>
+                  </li>
+                ))}
+              </ul>
+              {latest && (
+                <div className="text-[10px] text-muted-foreground flex items-center justify-end gap-1">
+                  <span>latest points to</span>
+                  <span className="font-mono text-foreground/80">{latest}</span>
+                </div>
+              )}
+            </div>
           ) : (
-            <div className="text-sm text-muted-foreground">No tags.</div>
+            <div className="text-sm text-muted-foreground italic">No tags associated.</div>
           )}
-          {latest && <div className="mt-3 text-xs text-muted-foreground">latest → {latest}</div>}
         </div>
 
-        <div className="rounded-lg border border-border/50 bg-card p-5">
-          <h3 className="font-semibold mb-3">Versions</h3>
+        <div className="rounded-xl border border-border/40 bg-card p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Layers className="h-4 w-4 text-indigo-400" />
+            <h3 className="font-bold uppercase tracking-wider text-xs text-muted-foreground">Version History</h3>
+          </div>
           {data.versions.length ? (
             <ul className="space-y-2 text-sm">
               {data.versions.slice(0, 10).map(v => (
-                <li key={v.version} className="flex justify-between">
-                  <code>{v.version}</code>
-                  <code className="text-xs text-muted-foreground">{v.integrity.slice(0, 12)}…</code>
+                <li key={v.version} className="flex justify-between items-center py-1.5 border-b border-border/10 last:border-0 hover:bg-muted/30 transition-colors px-2 -mx-2 rounded">
+                  <code className="font-bold text-foreground/90">{v.version}</code>
+                  <code className="text-[10px] text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded border border-border/40">
+                    {v.integrity.slice(0, 16)}…
+                  </code>
                 </li>
               ))}
             </ul>
           ) : (
-            <div className="text-sm text-muted-foreground">No versions.</div>
+            <div className="text-sm text-muted-foreground italic">No versions available.</div>
           )}
         </div>
       </div>
