@@ -1,8 +1,15 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/features/auth/auth-store';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 function TopNavLink({ to, children }: { to: string; children: React.ReactNode }): JSX.Element {
   return (
@@ -29,38 +36,59 @@ export function AppLayout(): JSX.Element {
     <div className="min-h-dvh bg-background">
       <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80">
         <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
+          {/* Left: Logo + Core Features */}
           <div className="flex items-center gap-6">
-            <div className="text-sm font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-              Skild Console
-            </div>
+            <Link to="/" className="text-sm font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
+              🛡️ Skild
+            </Link>
             <nav className="flex items-center gap-5">
               <TopNavLink to="/skills">Discover</TopNavLink>
               <TopNavLink to="/publish">Publish</TopNavLink>
-              {authed ? (
-                <>
-                  <TopNavLink to="/me">Dashboard</TopNavLink>
-                  <TopNavLink to="/me/tokens">Tokens</TopNavLink>
-                  <TopNavLink to="/me/skills">My Skills</TopNavLink>
-                  <TopNavLink to="/me/settings">Account</TopNavLink>
-                </>
-              ) : (
-                <>
-                  <TopNavLink to="/login">Login</TopNavLink>
-                  <TopNavLink to="/signup">Signup</TopNavLink>
-                </>
-              )}
-              <TopNavLink to="/verify-email/request">Verify Email</TopNavLink>
             </nav>
           </div>
+
+          {/* Right: Auth Actions */}
           <div className="flex items-center gap-3">
             {authed ? (
               <>
-                <div className="text-sm text-muted-foreground font-mono">@{publisher.handle}</div>
-                <Button type="button" variant="outline" className="h-8" onClick={() => void auth.logout()}>
-                  Logout
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 gap-2 font-mono text-sm">
+                      @{publisher.handle}
+                      <svg className="w-3 h-3 opacity-50" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link to="/me">Dashboard</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/me/skills">My Skills</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/me/tokens">Tokens</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/me/settings">Settings</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => void auth.logout()} className="text-destructive">
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <>
+                <TopNavLink to="/login">Login</TopNavLink>
+                <Button asChild size="sm" className="h-8">
+                  <Link to="/signup">Sign up</Link>
                 </Button>
               </>
-            ) : null}
+            )}
             <a
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               href="https://skild.sh"
@@ -75,9 +103,18 @@ export function AppLayout(): JSX.Element {
       <main className="mx-auto max-w-4xl px-4 py-10">
         <Outlet />
       </main>
-      <footer className="mx-auto max-w-4xl px-4 pb-12 text-xs text-muted-foreground">
-        API: <code className="font-mono text-foreground/60">https://registry.skild.sh</code>
+      <footer className="mx-auto max-w-4xl px-4 pb-12 border-t border-border/30 pt-8 mt-12">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <a href="https://skild.sh" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">skild.sh</a>
+            <a href="https://github.com/Peiiii/skild" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">GitHub</a>
+            <a href="https://github.com/Peiiii/skild#readme" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">Docs</a>
+            <a href="https://agentskills.io" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">Spec</a>
+          </div>
+          <div className="font-mono text-foreground/50">registry.skild.sh</div>
+        </div>
       </footer>
     </div>
   );
 }
+

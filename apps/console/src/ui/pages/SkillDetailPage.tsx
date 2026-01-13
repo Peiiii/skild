@@ -58,8 +58,12 @@ export function SkillDetailPage(): JSX.Element {
     };
   }, [scope, skill]);
 
+  const [copied, setCopied] = React.useState(false);
+
   async function copyInstall(): Promise<void> {
     await navigator.clipboard.writeText(`skild install ${canonicalName}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   }
 
   if (busy) return <div className="text-muted-foreground py-8">Loading…</div>;
@@ -118,7 +122,7 @@ export function SkillDetailPage(): JSX.Element {
           {install}
         </div>
         <Button type="button" variant="secondary" onClick={copyInstall}>
-          Copy command
+          {copied ? '✓ Copied!' : 'Copy command'}
         </Button>
       </div>
 
