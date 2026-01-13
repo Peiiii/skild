@@ -6,13 +6,13 @@ function isSmokeMode() {
   return raw === "1" || raw === "true" || raw === "yes";
 }
 
-async function findFreePort(preferredPort, { host = "127.0.0.1", tries = 50 } = {}) {
+async function findFreePort(preferredPort, { tries = 50 } = {}) {
   for (let i = 0; i < tries; i++) {
     const port = preferredPort + i;
     const ok = await new Promise((resolve) => {
       const server = net.createServer();
       server.once("error", () => resolve(false));
-      server.listen(port, host, () => {
+      server.listen(port, () => {
         server.close(() => resolve(true));
       });
     });
@@ -33,6 +33,20 @@ function run(name, command, args, { env } = {}) {
     }
   });
   return child;
+}
+
+async function runOnce(name, command, args, { env } = {}) {
+  await new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      stdio: "inherit",
+      env: { ...process.env, ...(env || {}) },
+    });
+    child.on("exit", (code) => {
+      if (code && code !== 0) reject(new Error(`[${name}] exited with code ${code}`));
+      else resolve();
+    });
+    child.on("error", reject);
+  });
 }
 
 async function waitForHttpOk(url, { timeoutMs = 15_000 } = {}) {
@@ -57,11 +71,18 @@ const consolePort = process.env.SKILD_CONSOLE_PORT
   ? Number.parseInt(process.env.SKILD_CONSOLE_PORT, 10)
   : await findFreePort(5173);
 
-const registryUrl = `http://127.0.0.1:${registryPort}`;
+const registryUrl = `http://localhost:${registryPort}`;
 const consoleUrl = `http://localhost:${consolePort}`;
 
 console.log(`[skild] dev registry: ${registryUrl}`);
 console.log(`[skild] dev console:  ${consoleUrl}`);
+
+await runOnce(
+  "registry:migrate",
+  "pnpm",
+  ["-C", "workers/registry", "exec", "wrangler", "d1", "migrations", "apply", "skild-registry", "--local"],
+  {},
+);
 
 const registry = run(
   "registry",
@@ -123,4 +144,3 @@ if (isSmokeMode()) {
     shutdown(1);
   }
 }
-

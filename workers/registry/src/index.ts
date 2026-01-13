@@ -1,10 +1,13 @@
 import { Hono } from "hono";
 import type { Env } from "./env.js";
 import { newSalt, pbkdf2Sha256, randomToken, sha256Hex, timingSafeEqual } from "./crypto.js";
+import type { PublisherRow } from "./db.js";
 import { consumeEmailVerificationToken, getPublisherByHandleOrEmail, insertEmailVerificationToken, markPublisherEmailVerified } from "./db.js";
-import { requireAuth } from "./auth.js";
+import { requirePublisherAuth, requireSessionAuth } from "./auth.js";
 import { assertEmail, assertHandle, assertSemver, assertSkillName, assertSkillSegment } from "./validate.js";
 import { getConsolePublicUrl, getEmailVerifyTtlHours, sendVerificationEmail } from "./email.js";
+import { createSession, parseSessionCookie, revokeSession, serializeClearSessionCookie, serializeSessionCookie } from "./sessions.js";
+import { issuePublishToken, listTokens, revokeToken } from "./tokens.js";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -23,10 +26,9 @@ function isAllowedOrigin(origin: string | null | undefined): string | null {
     const url = new URL(origin);
     const protocol = url.protocol;
     const hostname = url.hostname;
-    const port = url.port;
 
     // Local dev
-    if (protocol === "http:" && port === "5173" && (hostname === "localhost" || hostname === "127.0.0.1")) {
+    if (protocol === "http:" && (hostname === "localhost" || hostname === "127.0.0.1")) {
       return origin;
     }
 
@@ -47,6 +49,16 @@ function isAllowedOrigin(origin: string | null | undefined): string | null {
   }
 }
 
+async function authenticateWithPassword(env: Env, handleOrEmail: string, password: string): Promise<PublisherRow | null> {
+  const publisher = await getPublisherByHandleOrEmail(env, handleOrEmail);
+  if (!publisher) return null;
+
+  const iterations = Number.parseInt(env.PBKDF2_ITERATIONS || "100000", 10);
+  const computed = await pbkdf2Sha256(password, publisher.password_salt, iterations);
+  if (!timingSafeEqual(computed, publisher.password_hash)) return null;
+  return publisher;
+}
+
 app.use("*", async (c, next) => {
   const origin = c.req.header("origin");
   const allowedOrigin = isAllowedOrigin(origin);
@@ -54,16 +66,22 @@ app.use("*", async (c, next) => {
   if (allowedOrigin) {
     c.header("access-control-allow-origin", allowedOrigin);
     c.header("vary", "Origin");
+    c.header("access-control-allow-credentials", "true");
   }
 
   if (c.req.method === "OPTIONS") {
     if (allowedOrigin) {
-      c.header("access-control-allow-methods", "GET, POST, OPTIONS");
+      c.header("access-control-allow-methods", "GET, POST, DELETE, OPTIONS");
       c.header("access-control-allow-headers", "content-type, authorization");
       c.header("access-control-max-age", "86400");
+      c.header("access-control-allow-credentials", "true");
     }
     return c.body(null, 204);
   }
+
+  const method = c.req.method.toUpperCase();
+  const isWrite = method !== "GET" && method !== "HEAD";
+  if (isWrite && origin && !allowedOrigin) return errorJson(c as any, "Origin not allowed.", 403);
 
   await next();
 });
@@ -97,6 +115,16 @@ app.post("/auth/signup", async (c) => {
       .bind(publisherId, handle, email, salt, hash, now)
       .run();
 
+    const session = await createSession(c.env, { publisherId });
+    c.header(
+      "set-cookie",
+      serializeSessionCookie({
+        value: `${session.sessionId}.${session.sessionSecret}`,
+        expiresAt: new Date(session.expiresAt),
+        requestUrl: c.req.url,
+      }),
+    );
+
     const ttlHours = getEmailVerifyTtlHours(c.env);
     const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000).toISOString();
     const verifyToken = randomToken(32);
@@ -128,31 +156,14 @@ app.post("/auth/login", async (c) => {
     const password = body.password || "";
     if (!handleOrEmail || !password) return errorJson(c as any, "Missing credentials.", 400);
 
-    const publisher = await getPublisherByHandleOrEmail(c.env, handleOrEmail);
+    const publisher = await authenticateWithPassword(c.env, handleOrEmail, password);
     if (!publisher) return errorJson(c as any, "Invalid credentials.", 401);
 
-    const iterations = Number.parseInt(c.env.PBKDF2_ITERATIONS || "100000", 10);
-    const computed = await pbkdf2Sha256(password, publisher.password_salt, iterations);
-    if (!timingSafeEqual(computed, publisher.password_hash)) {
-      return errorJson(c as any, "Invalid credentials.", 401);
-    }
-
-    const tokenId = crypto.randomUUID();
-    const tokenSecret = randomToken(32);
-    const tokenSalt = newSalt();
-    const tokenHash = await pbkdf2Sha256(tokenSecret, tokenSalt, iterations);
-    const now = new Date().toISOString();
-    const tokenName = (body.tokenName || "default").slice(0, 64);
-
-    await c.env.DB.prepare(
-      "INSERT INTO tokens (id, publisher_id, name, token_salt, token_hash, created_at, last_used_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, NULL)",
-    )
-      .bind(tokenId, publisher.id, tokenName, tokenSalt, tokenHash, now)
-      .run();
+    const issued = await issuePublishToken(c.env, { publisherId: publisher.id, name: body.tokenName });
 
     return c.json({
       ok: true,
-      token: `${tokenId}.${tokenSecret}`,
+      token: issued.token,
       publisher: {
         id: publisher.id,
         handle: publisher.handle,
@@ -160,6 +171,54 @@ app.post("/auth/login", async (c) => {
         emailVerified: Boolean(publisher.email_verified),
       },
     });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/auth/session/login", async (c) => {
+  try {
+    const body = await c.req.json<{ handleOrEmail: string; password: string }>();
+    const handleOrEmail = body.handleOrEmail?.trim().toLowerCase();
+    const password = body.password || "";
+    if (!handleOrEmail || !password) return errorJson(c as any, "Missing credentials.", 400);
+
+    const publisher = await authenticateWithPassword(c.env, handleOrEmail, password);
+    if (!publisher) return errorJson(c as any, "Invalid credentials.", 401);
+
+    const session = await createSession(c.env, { publisherId: publisher.id });
+    c.header(
+      "set-cookie",
+      serializeSessionCookie({
+        value: `${session.sessionId}.${session.sessionSecret}`,
+        expiresAt: new Date(session.expiresAt),
+        requestUrl: c.req.url,
+      }),
+    );
+
+    return c.json({
+      ok: true,
+      publisher: { id: publisher.id, handle: publisher.handle, email: publisher.email, emailVerified: Boolean(publisher.email_verified) },
+    });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/auth/session/logout", async (c) => {
+  try {
+    const parsed = parseSessionCookie(c.req.header("cookie"));
+    if (parsed) {
+      try {
+        const auth = await requirePublisherAuth(c);
+        if (auth.via === "session") await revokeSession(c.env, parsed.sessionId);
+      } catch {
+        // ignore invalid session
+      }
+    }
+
+    c.header("set-cookie", serializeClearSessionCookie(c.req.url));
+    return c.json({ ok: true });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
   }
@@ -199,14 +258,8 @@ app.post("/auth/verify-email/request", async (c) => {
     const password = body.password || "";
     if (!handleOrEmail || !password) return errorJson(c as any, "Missing credentials.", 400);
 
-    const publisher = await getPublisherByHandleOrEmail(c.env, handleOrEmail);
+    const publisher = await authenticateWithPassword(c.env, handleOrEmail, password);
     if (!publisher) return errorJson(c as any, "Invalid credentials.", 401);
-
-    const iterations = Number.parseInt(c.env.PBKDF2_ITERATIONS || "100000", 10);
-    const computed = await pbkdf2Sha256(password, publisher.password_salt, iterations);
-    if (!timingSafeEqual(computed, publisher.password_hash)) {
-      return errorJson(c as any, "Invalid credentials.", 401);
-    }
 
     if (publisher.email_verified) {
       return c.json({ ok: true, alreadyVerified: true });
@@ -232,7 +285,13 @@ app.post("/auth/verify-email/request", async (c) => {
 
 app.get("/auth/me", async (c) => {
   try {
-    const auth = await requireAuth(c);
+    const hasSession = Boolean(parseSessionCookie(c.req.header("cookie")));
+    const hasBearer = Boolean((c.req.header("authorization") || "").trim());
+    if (!hasSession && !hasBearer) {
+      return c.json({ ok: true, publisher: null });
+    }
+
+    const auth = await requirePublisherAuth(c);
     const publisher = await c.env.DB.prepare("SELECT id, handle, email, email_verified, created_at FROM publishers WHERE id = ?1 LIMIT 1")
       .bind(auth.publisherId)
       .first<{ id: string; handle: string; email: string; email_verified: number; created_at: string }>();
@@ -242,6 +301,63 @@ app.get("/auth/me", async (c) => {
         ? { id: publisher.id, handle: publisher.handle, email: publisher.email, created_at: publisher.created_at, emailVerified: Boolean(publisher.email_verified) }
         : null,
     });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), c.res.status || 401);
+  }
+});
+
+app.get("/tokens", async (c) => {
+  try {
+    const auth = await requireSessionAuth(c);
+    const tokens = await listTokens(c.env, auth.publisherId);
+    return c.json({ ok: true, tokens });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), c.res.status || 401);
+  }
+});
+
+app.post("/tokens", async (c) => {
+  try {
+    const auth = await requireSessionAuth(c);
+    const body = await c.req.json<{ name?: string }>().catch(() => ({} as { name?: string }));
+    const issued = await issuePublishToken(c.env, { publisherId: auth.publisherId, name: body.name });
+    return c.json({
+      ok: true,
+      token: issued.token,
+      tokenMeta: { id: issued.tokenId, name: issued.name, created_at: issued.createdAt, last_used_at: null, revoked_at: null },
+    });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), c.res.status || 401);
+  }
+});
+
+app.delete("/tokens/:id", async (c) => {
+  try {
+    const auth = await requireSessionAuth(c);
+    const tokenId = c.req.param("id");
+    if (!tokenId) return errorJson(c as any, "Missing token id.", 400);
+    const revoked = await revokeToken(c.env, { publisherId: auth.publisherId, tokenId });
+    return c.json({ ok: true, revoked });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), c.res.status || 401);
+  }
+});
+
+app.get("/publisher/skills", async (c) => {
+  try {
+    const auth = await requireSessionAuth(c);
+    const rows = await c.env.DB.prepare(
+      "SELECT s.name, s.description, s.updated_at, COUNT(v.version) AS versionsCount\n" +
+        "FROM skills s\n" +
+        "LEFT JOIN skill_versions v ON v.skill_name = s.name\n" +
+        "WHERE s.publisher_id = ?1\n" +
+        "GROUP BY s.name\n" +
+        "ORDER BY s.updated_at DESC\n" +
+        "LIMIT 200",
+    )
+      .bind(auth.publisherId)
+      .all();
+    return c.json({ ok: true, skills: rows.results });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), c.res.status || 401);
   }
@@ -376,7 +492,7 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
     const name = `@${scope}/${skill}`;
     assertSkillName(name);
 
-    const auth = await requireAuth(c);
+    const auth = await requirePublisherAuth(c);
     const publisher = await c.env.DB.prepare("SELECT id, handle, email_verified FROM publishers WHERE id = ?1 LIMIT 1")
       .bind(auth.publisherId)
       .first<{ id: string; handle: string; email_verified: number }>();

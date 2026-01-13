@@ -78,7 +78,7 @@ export function SignupPage(): JSX.Element {
                 You can resend it in <a className="underline" href="/verify-email/request">Verify Email</a>.
               </div>
               <div className="mt-2 text-sm">
-                Next: create a token in <a className="underline" href="/token/new">Token</a>.
+                Next: go to <a className="underline" href="/me">Dashboard</a> (you should be logged in automatically).
               </div>
             </AlertDescription>
           </Alert>

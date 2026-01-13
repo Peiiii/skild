@@ -21,47 +21,72 @@
 
 ```bash
 # 安装 skild
-curl -fsSL https://skild.sh/install | sh
-# 或者
-npm install -g skild
-# 或者（免安装）
-npx skild@latest --help
+npm i -g skild
 
-# 从 GitHub 安装 Skill
-skild install https://github.com/anthropics/skills/tree/main/skills/pdf
-
-# 从 registry 通过名字安装
-skild install @peiiii/hello-skill
+# 安装一个 Skill
+skild install anthropics/skills/skills/pdf
 
 # 列出已安装的 Skills
 skild list
 ```
 
-完整使用文档：
-
-- `docs/usage.zh-CN.md`
-- `docs/usage.md`
-
-## ✨ 功能特性
-
-- **📦 安装** — 支持 Git URL / degit / 本地目录安装 Skills
-- **✅ 校验** — 本地验证 Skill 格式
-- **🧾 元数据 + 锁文件** — 记录 source/目标/内容 hash
-- **🔄 更新** — 安全更新已安装 Skills（原子替换）
-- **🧹 卸载** — 干净卸载 Skills
-
-- **🔎 搜索** — 在 registry 里搜索 Skills
-- **🚀 发布** — 发布 Skills 到 registry
-
-Publisher Console（Web）已具备注册/创建 token/发现/详情（UI 细节持续优化中）。
+搞定！你的 Agent 现在拥有了 `pdf` 技能。
 
 ## 📖 什么是 Agent Skills？
 
-[Agent Skills](https://agentskills.io) 是 Anthropic 发布的开放标准，用于为 AI Agent 扩展专业知识和工作流。Skills 是包含指令、脚本和资源的文件夹，Agent 可以动态发现并加载它们。
+[Agent Skills](https://agentskills.io) 是 Anthropic 发布的开放标准，用于为 AI Agent 扩展专业知识和工作流。**skild** 是这些 Skills 的包管理器 — 可以理解为 AI Agent 的 npm。
 
-**skild** 让管理这些 Skills 变得简单 — 把它想象成 AI Agent 的 npm。
+## 📦 安装 Skills
 
-## 🛠️ 命令一览
+```bash
+# 从 GitHub 安装（degit 简写）
+skild install anthropics/skills/skills/pdf
+
+# 从完整 GitHub URL 安装
+skild install https://github.com/anthropics/skills/tree/main/skills/pdf
+
+# 从本地目录安装
+skild install ./my-skill
+
+# 强制重新安装
+skild install anthropics/skills/skills/pdf --force
+```
+
+## 🎯 多平台支持
+
+默认安装到 Claude（`~/.claude/skills`），也支持 Codex 和 Copilot：
+
+```bash
+# 安装到 Codex（全局）
+skild install anthropics/skills/skills/pdf -t codex
+
+# 安装到 Codex（项目级别）
+skild install anthropics/skills/skills/pdf -t codex --local
+
+# 安装到 Claude（项目级别）
+skild install anthropics/skills/skills/pdf --local
+```
+
+## 🔧 管理 Skills
+
+```bash
+skild list                 # 列出已安装的 Skills
+skild info pdf             # 查看 Skill 详情
+skild validate pdf         # 校验 Skill 结构
+skild update pdf           # 更新 Skill
+skild uninstall pdf        # 卸载 Skill
+```
+
+## ✨ 创建 Skills
+
+```bash
+skild init my-skill        # 创建新的 Skill 项目
+cd my-skill
+skild validate .           # 发布前校验
+skild publish              # 发布到 registry
+```
+
+## 🛠️ 所有命令
 
 | 命令 | 描述 |
 |------|------|
@@ -79,36 +104,14 @@ Publisher Console（Web）已具备注册/创建 token/发现/详情（UI 细节
 | `skild search <query>` | 在 registry 搜索 Skills |
 | `skild publish` | 发布 Skill 目录到 registry |
 
-提示：可以用 `skild <命令> --help` 查看完整参数（平台/安装位置/registry）。
+提示：可以用 `skild <命令> --help` 查看完整参数。
 
-## 🎯 Skills 会安装到哪里
+## 📚 文档
 
-- Claude：`~/.claude/skills`（全局）或 `./.claude/skills`（项目级）
-- Codex CLI：`~/.codex/skills`（全局）或 `./.codex/skills`（项目级）
-- GitHub Copilot：`~/.github/skills`（全局）或 `./.github/skills`（项目级）
+- **[完整使用指南](./docs/usage.zh-CN.md)** — CLI + registry + 发布完整参考
+- **[English Docs](./docs/usage.md)**
 
-示例：
-
-```bash
-# 安装到 Codex（全局）
-skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex
-
-# 只安装到当前项目（项目级）
-skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
-
-# 查看已安装
-skild list -t codex --local
-
-# 查看详情与校验
-skild info pdf -t codex --local
-skild validate pdf -t codex --local
-
-# 更新与卸载
-skild update pdf -t codex --local
-skild uninstall pdf -t codex --local
-```
-
-## 🧑‍💻 在本仓库开发时如何使用 skild
+## 🧑‍💻 本地开发
 
 ```bash
 pnpm i

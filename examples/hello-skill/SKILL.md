@@ -1,6 +1,7 @@
 ---
 name: hello-skill
 description: Minimal example Skill for testing skild installs.
+version: 0.1.0
 ---
 
 ## What this Skill does

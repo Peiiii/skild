@@ -1,24 +1,57 @@
 export type ApiError = { ok: false; error: string };
 
+export interface Publisher {
+  id: string;
+  handle: string;
+  email: string;
+  emailVerified: boolean;
+  created_at?: string;
+}
+
 export type SignupResponse =
   | {
       ok: true;
-      publisher: { id: string; handle: string; email: string; emailVerified: boolean };
+      publisher: Publisher;
       verification: { requiredForPublish: boolean; sent: boolean; mode: string; consoleUrl: string };
     }
   | ApiError;
 
 export type LoginResponse =
-  | { ok: true; token: string; publisher: { id: string; handle: string; email: string; emailVerified: boolean } }
+  | { ok: true; token: string; publisher: Publisher }
   | ApiError;
 
+export type SessionLoginResponse = { ok: true; publisher: Publisher } | ApiError;
+
 export type VerifyEmailResponse =
-  | { ok: true; publisher: { id: string; handle: string; email: string; emailVerified: boolean } | null }
+  | { ok: true; publisher: Publisher | null }
   | ApiError;
 
 export type RequestVerifyEmailResponse =
   | { ok: true; alreadyVerified?: boolean; sent?: boolean; mode?: string; consoleUrl?: string }
   | ApiError;
+
+export type MeResponse = { ok: true; publisher: Publisher | null } | ApiError;
+
+export interface TokenMeta {
+  id: string;
+  name: string;
+  created_at: string;
+  last_used_at: string | null;
+  revoked_at: string | null;
+}
+
+export type TokensListResponse = { ok: true; tokens: TokenMeta[] } | ApiError;
+export type TokenCreateResponse = { ok: true; token: string; tokenMeta: TokenMeta } | ApiError;
+export type TokenRevokeResponse = { ok: true; revoked: boolean } | ApiError;
+
+export interface MySkillItem {
+  name: string;
+  description: string | null;
+  updated_at: string;
+  versionsCount: number | string;
+}
+
+export type PublisherSkillsResponse = { ok: true; skills: MySkillItem[] } | ApiError;
 
 export interface SkillListItem {
   name: string;

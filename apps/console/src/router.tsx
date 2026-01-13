@@ -8,20 +8,33 @@ import { SkillsPage } from './ui/pages/SkillsPage';
 import { SkillDetailPage } from './ui/pages/SkillDetailPage';
 import { VerifyEmailPage } from './ui/pages/VerifyEmailPage';
 import { VerifyEmailRequestPage } from './ui/pages/VerifyEmailRequestPage';
+import { HomePage } from './ui/pages/HomePage';
+import { LoginPage } from './ui/pages/LoginPage';
+import { MePage } from './ui/pages/MePage';
+import { TokensPage } from './ui/pages/TokensPage';
+import { MySkillsPage } from './ui/pages/MySkillsPage';
+import { SettingsPage } from './ui/pages/SettingsPage';
+import { RequireAuth } from './features/auth/RequireAuth';
 
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <AppLayout />,
     children: [
-      { index: true, element: <Navigate to="/skills" replace /> },
+      { index: true, element: <HomePage /> },
+      { path: 'login', element: <LoginPage /> },
       { path: 'signup', element: <SignupPage /> },
-      { path: 'token/new', element: <TokenNewPage /> },
+      { path: 'token/new', element: <Navigate to="/me/tokens" replace /> },
+      { path: 'token/new/legacy', element: <TokenNewPage /> },
       { path: 'verify-email', element: <VerifyEmailPage /> },
       { path: 'verify-email/request', element: <VerifyEmailRequestPage /> },
       { path: 'publish', element: <PublishPage /> },
       { path: 'skills', element: <SkillsPage /> },
-      { path: 'skills/:scope/:skill', element: <SkillDetailPage /> }
+      { path: 'skills/:scope/:skill', element: <SkillDetailPage /> },
+      { path: 'me', element: <RequireAuth><MePage /></RequireAuth> },
+      { path: 'me/tokens', element: <RequireAuth><TokensPage /></RequireAuth> },
+      { path: 'me/skills', element: <RequireAuth><MySkillsPage /></RequireAuth> },
+      { path: 'me/settings', element: <RequireAuth><SettingsPage /></RequireAuth> }
     ]
   }
 ]);

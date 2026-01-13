@@ -19,6 +19,7 @@ export interface TokenRow {
   token_hash: string;
   created_at: string;
   last_used_at: string | null;
+  revoked_at: string | null;
 }
 
 export interface EmailVerificationTokenRow {
@@ -75,7 +76,7 @@ export async function getPublisherById(env: Env, id: string): Promise<PublisherR
 
 export async function getTokenById(env: Env, id: string): Promise<TokenRow | null> {
   const result = await env.DB.prepare(
-    "SELECT id, publisher_id, name, token_salt, token_hash, created_at, last_used_at FROM tokens WHERE id = ?1 LIMIT 1",
+    "SELECT id, publisher_id, name, token_salt, token_hash, created_at, last_used_at, revoked_at FROM tokens WHERE id = ?1 LIMIT 1",
   )
     .bind(id)
     .first<TokenRow>();
