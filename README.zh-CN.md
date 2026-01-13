@@ -9,7 +9,7 @@
 [![npm version](https://img.shields.io/npm/v/skild.svg)](https://www.npmjs.com/package/skild)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-[官网](https://skild.sh) · [文档](./docs) · [示例](./examples)
+[官网](https://skild.sh) · [文档](./docs/usage.zh-CN.md) · [Console](https://console.skild.sh)
 
 **[English](./README.md)** | 简体中文
 

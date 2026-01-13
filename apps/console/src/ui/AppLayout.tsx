@@ -43,6 +43,7 @@ export function AppLayout(): JSX.Element {
             </Link>
             <nav className="flex items-center gap-5">
               <TopNavLink to="/skills">Discover</TopNavLink>
+              <TopNavLink to="/linked">Catalog</TopNavLink>
               <TopNavLink to="/publish">Publish</TopNavLink>
             </nav>
           </div>
@@ -117,4 +118,3 @@ export function AppLayout(): JSX.Element {
     </div>
   );
 }
-

@@ -53,6 +53,23 @@ export interface MySkillItem {
 
 export type PublisherSkillsResponse = { ok: true; skills: MySkillItem[] } | ApiError;
 
+export interface LinkedItem {
+  id: string;
+  source: { provider: 'github'; repo: string; path: string | null; ref: string | null; url: string | null };
+  title: string;
+  description: string;
+  license: string | null;
+  category: string | null;
+  tags: string[];
+  submittedBy: { id: string; handle: string } | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type LinkedItemsListResponse = { ok: true; items: LinkedItem[] } | ApiError;
+export type LinkedItemDetailResponse = { ok: true; item: LinkedItem; install: string } | ApiError;
+export type LinkedItemCreateResponse = { ok: true; item: LinkedItem; install: string } | ApiError;
+
 export interface SkillListItem {
   name: string;
   description: string | null;

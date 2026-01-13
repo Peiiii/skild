@@ -26,32 +26,37 @@ function getSessionTtlMs(): number {
   return 30 * 24 * 60 * 60 * 1000;
 }
 
-export function parseSessionCookie(cookieHeader: string | null | undefined): { sessionId: string; sessionSecret: string } | null {
-  if (!cookieHeader) return null;
+export function parseSessionCookies(cookieHeader: string | null | undefined): Array<{ sessionId: string; sessionSecret: string }> {
+  if (!cookieHeader) return [];
   const parts = cookieHeader.split(";").map((p) => p.trim());
+  const out: Array<{ sessionId: string; sessionSecret: string }> = [];
   for (const part of parts) {
     if (!part.startsWith("skild_session=")) continue;
     const raw = part.slice("skild_session=".length).trim();
-    if (!raw) return null;
+    if (!raw) continue;
     const [sessionId, sessionSecret] = raw.split(".", 2);
-    if (!sessionId || !sessionSecret) return null;
-    return { sessionId, sessionSecret };
+    if (!sessionId || !sessionSecret) continue;
+    out.push({ sessionId, sessionSecret });
   }
-  return null;
+  return out;
+}
+
+export function parseSessionCookie(cookieHeader: string | null | undefined): { sessionId: string; sessionSecret: string } | null {
+  const cookies = parseSessionCookies(cookieHeader);
+  return cookies.length ? cookies[cookies.length - 1] : null;
 }
 
 export function serializeSessionCookie(input: { value: string; expiresAt: Date; requestUrl: string }): string {
   const url = new URL(input.requestUrl);
   const isHttps = url.protocol === "https:";
-  const isSkild = url.hostname === "skild.sh" || url.hostname.endsWith(".skild.sh");
 
   const attrs: string[] = [];
   attrs.push(`skild_session=${input.value}`);
   attrs.push("Path=/");
   attrs.push("HttpOnly");
-  attrs.push("SameSite=Lax");
+  // Dev (http): Lax is enough. Prod (https): None enables cookie on cross-site XHR (e.g. Pages preview domains).
+  attrs.push(`SameSite=${isHttps ? "None" : "Lax"}`);
   if (isHttps) attrs.push("Secure");
-  if (isSkild) attrs.push("Domain=.skild.sh");
   attrs.push(`Expires=${input.expiresAt.toUTCString()}`);
   return attrs.join("; ");
 }
@@ -107,4 +112,3 @@ export async function verifySessionSecret(env: Env, input: { session: SessionRow
   const computed = await pbkdf2Sha256(input.sessionSecret, input.session.session_salt, iterations);
   return timingSafeEqual(computed, input.session.session_hash);
 }
-

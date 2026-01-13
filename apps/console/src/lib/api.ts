@@ -12,7 +12,10 @@ import type {
   TokensListResponse,
   TokenCreateResponse,
   TokenRevokeResponse,
-  PublisherSkillsResponse
+  PublisherSkillsResponse,
+  LinkedItemsListResponse,
+  LinkedItemDetailResponse,
+  LinkedItemCreateResponse
 } from './api-types';
 
 function newApiUrl(pathname: string): URL {
@@ -146,6 +149,39 @@ export async function revokeToken(tokenId: string): Promise<TokenRevokeResponse>
 export async function listMySkills(): Promise<PublisherSkillsResponse> {
   const base = getRegistryUrl();
   return fetchJson<PublisherSkillsResponse>(`${base}/publisher/skills`, { credentials: 'include' }, 10_000);
+}
+
+export async function listLinkedItems(query: string): Promise<LinkedItemsListResponse> {
+  const url = newApiUrl('/linked-items');
+  if (query.trim()) url.searchParams.set('q', query.trim());
+  url.searchParams.set('limit', '50');
+  return fetchJson<LinkedItemsListResponse>(url.toString(), {}, 10_000);
+}
+
+export async function getLinkedItem(id: string): Promise<LinkedItemDetailResponse> {
+  const url = newApiUrl(`/linked-items/${encodeURIComponent(id)}`);
+  return fetchJson<LinkedItemDetailResponse>(url.toString(), {}, 10_000);
+}
+
+export async function createLinkedItem(input: {
+  source: { provider: 'github'; repo: string; path?: string | null; ref?: string | null; url?: string | null };
+  title: string;
+  description: string;
+  license?: string | null;
+  category?: string | null;
+  tags?: string[];
+}): Promise<LinkedItemCreateResponse> {
+  const url = newApiUrl('/linked-items');
+  return fetchJson<LinkedItemCreateResponse>(
+    url.toString(),
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(input)
+    },
+    10_000
+  );
 }
 
 export async function listSkills(query: string): Promise<SkillsListResponse> {

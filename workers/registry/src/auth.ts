@@ -2,7 +2,7 @@ import type { Context } from "hono";
 import type { Env } from "./env.js";
 import { getPublisherById, getTokenById, touchToken } from "./db.js";
 import { pbkdf2Sha256, timingSafeEqual } from "./crypto.js";
-import { getSessionById, parseSessionCookie, touchSession, verifySessionSecret } from "./sessions.js";
+import { getSessionById, parseSessionCookies, touchSession, verifySessionSecret } from "./sessions.js";
 
 export interface AuthContext {
   publisherId: string;
@@ -54,56 +54,41 @@ async function requireTokenAuth(c: Context<{ Bindings: Env }>): Promise<AuthCont
 export async function requirePublisherAuth(
   c: Context<{ Bindings: Env }>,
 ): Promise<{ publisherId: string; via: "session" | "token" }> {
-  const sessionCookie = parseSessionCookie(c.req.header("cookie"));
-  if (sessionCookie) {
+  const hasBearer = Boolean((c.req.header("authorization") || "").trim());
+  const sessionCookies = parseSessionCookies(c.req.header("cookie"));
+  for (const sessionCookie of sessionCookies) {
     const session = await getSessionById(c.env, sessionCookie.sessionId);
-    if (!session) {
-      c.status(401);
-      throw new Error("Invalid session.");
-    }
+    if (!session) continue;
     const ok = await verifySessionSecret(c.env, { session, sessionSecret: sessionCookie.sessionSecret });
-    if (!ok) {
-      c.status(401);
-      throw new Error("Invalid session.");
-    }
+    if (!ok) continue;
     const publisher = await getPublisherById(c.env, session.publisher_id);
-    if (!publisher) {
-      c.status(401);
-      throw new Error("Invalid session.");
-    }
+    if (!publisher) continue;
     await touchSession(c.env, session.id);
     return { publisherId: publisher.id, via: "session" };
   }
 
-  const tokenAuth = await requireTokenAuth(c);
-  return { publisherId: tokenAuth.publisherId, via: "token" };
+  if (hasBearer) {
+    const tokenAuth = await requireTokenAuth(c);
+    return { publisherId: tokenAuth.publisherId, via: "token" };
+  }
+
+  c.status(401);
+  throw new Error(sessionCookies.length ? "Invalid session." : "Missing Authorization header.");
 }
 
 export async function requireSessionAuth(c: Context<{ Bindings: Env }>): Promise<{ publisherId: string }> {
-  const sessionCookie = parseSessionCookie(c.req.header("cookie"));
-  if (!sessionCookie) {
-    c.status(401);
-    throw new Error("Missing session.");
+  const sessionCookies = parseSessionCookies(c.req.header("cookie"));
+  for (const sessionCookie of sessionCookies) {
+    const session = await getSessionById(c.env, sessionCookie.sessionId);
+    if (!session) continue;
+    const ok = await verifySessionSecret(c.env, { session, sessionSecret: sessionCookie.sessionSecret });
+    if (!ok) continue;
+    const publisher = await getPublisherById(c.env, session.publisher_id);
+    if (!publisher) continue;
+    await touchSession(c.env, session.id);
+    return { publisherId: publisher.id };
   }
 
-  const session = await getSessionById(c.env, sessionCookie.sessionId);
-  if (!session) {
-    c.status(401);
-    throw new Error("Invalid session.");
-  }
-
-  const ok = await verifySessionSecret(c.env, { session, sessionSecret: sessionCookie.sessionSecret });
-  if (!ok) {
-    c.status(401);
-    throw new Error("Invalid session.");
-  }
-
-  const publisher = await getPublisherById(c.env, session.publisher_id);
-  if (!publisher) {
-    c.status(401);
-    throw new Error("Invalid session.");
-  }
-
-  await touchSession(c.env, session.id);
-  return { publisherId: publisher.id };
+  c.status(401);
+  throw new Error("Missing session.");
 }

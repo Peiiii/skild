@@ -6,8 +6,9 @@ import { consumeEmailVerificationToken, getPublisherByHandleOrEmail, insertEmail
 import { requirePublisherAuth, requireSessionAuth } from "./auth.js";
 import { assertEmail, assertHandle, assertSemver, assertSkillName, assertSkillSegment } from "./validate.js";
 import { getConsolePublicUrl, getEmailVerifyTtlHours, sendVerificationEmail } from "./email.js";
-import { createSession, parseSessionCookie, revokeSession, serializeClearSessionCookie, serializeSessionCookie } from "./sessions.js";
+import { createSession, parseSessionCookies, revokeSession, serializeClearSessionCookie, serializeSessionCookie } from "./sessions.js";
 import { issuePublishToken, listTokens, revokeToken } from "./tokens.js";
+import { buildInstallCommand, createLinkedItem, getLinkedItemById, getPublisherHandleById, listLinkedItems, toLinkedItem } from "./linked-items.js";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -49,6 +50,29 @@ function isAllowedOrigin(origin: string | null | undefined): string | null {
   }
 }
 
+function getAllowedOriginFromRequest(c: any): string | null {
+  const origin = c.req.header("origin");
+  const allowedFromOrigin = isAllowedOrigin(origin);
+  if (allowedFromOrigin) return allowedFromOrigin;
+
+  const referer = c.req.header("referer");
+  if (!referer) return null;
+  try {
+    const refOrigin = new URL(referer).origin;
+    return isAllowedOrigin(refOrigin);
+  } catch {
+    return null;
+  }
+}
+
+function getCookieRequestUrl(c: any): string {
+  const parsed = new URL(c.req.url);
+  const host = c.req.header("host") || parsed.host;
+  const forwardedProto = (c.req.header("x-forwarded-proto") || "").trim();
+  const protocol = (forwardedProto || parsed.protocol.replace(":", "") || "http").toLowerCase();
+  return `${protocol}://${host}${parsed.pathname}`;
+}
+
 async function authenticateWithPassword(env: Env, handleOrEmail: string, password: string): Promise<PublisherRow | null> {
   const publisher = await getPublisherByHandleOrEmail(env, handleOrEmail);
   if (!publisher) return null;
@@ -81,7 +105,15 @@ app.use("*", async (c, next) => {
 
   const method = c.req.method.toUpperCase();
   const isWrite = method !== "GET" && method !== "HEAD";
-  if (isWrite && origin && !allowedOrigin) return errorJson(c as any, "Origin not allowed.", 403);
+  // CSRF protection for cookie-based session endpoints: require an allowed Origin/Referer when a session cookie is present.
+  const cookieHeader = c.req.header("cookie") || "";
+  const hasSessionCookie = cookieHeader.includes("skild_session=");
+  if (isWrite && hasSessionCookie) {
+    const allowed = getAllowedOriginFromRequest(c);
+    if (!allowed) return errorJson(c as any, "Origin not allowed.", 403);
+  } else if (isWrite && origin && !allowedOrigin) {
+    return errorJson(c as any, "Origin not allowed.", 403);
+  }
 
   await next();
 });
@@ -121,7 +153,7 @@ app.post("/auth/signup", async (c) => {
       serializeSessionCookie({
         value: `${session.sessionId}.${session.sessionSecret}`,
         expiresAt: new Date(session.expiresAt),
-        requestUrl: c.req.url,
+        requestUrl: getCookieRequestUrl(c),
       }),
     );
 
@@ -192,7 +224,7 @@ app.post("/auth/session/login", async (c) => {
       serializeSessionCookie({
         value: `${session.sessionId}.${session.sessionSecret}`,
         expiresAt: new Date(session.expiresAt),
-        requestUrl: c.req.url,
+        requestUrl: getCookieRequestUrl(c),
       }),
     );
 
@@ -207,17 +239,16 @@ app.post("/auth/session/login", async (c) => {
 
 app.post("/auth/session/logout", async (c) => {
   try {
-    const parsed = parseSessionCookie(c.req.header("cookie"));
-    if (parsed) {
+    const cookies = parseSessionCookies(c.req.header("cookie"));
+    for (const parsed of cookies) {
       try {
-        const auth = await requirePublisherAuth(c);
-        if (auth.via === "session") await revokeSession(c.env, parsed.sessionId);
+        await revokeSession(c.env, parsed.sessionId);
       } catch {
-        // ignore invalid session
+        // ignore
       }
     }
 
-    c.header("set-cookie", serializeClearSessionCookie(c.req.url));
+    c.header("set-cookie", serializeClearSessionCookie(getCookieRequestUrl(c)));
     return c.json({ ok: true });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
@@ -285,7 +316,7 @@ app.post("/auth/verify-email/request", async (c) => {
 
 app.get("/auth/me", async (c) => {
   try {
-    const hasSession = Boolean(parseSessionCookie(c.req.header("cookie")));
+    const hasSession = parseSessionCookies(c.req.header("cookie")).length > 0;
     const hasBearer = Boolean((c.req.header("authorization") || "").trim());
     if (!hasSession && !hasBearer) {
       return c.json({ ok: true, publisher: null });
@@ -374,6 +405,69 @@ app.get("/skills", async (c) => {
   const stmt = q ? c.env.DB.prepare(sql).bind(`%${q}%`, limit) : c.env.DB.prepare(sql).bind(limit);
   const result = await stmt.all();
   return c.json({ ok: true, skills: result.results });
+});
+
+app.get("/linked-items", async (c) => {
+  try {
+    const q = (c.req.query("q") || "").trim();
+    const limit = Math.min(Number.parseInt(c.req.query("limit") || "50", 10) || 50, 100);
+    const rows = await listLinkedItems(c.env, { q, limit });
+    const publisherIds = Array.from(new Set(rows.map((r) => r.submitted_by_publisher_id)));
+    const publisherMap = new Map<string, { id: string; handle: string }>();
+    for (const id of publisherIds) {
+      const p = await getPublisherHandleById(c.env, id);
+      if (p) publisherMap.set(id, p);
+    }
+    return c.json({
+      ok: true,
+      items: rows.map((r) => toLinkedItem(r, publisherMap.get(r.submitted_by_publisher_id) ?? null)),
+    });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.get("/linked-items/:id", async (c) => {
+  try {
+    const id = c.req.param("id");
+    const row = await getLinkedItemById(c.env, id);
+    if (!row) return errorJson(c as any, "Not found.", 404);
+    const submittedBy = await getPublisherHandleById(c.env, row.submitted_by_publisher_id);
+    const item = toLinkedItem(row, submittedBy);
+    return c.json({ ok: true, item, install: buildInstallCommand(item.source) });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/linked-items", async (c) => {
+  try {
+    const auth = await requireSessionAuth(c);
+    const body = await c.req.json<{
+      source: { provider: "github"; repo: string; path?: string | null; ref?: string | null; url?: string | null };
+      title: string;
+      description: string;
+      license?: string | null;
+      category?: string | null;
+      tags?: unknown;
+    }>();
+
+    const row = await createLinkedItem(c.env, {
+      submittedByPublisherId: auth.publisherId,
+      source: body.source,
+      title: body.title,
+      description: body.description,
+      license: body.license,
+      category: body.category,
+      tags: body.tags,
+    });
+    const submittedBy = await getPublisherHandleById(c.env, row.submitted_by_publisher_id);
+    const item = toLinkedItem(row, submittedBy);
+    return c.json({ ok: true, item, install: buildInstallCommand(item.source) }, 201);
+  } catch (e) {
+    const status = e instanceof Error && typeof (e as any).status === "number" ? (e as any).status : 400;
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), status);
+  }
 });
 
 app.get("/skills/:scope/:skill", async (c) => {

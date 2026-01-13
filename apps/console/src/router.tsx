@@ -15,6 +15,9 @@ import { TokensPage } from './ui/pages/TokensPage';
 import { MySkillsPage } from './ui/pages/MySkillsPage';
 import { SettingsPage } from './ui/pages/SettingsPage';
 import { RequireAuth } from './features/auth/RequireAuth';
+import { LinkedItemsPage } from './ui/pages/LinkedItemsPage';
+import { LinkedItemDetailPage } from './ui/pages/LinkedItemDetailPage';
+import { LinkedItemNewPage } from './ui/pages/LinkedItemNewPage';
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +34,9 @@ export const router = createBrowserRouter([
       { path: 'publish', element: <PublishPage /> },
       { path: 'skills', element: <SkillsPage /> },
       { path: 'skills/:scope/:skill', element: <SkillDetailPage /> },
+      { path: 'linked', element: <LinkedItemsPage /> },
+      { path: 'linked/new', element: <RequireAuth><LinkedItemNewPage /></RequireAuth> },
+      { path: 'linked/:id', element: <LinkedItemDetailPage /> },
       { path: 'me', element: <RequireAuth><MePage /></RequireAuth> },
       { path: 'me/tokens', element: <RequireAuth><TokensPage /></RequireAuth> },
       { path: 'me/skills', element: <RequireAuth><MySkillsPage /></RequireAuth> },
