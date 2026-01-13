@@ -13,7 +13,7 @@ export async function fetchJson<T>(url: string, init: RequestInit = {}, timeoutM
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), Math.max(1, timeoutMs));
   try {
-    const credentials = init.credentials ?? 'include';
+    const credentials = init.credentials ?? 'omit';
     const res = await fetch(url, { ...init, credentials, signal: controller.signal });
     const text = await res.text();
     let parsed: unknown = null;

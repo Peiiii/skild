@@ -40,6 +40,7 @@ export async function signup(email: string, handle: string, password: string): P
     `${base}/auth/signup`,
     {
       method: 'POST',
+      credentials: 'include',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ email, handle, password })
     },
@@ -66,6 +67,7 @@ export async function sessionLogin(handleOrEmail: string, password: string): Pro
     `${base}/auth/session/login`,
     {
       method: 'POST',
+      credentials: 'include',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ handleOrEmail, password })
     },
@@ -77,14 +79,14 @@ export async function sessionLogout(): Promise<{ ok: true } | { ok: false; error
   const base = getRegistryUrl();
   return fetchJson<{ ok: true } | { ok: false; error: string }>(
     `${base}/auth/session/logout`,
-    { method: 'POST' },
+    { method: 'POST', credentials: 'include' },
     10_000
   );
 }
 
 export async function me(): Promise<MeResponse> {
   const base = getRegistryUrl();
-  return fetchJson<MeResponse>(`${base}/auth/me`, {}, 10_000);
+  return fetchJson<MeResponse>(`${base}/auth/me`, { credentials: 'include' }, 10_000);
 }
 
 export async function verifyEmail(token: string): Promise<VerifyEmailResponse> {
@@ -115,7 +117,7 @@ export async function requestVerifyEmail(handleOrEmail: string, password: string
 
 export async function listTokens(): Promise<TokensListResponse> {
   const base = getRegistryUrl();
-  return fetchJson<TokensListResponse>(`${base}/tokens`, {}, 10_000);
+  return fetchJson<TokensListResponse>(`${base}/tokens`, { credentials: 'include' }, 10_000);
 }
 
 export async function createToken(name?: string): Promise<TokenCreateResponse> {
@@ -124,6 +126,7 @@ export async function createToken(name?: string): Promise<TokenCreateResponse> {
     `${base}/tokens`,
     {
       method: 'POST',
+      credentials: 'include',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ name })
     },
@@ -135,14 +138,14 @@ export async function revokeToken(tokenId: string): Promise<TokenRevokeResponse>
   const base = getRegistryUrl();
   return fetchJson<TokenRevokeResponse>(
     `${base}/tokens/${encodeURIComponent(tokenId)}`,
-    { method: 'DELETE' },
+    { method: 'DELETE', credentials: 'include' },
     10_000
   );
 }
 
 export async function listMySkills(): Promise<PublisherSkillsResponse> {
   const base = getRegistryUrl();
-  return fetchJson<PublisherSkillsResponse>(`${base}/publisher/skills`, {}, 10_000);
+  return fetchJson<PublisherSkillsResponse>(`${base}/publisher/skills`, { credentials: 'include' }, 10_000);
 }
 
 export async function listSkills(query: string): Promise<SkillsListResponse> {
