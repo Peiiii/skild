@@ -80,14 +80,15 @@ skild update pdf           # Update a Skill
 skild uninstall pdf        # Remove a Skill
 ```
 
-## ✨ Create & Publish Skills
+## ✨ Create Skills
 
 ```bash
 skild init my-skill        # Create a new Skill project
 cd my-skill
-skild validate .           # Validate before publishing
-skild publish              # Publish to registry
+skild validate .           # Validate structure
 ```
+
+Ready to share? See **[Publishing Skills](./docs/publishing-skills.md)** for the complete guide.
 
 ## 🛠️ All Commands
 

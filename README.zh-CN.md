@@ -82,9 +82,10 @@ skild uninstall pdf        # 卸载 Skill
 ```bash
 skild init my-skill        # 创建新的 Skill 项目
 cd my-skill
-skild validate .           # 发布前校验
-skild publish              # 发布到 registry
+skild validate .           # 校验结构
 ```
+
+准备分享了？请参考 **[发布 Skills](./docs/publishing.zh-CN.md)** 完整指南。
 
 ## 🛠️ 所有命令
 
