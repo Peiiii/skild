@@ -77,6 +77,6 @@ export async function login(options: LoginCommandOptions): Promise<void> {
   console.log(chalk.green(`Logged in as ${chalk.cyan(json.publisher.handle)}.`));
   if (json.publisher.emailVerified === false) {
     console.log(chalk.yellow('Email not verified. Publishing may be restricted by server policy.'));
-    console.log(chalk.dim('Open the Publisher Console to verify: https://console.skild.sh/verify-email/request'));
+    console.log(chalk.dim('Open the Skild Hub to verify: https://hub.skild.sh/verify-email/request'));
   }
 }

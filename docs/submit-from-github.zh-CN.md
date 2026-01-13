@@ -6,7 +6,7 @@
 
 ## 这是什么？
 
-你可以将任何包含有效 `SKILL.md` 文件的 GitHub 仓库提交到 Skild 目录。提交后，它将可以通过 Skild Console 被发现，并提供简单的安装命令。
+你可以将任何包含有效 `SKILL.md` 文件的 GitHub 仓库提交到 Skild 目录。提交后，它将可以通过 Skild Hub 被发现，并提供简单的安装命令。
 
 ---
 
@@ -14,7 +14,7 @@
 
 ### 1. 创建账号
 
-访问 [console.skild.sh](https://console.skild.sh) 并注册。
+访问 [hub.skild.sh](https://hub.skild.sh) 并注册。
 
 ### 2. 进入提交页面
 
@@ -49,7 +49,7 @@ https://github.com/owner/repo/tree/v1.0.0/path/to/skill
 
 提交成功后，该 Skill 将：
 
-- **可被发现** — 出现在 Skild Console 的搜索结果中
+- **可被发现** — 出现在 Skild Hub 的搜索结果中
 - **可被安装** — 用户可以直接从 GitHub 安装：
 
 ```bash

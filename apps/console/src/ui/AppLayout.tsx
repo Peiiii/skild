@@ -54,7 +54,7 @@ export function AppLayout(): JSX.Element {
           <Link to="/" className="flex items-center gap-2 group">
             <img src="/logo.svg" alt="Skild Logo" className="w-8 h-8 transition-transform group-hover:scale-110" />
             <span className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-              Skild
+              Skild Hub
             </span>
           </Link>
 
@@ -142,7 +142,7 @@ export function AppLayout(): JSX.Element {
           <div className="flex flex-col gap-2 items-center md:items-start">
             <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all opacity-50 hover:opacity-100">
               <img src="/logo.svg" alt="Skild Logo" className="w-5 h-5" />
-              <span className="font-bold text-sm tracking-tight">Skild</span>
+              <span className="font-bold text-sm tracking-tight">Skild Hub</span>
             </div>
             <div className="text-[10px] text-muted-foreground font-mono">
               © {new Date().getFullYear()} Skild Protocol · registry.skild.sh

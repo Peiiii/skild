@@ -15,7 +15,7 @@ Install, manage, and discover Skills for your AI agents.
 | Document | Description |
 |----------|-------------|
 | **[Installing Skills](./installing-skills.md)** | Install from GitHub, local path, or registry |
-| **[Console Guide](./console.md)** | Using the web interface |
+| **[Skild Hub Guide](./hub.md)** | Using the web interface |
 | **[FAQ](./faq.md)** | Common questions and answers |
 
 ---
@@ -49,7 +49,7 @@ Found a great Skill on GitHub? Help grow the community by submitting it.
 | **[安装 Skills](./installing-skills.zh-CN.md)** | 从 GitHub、本地或 Registry 安装 |
 | **[发布 Skills](./publishing.zh-CN.md)** | 发布你的 Skill |
 | **[从 GitHub 提交](./submit-from-github.zh-CN.md)** | 收录 GitHub 上的 Skill |
-| **[Console 指南](./console.zh-CN.md)** | Web 界面使用 |
+| **[Skild Hub 指南](./hub.zh-CN.md)** | Web 界面使用 |
 
 ---
 
@@ -67,6 +67,6 @@ Found a great Skill on GitHub? Help grow the community by submitting it.
 ## Quick Links
 
 - **Website**: [skild.sh](https://skild.sh)
-- **Console**: [console.skild.sh](https://console.skild.sh)
+- **Skild Hub**: [hub.skild.sh](https://hub.skild.sh)
 - **GitHub**: [github.com/Peiiii/skild](https://github.com/Peiiii/skild)
 - **npm**: [npmjs.com/package/skild](https://www.npmjs.com/package/skild)

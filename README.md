@@ -9,7 +9,7 @@
 [![npm version](https://img.shields.io/npm/v/skild.svg)](https://www.npmjs.com/package/skild)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-[Website](https://skild.sh) · [Documentation](./docs/README.md) · [Console](https://console.skild.sh)
+[Website](https://skild.sh) · [Documentation](./docs/README.md) · [Skild Hub](https://hub.skild.sh)
 
 English | **[简体中文](./README.zh-CN.md)**
 
@@ -117,7 +117,7 @@ Run `skild <command> --help` for full options.
 - **[Creating Skills](./docs/creating-skills.md)** — Build your own Skills
 - **[Publishing Skills](./docs/publishing-skills.md)** — Share with the community
 - **[Submit from GitHub](./docs/submit-from-github.md)** — Index GitHub Skills
-- **[Console Guide](./docs/console.md)** — Web interface walkthrough
+- **[Skild Hub Guide](./docs/hub.md)** — Web interface walkthrough
 - **[FAQ](./docs/faq.md)** — Common questions
 - **[中文文档](./docs/README.md#中文文档)**
 

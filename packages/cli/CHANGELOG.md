@@ -1,5 +1,11 @@
 # skild
 
+## 0.2.2
+
+### Patch Changes
+
+- Update CLI messaging to point to Skild Hub verification URLs.
+
 ## 0.2.1
 
 ### Patch Changes

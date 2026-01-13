@@ -1,6 +1,6 @@
-# Console 使用指南
+# Skild Hub 使用指南
 
-**Skild Console** ([console.skild.sh](https://console.skild.sh)) 是发现、浏览和发布 Agent Skills 的 Web 界面。
+**Skild Hub** ([hub.skild.sh](https://hub.skild.sh)) 是发现、浏览和发布 Agent Skills 的 Web 界面。
 
 ---
 
@@ -10,7 +10,7 @@
 
 浏览 registry 寻找适合你的 Agent 的 Skills：
 
-1. 访问 [console.skild.sh](https://console.skild.sh)
+1. 访问 [hub.skild.sh](https://hub.skild.sh)
 2. 点击导航栏中的 **Discover**
 3. 按名称、描述或标签搜索
 4. 点击 Skill 查看详情
@@ -26,7 +26,7 @@
 
 1. **创建账号** — 点击 "Sign up"
 2. **验证邮箱** — 查收验证邮件
-3. **发布** — 使用 CLI 或 Console
+3. **发布** — 使用 CLI 或 Hub
 
 ```bash
 # CLI 发布

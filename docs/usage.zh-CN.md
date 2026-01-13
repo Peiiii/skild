@@ -1,6 +1,6 @@
 # 使用文档
 
-这是 **skild** 面向用户的端到端使用说明（CLI + registry + Publisher Console）。
+这是 **skild** 面向用户的端到端使用说明（CLI + registry + Skild Hub）。
 
 ## 安装 skild
 
@@ -82,7 +82,7 @@ skild validate .
 
 ### Signup（创建发布者账号）
 
-推荐：使用 **Publisher Console（Web）** 完成注册与 Token 管理。
+推荐：使用 **Skild Hub（Web）** 完成注册与 Token 管理。
 
 CLI（无头）：
 
@@ -93,7 +93,7 @@ skild signup
 邮箱验证：
 
 - 发布（publish）可能要求邮箱已验证（取决于服务端策略）。
-- 注册后检查邮箱的验证邮件（Console 也提供重发流程）。
+- 注册后检查邮箱的验证邮件（Skild Hub 也提供重发流程）。
 - 本地联调说明：当 registry 以 `EMAIL_MODE=log` 运行时，不会真正发邮件，而是把验证链接打印在 registry 的 dev 日志里。
 
 ### login / whoami / logout
@@ -150,11 +150,11 @@ skild publish --dir ./path/to/skill
 
 - 用 `--skill-version` 覆盖版本（不使用 `--version`，因为会和 CLI 自己的 `--version` 冲突）。
 - 如果 name 是未带 scope 的（例如 `hello-skill`），`skild publish` 会从 registry 推断 scope，并发布为 `@<你的-handle>/hello-skill`。
-- 如果 publish 返回 `Email not verified`（HTTP 403），需要先在 Publisher Console（`/verify-email`）完成邮箱验证。
+- 如果 publish 返回 `Email not verified`（HTTP 403），需要先在 Skild Hub（`/verify-email`）完成邮箱验证。
 
-## Publisher Console（Web）
+## Skild Hub（Web）
 
-Console 是一个最小可用的 Web 界面，用于：
+Skild Hub 是一个最小可用的 Web 界面，用于：
 
 - 注册（Signup）
 - 邮箱验证（可能是发布前置条件，取决于服务端策略）
@@ -164,7 +164,7 @@ Console 是一个最小可用的 Web 界面，用于：
 
 如果你配置了自定义域名，通常会是：
 
-- `https://console.skild.sh`
+- `https://hub.skild.sh`
 
 ## skild 会写入哪些文件
 

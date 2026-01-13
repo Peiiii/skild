@@ -22,7 +22,7 @@
 
 ## 浏览 Catalog
 
-1. 访问 [console.skild.sh/linked](https://console.skild.sh/linked)
+1. 访问 [hub.skild.sh/linked](https://hub.skild.sh/linked)
 2. 浏览或搜索 Skills
 3. 点击查看详情
 4. 复制安装命令
@@ -49,9 +49,9 @@ skild install https://github.com/anthropics/skills/tree/main/skills/pdf
 
 ### 要求
 
-1. 在 [console.skild.sh](https://console.skild.sh) **创建账号**
+1. 在 [hub.skild.sh](https://hub.skild.sh) **创建账号**
 2. **找到 GitHub Skill**，需包含有效的 `SKILL.md`
-3. **通过 Console 提交**：
+3. **通过 Skild Hub 提交**：
    - 进入 **Catalog** → 点击 **+ Submit**
    - 粘贴 GitHub URL
    - 点击 **Parse** 解析 repo/path/ref

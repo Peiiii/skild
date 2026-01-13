@@ -7,7 +7,7 @@ function requiredEnv(name: string, value: string | undefined): string {
 }
 
 export function getConsolePublicUrl(env: Env): string {
-  return (env.CONSOLE_PUBLIC_URL || "https://console.skild.sh").trim().replace(/\/+$/, "");
+  return (env.CONSOLE_PUBLIC_URL || "https://hub.skild.sh").trim().replace(/\/+$/, "");
 }
 
 export function getRegistryPublicUrl(env: Env): string {

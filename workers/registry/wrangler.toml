@@ -10,7 +10,7 @@ routes = [
 # Cloudflare Workers WebCrypto PBKDF2 has an iteration upper bound (100000).
 PBKDF2_ITERATIONS = "100000"
 REGISTRY_PUBLIC_URL = "https://registry.skild.sh"
-CONSOLE_PUBLIC_URL = "https://console.skild.sh"
+CONSOLE_PUBLIC_URL = "https://hub.skild.sh"
 
 # Email verification (publish requires verified email).
 # Modes:

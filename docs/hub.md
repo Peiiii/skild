@@ -1,6 +1,6 @@
-# Console Guide
+# Skild Hub Guide
 
-The **Skild Console** ([console.skild.sh](https://console.skild.sh)) is the web interface for discovering, browsing, and publishing Agent Skills.
+The **Skild Hub** ([hub.skild.sh](https://hub.skild.sh)) is the web interface for discovering, browsing, and publishing Agent Skills.
 
 ---
 
@@ -10,7 +10,7 @@ The **Skild Console** ([console.skild.sh](https://console.skild.sh)) is the web 
 
 Browse the registry to find Skills for your agents:
 
-1. Go to [console.skild.sh](https://console.skild.sh)
+1. Go to [hub.skild.sh](https://hub.skild.sh)
 2. Click **Discover** in the navigation
 3. Search by name, description, or tags
 4. Click on a Skill to view details
@@ -26,7 +26,7 @@ Publish your Skills to the registry:
 
 1. **Create an account** — Click "Sign up" and fill in your details
 2. **Verify your email** — Check your inbox for the verification link
-3. **Publish** — Use the CLI or Console to publish
+3. **Publish** — Use the CLI or Hub to publish
 
 ```bash
 # CLI publishing
@@ -34,7 +34,7 @@ skild login
 skild publish --dir ./my-skill
 ```
 
-Or use the Console's **Publish** page for a guided experience.
+Or use the Hub's **Publish** page for a guided experience.
 
 ---
 

@@ -73,12 +73,12 @@ export async function signup(options: SignupCommandOptions): Promise<void> {
       } else if (parsed.verification.sent) {
         console.log(chalk.dim('Verification email sent. Check your inbox (and spam).'));
       } else {
-        console.log(chalk.yellow('Verification email was not sent. You may need to resend from the Console.'));
+        console.log(chalk.yellow('Verification email was not sent. You may need to resend from the Skild Hub.'));
       }
-      console.log(chalk.dim(`Verify/resend in Console: ${(parsed.verification.consoleUrl || 'https://console.skild.sh').replace(/\/+$/, '')}/verify-email/request`));
+      console.log(chalk.dim(`Verify/resend in Skild Hub: ${(parsed.verification.consoleUrl || 'https://hub.skild.sh').replace(/\/+$/, '')}/verify-email/request`));
     } else if (parsed.verification) {
       console.log(chalk.dim('Email verification is recommended. Publishing may be restricted in the future.'));
-      console.log(chalk.dim(`Verify/resend in Console: ${(parsed.verification.consoleUrl || 'https://console.skild.sh').replace(/\/+$/, '')}/verify-email/request`));
+      console.log(chalk.dim(`Verify/resend in Skild Hub: ${(parsed.verification.consoleUrl || 'https://hub.skild.sh').replace(/\/+$/, '')}/verify-email/request`));
     }
   } catch {
     // ignore non-JSON responses

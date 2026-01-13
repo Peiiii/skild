@@ -41,6 +41,7 @@ function isAllowedOrigin(origin: string | null | undefined): string | null {
     if (hostname === "skild.sh") return origin;
     if (hostname === "www.skild.sh") return origin;
     if (hostname === "console.skild.sh") return origin;
+    if (hostname === "hub.skild.sh") return origin;
 
     // Cloudflare Pages (project domain + preview deployments)
     if (hostname === "skild-console.pages.dev") return origin;
@@ -716,7 +717,7 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
       const consoleUrl = getConsolePublicUrl(c.env);
       return errorJson(
         c as any,
-        `Email not verified. Verify your email in the Publisher Console first: ${consoleUrl}/verify-email/request`,
+        `Email not verified. Verify your email in the Skild Hub first: ${consoleUrl}/verify-email/request`,
         403,
       );
     }

@@ -34,7 +34,7 @@ skild update skill-name
 
 ### Q: 发布时提示 "Email not verified"
 
-1. 登录 [console.skild.sh](https://console.skild.sh)
+1. 登录 [hub.skild.sh](https://hub.skild.sh)
 2. 进入 Settings
 3. 点击发送验证邮件
 4. 查收邮箱并点击验证链接

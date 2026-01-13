@@ -6,7 +6,7 @@ Found a great Skill on GitHub? Submit it to Skild so others can discover and ins
 
 ## What is this?
 
-You can submit any GitHub repository that contains a valid `SKILL.md` file to the Skild catalog. This makes it discoverable through the Skild Console and provides a simple install command.
+You can submit any GitHub repository that contains a valid `SKILL.md` file to the Skild catalog. This makes it discoverable through the Skild Hub and provides a simple install command.
 
 ---
 
@@ -14,7 +14,7 @@ You can submit any GitHub repository that contains a valid `SKILL.md` file to th
 
 ### 1. Create an account
 
-Go to [console.skild.sh](https://console.skild.sh) and sign up.
+Go to [hub.skild.sh](https://hub.skild.sh) and sign up.
 
 ### 2. Go to Submit page
 
@@ -49,7 +49,7 @@ Click **Parse** to extract repository details, then click **Submit**.
 
 Once submitted, the Skill will be:
 
-- **Discoverable** — Appears in the Skild Console search
+- **Discoverable** — Appears in the Skild Hub search
 - **Installable** — Users can install directly from GitHub:
 
 ```bash

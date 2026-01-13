@@ -22,7 +22,7 @@ Linked Skills are useful for:
 
 ## Browsing the Catalog
 
-1. Go to [console.skild.sh/linked](https://console.skild.sh/linked)
+1. Go to [hub.skild.sh/linked](https://hub.skild.sh/linked)
 2. Browse or search for Skills
 3. Click a Skill to view details
 4. Copy the install command
@@ -49,9 +49,9 @@ Help grow the catalog by submitting high-quality GitHub Skills!
 
 ### Requirements
 
-1. **Create an account** at [console.skild.sh](https://console.skild.sh)
+1. **Create an account** at [hub.skild.sh](https://hub.skild.sh)
 2. **Find a GitHub Skill** with a valid `SKILL.md`
-3. **Submit via Console**:
+3. **Submit via Skild Hub**:
    - Go to **Catalog** → click **+ Submit**
    - Paste the GitHub URL
    - Click **Parse** to extract repo/path/ref
@@ -93,7 +93,7 @@ https://github.com/owner/repo/tree/v1.0.0/path/to/skill
 
 If your Skill is in the Catalog and you want to formally publish it:
 
-1. Create an account at [console.skild.sh](https://console.skild.sh)
+1. Create an account at [hub.skild.sh](https://hub.skild.sh)
 2. Use `skild publish` to publish to the registry
 3. Users can then install via `@yourhandle/skillname`
 

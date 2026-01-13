@@ -133,4 +133,4 @@ skild validate skill-name
 skild search pdf
 ```
 
-或者在线浏览：[console.skild.sh](https://console.skild.sh)
+或者在线浏览：[hub.skild.sh](https://hub.skild.sh)

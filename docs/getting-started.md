@@ -42,4 +42,4 @@ Your AI agent now has the PDF skill available at `~/.claude/skills/pdf`.
 
 - **[Installing Skills](./installing-skills.md)** — Learn all the ways to install Skills
 - **[Creating Skills](./creating-skills.md)** — Build your own Skills
-- **[Console](https://console.skild.sh)** — Browse and discover Skills online
+- **[Skild Hub](https://hub.skild.sh)** — Browse and discover Skills online

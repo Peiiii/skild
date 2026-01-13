@@ -42,4 +42,4 @@ skild list
 
 - **[安装 Skills](./installing-skills.zh-CN.md)** — 了解所有安装方式
 - **[创建 Skills](./creating-skills.md)** — 构建你自己的 Skills
-- **[Console](https://console.skild.sh)** — 在线浏览和发现 Skills
+- **[Skild Hub](https://hub.skild.sh)** — 在线浏览和发现 Skills

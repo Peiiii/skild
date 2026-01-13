@@ -9,7 +9,7 @@
 [![npm version](https://img.shields.io/npm/v/skild.svg)](https://www.npmjs.com/package/skild)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-[官网](https://skild.sh) · [文档](./docs/README.md) · [Console](https://console.skild.sh)
+[官网](https://skild.sh) · [文档](./docs/README.md) · [Skild Hub](https://hub.skild.sh)
 
 **[English](./README.md)** | 简体中文
 
@@ -114,7 +114,7 @@ skild validate .           # 校验结构
 - **[创建 Skills](./docs/creating-skills.md)** — 构建你自己的 Skills
 - **[发布 Skills](./docs/publishing.zh-CN.md)** — 分享给社区
 - **[从 GitHub 提交](./docs/submit-from-github.zh-CN.md)** — 收录 GitHub Skills
-- **[Console 指南](./docs/console.zh-CN.md)** — Web 界面使用
+- **[Skild Hub 指南](./docs/hub.zh-CN.md)** — Web 界面使用
 - **[FAQ](./docs/faq.md)** — 常见问题
 - **[English Docs](./docs/README.md)**
 

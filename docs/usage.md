@@ -128,7 +128,7 @@ This creates a folder with `SKILL.md` template.
 skild signup
 ```
 
-Or use the [Publisher Console](https://console.skild.sh).
+Or use the [Skild Hub](https://hub.skild.sh).
 
 Email verification:
 
@@ -160,7 +160,7 @@ Then:
 skild publish --dir ./my-skill
 ```
 
-If publish fails with `Email not verified` (HTTP 403), verify your email in the Publisher Console first.
+If publish fails with `Email not verified` (HTTP 403), verify your email in the Skild Hub first.
 
 ---
 

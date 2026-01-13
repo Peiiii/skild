@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
           const registryUrl = getRegistryUrl();
           const hint =
             consoleOrigin.includes('localhost') || consoleOrigin.includes('127.0.0.1')
-              ? ` If you are running Console locally, ensure Console and Registry use the same hostname (both localhost or both 127.0.0.1). Current: console=${consoleOrigin}, registry=${registryUrl}.`
+              ? ` If you are running Skild Hub locally, ensure Hub and Registry use the same hostname (both localhost or both 127.0.0.1). Current: hub=${consoleOrigin}, registry=${registryUrl}.`
               : '';
           const base =
             meRes.ok

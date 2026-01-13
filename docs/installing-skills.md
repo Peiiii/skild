@@ -133,4 +133,4 @@ Find Skills in the Skild registry:
 skild search pdf
 ```
 
-Or browse online at [console.skild.sh](https://console.skild.sh).
+Or browse online at [hub.skild.sh](https://hub.skild.sh).
