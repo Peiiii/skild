@@ -1,5 +1,16 @@
 # skild
 
+## 0.2.0
+
+### Minor Changes
+
+- cli with stats tracking
+
+### Patch Changes
+
+- Updated dependencies
+  - @skild/core@0.2.0
+
 ## 0.1.4
 
 ### Patch Changes

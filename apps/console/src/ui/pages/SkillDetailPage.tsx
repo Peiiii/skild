@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getSkillDetail, routeToCanonical } from '@/lib/api';
-import type { DistTagRow, VersionRow } from '@/lib/api-types';
+import { getSkillDetail, getSkillStats, routeToCanonical } from '@/lib/api';
+import type { DistTagRow, VersionRow, EntityStats } from '@/lib/api-types';
 import { HttpError } from '@/lib/http';
+import { formatRelativeTime } from '@/lib/time';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Package, Hash, Layers, Check, Copy } from 'lucide-react';
+import { Package, Hash, Layers, Check, Copy, Download, TrendingUp } from 'lucide-react';
 
 function findLatest(distTags: DistTagRow[]): string | null {
   const row = distTags.find(t => t.tag === 'latest');
@@ -23,6 +24,7 @@ export function SkillDetailPage(): JSX.Element {
   const [data, setData] = React.useState<{ name: string; description: string | null; distTags: DistTagRow[]; versions: VersionRow[] } | null>(
     null
   );
+  const [stats, setStats] = React.useState<EntityStats | null>(null);
 
   const canonicalName = routeToCanonical(scope, skill);
 
@@ -46,6 +48,16 @@ export function SkillDetailPage(): JSX.Element {
           distTags: res.distTags,
           versions: res.versions
         });
+
+        // Load stats
+        try {
+          const statsRes = await getSkillStats(scope, skill);
+          if (statsRes.ok && active) {
+            setStats(statsRes);
+          }
+        } catch (err) {
+          console.error('Failed to load stats', err);
+        }
       } catch (err: unknown) {
         if (!active) return;
         if (err instanceof HttpError) setError(err.bodyText || `HTTP ${err.status}`);
@@ -121,17 +133,68 @@ export function SkillDetailPage(): JSX.Element {
         </div>
       </div>
 
-      <div className="rounded-lg border border-border/50 bg-card p-6 space-y-4">
-        <div>
-          <h2 className="font-semibold mb-1">Install</h2>
-          <p className="text-sm text-muted-foreground">Copy and run in your terminal.</p>
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Install Section */}
+        <div className="md:col-span-2 rounded-xl border border-border/50 bg-card p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold flex items-center gap-2">
+              <Package className="h-4 w-4 text-indigo-400" />
+              <span>Install Skill</span>
+            </h2>
+            <code className="text-[10px] text-muted-foreground uppercase tracking-widest bg-muted/50 px-2 py-0.5 rounded">Terminal CLI</code>
+          </div>
+          <div className="relative group">
+            <div className="rounded-lg bg-black/40 border border-border/40 p-4 font-mono text-sm leading-relaxed break-all text-foreground/90 pr-12 min-h-[56px] flex items-center">
+              {install}
+            </div>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 hover:bg-white/10"
+              onClick={copyInstall}
+            >
+              {copied ? <Check className="h-5 w-5 text-emerald-500" /> : <Copy className="h-5 w-5" />}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground italic">Requires <code>skild</code> CLI installed on your machine.</p>
         </div>
-        <div className="rounded-md bg-black/50 border border-border/30 p-4 font-mono text-sm text-foreground/90">
-          {install}
+
+        {/* Stats Section */}
+        <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-6 space-y-4">
+          <h2 className="font-bold flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-emerald-400" />
+            <span>Usage Insights</span>
+          </h2>
+          <div className="space-y-4">
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Total Installs</div>
+              <div className="text-3xl font-black flex items-baseline gap-1">
+                {stats?.total ?? 0}
+                <span className="text-xs font-medium text-muted-foreground">all-time</span>
+              </div>
+            </div>
+            {stats && stats.trend.length > 0 && (
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Trend (Last 30 days)</div>
+                <div className="flex items-end gap-[2px] h-12">
+                  {stats.trend.slice(-15).map((t, idx) => {
+                    const max = Math.max(...stats.trend.map(d => d.downloads), 1);
+                    const height = (t.downloads / max) * 100;
+                    return (
+                      <div
+                        key={t.day}
+                        title={`${t.day}: ${t.downloads} downloads`}
+                        className="flex-1 bg-indigo-500/40 rounded-t-[1px] hover:bg-indigo-400 transition-colors"
+                        style={{ height: `${Math.max(height, 5)}%` }}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-        <Button type="button" variant="secondary" onClick={copyInstall}>
-          {copied ? '✓ Copied!' : 'Copy command'}
-        </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -183,7 +246,7 @@ export function SkillDetailPage(): JSX.Element {
           )}
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

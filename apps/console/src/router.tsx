@@ -18,6 +18,7 @@ import { RequireAuth } from './features/auth/RequireAuth';
 import { LinkedItemsPage } from './ui/pages/LinkedItemsPage';
 import { LinkedItemDetailPage } from './ui/pages/LinkedItemDetailPage';
 import { LinkedItemNewPage } from './ui/pages/LinkedItemNewPage';
+import { LeaderboardPage } from './ui/pages/LeaderboardPage';
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
       { path: 'linked', element: <LinkedItemsPage /> },
       { path: 'linked/new', element: <RequireAuth><LinkedItemNewPage /></RequireAuth> },
       { path: 'linked/:id', element: <LinkedItemDetailPage /> },
+      { path: 'leaderboard', element: <LeaderboardPage /> },
       { path: 'me', element: <RequireAuth><MePage /></RequireAuth> },
       { path: 'me/tokens', element: <RequireAuth><TokensPage /></RequireAuth> },
       { path: 'me/skills', element: <RequireAuth><MySkillsPage /></RequireAuth> },

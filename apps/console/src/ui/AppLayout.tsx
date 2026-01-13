@@ -20,7 +20,8 @@ import {
   Settings,
   LogOut,
   ChevronDown,
-  ExternalLink
+  ExternalLink,
+  Trophy
 } from 'lucide-react';
 
 function TopNavLink({ to, children, icon: Icon }: { to: string; children: React.ReactNode; icon?: React.ElementType }): JSX.Element {
@@ -60,6 +61,7 @@ export function AppLayout(): JSX.Element {
             <nav className="flex items-center gap-6">
               <TopNavLink to="/skills" icon={Compass}>Discover</TopNavLink>
               <TopNavLink to="/linked" icon={Library}>Catalog</TopNavLink>
+              <TopNavLink to="/leaderboard" icon={Trophy}>Top</TopNavLink>
               <TopNavLink to="/publish" icon={Upload}>Publish</TopNavLink>
             </nav>
           </div>

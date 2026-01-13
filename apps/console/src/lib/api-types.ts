@@ -10,10 +10,10 @@ export interface Publisher {
 
 export type SignupResponse =
   | {
-      ok: true;
-      publisher: Publisher;
-      verification: { requiredForPublish: boolean; sent: boolean; mode: string; consoleUrl: string };
-    }
+    ok: true;
+    publisher: Publisher;
+    verification: { requiredForPublish: boolean; sent: boolean; mode: string; consoleUrl: string };
+  }
   | ApiError;
 
 export type LoginResponse =
@@ -97,6 +97,9 @@ export interface DiscoverItem {
   discoverAt: string;
   createdAt: string;
   updatedAt: string;
+  downloadsTotal: number;
+  downloads7d: number;
+  downloads30d: number;
 }
 
 export type DiscoverListResponse = { ok: true; items: DiscoverItem[]; nextCursor: string | null } | ApiError;
@@ -125,4 +128,24 @@ export interface SkillDetail {
 
 export type SkillDetailResponse =
   | { ok: true; skill: SkillDetail; distTags: DistTagRow[]; versions: VersionRow[] }
+  | ApiError;
+
+export interface EntityStats {
+  total: number;
+  window: string;
+  trend: { day: string; downloads: number }[];
+}
+
+export type EntityStatsResponse = ({ ok: true } & EntityStats) | ApiError;
+
+export interface LeaderboardItem {
+  type: 'registry' | 'linked';
+  sourceId: string;
+  title: string;
+  install: string;
+  downloads: number;
+}
+
+export type LeaderboardResponse =
+  | { ok: true; period: string; items: LeaderboardItem[] }
   | ApiError;

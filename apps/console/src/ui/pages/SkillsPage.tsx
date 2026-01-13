@@ -17,8 +17,20 @@ import {
   Search,
   Check,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Download,
+  Calendar,
+  TrendingUp,
+  ArrowUpDown
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export function SkillsPage(): JSX.Element {
   const [params, setParams] = useSearchParams();
@@ -30,12 +42,13 @@ export function SkillsPage(): JSX.Element {
   const [loadingMore, setLoadingMore] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
+  const [currentSort, setCurrentSort] = React.useState(params.get('sort') || 'updated');
 
-  async function runSearch(q: string): Promise<void> {
+  async function runSearch(q: string, sort = currentSort): Promise<void> {
     setBusy(true);
     setError(null);
     try {
-      const res = await listDiscoverItems(q, null, 20);
+      const res = await listDiscoverItems(q, null, 20, sort);
       if (!res.ok) {
         setError(res.error);
         setItems([]);
@@ -59,7 +72,7 @@ export function SkillsPage(): JSX.Element {
     setLoadingMore(true);
     setError(null);
     try {
-      const res = await listDiscoverItems(query, nextCursor, 20);
+      const res = await listDiscoverItems(query, nextCursor, 20, currentSort);
       if (!res.ok) {
         setError(res.error);
         return;
@@ -92,9 +105,31 @@ export function SkillsPage(): JSX.Element {
     e.preventDefault();
     const q = queryInput.trim();
     setQuery(q);
-    setParams(q ? { q } : {});
+    setParams(p => {
+      const newParams = new URLSearchParams(p);
+      if (q) newParams.set('q', q);
+      else newParams.delete('q');
+      return newParams;
+    });
     void runSearch(q);
   }
+
+  function onSortChange(s: string): void {
+    setCurrentSort(s);
+    setParams(p => {
+      const newParams = new URLSearchParams(p);
+      newParams.set('sort', s);
+      return newParams;
+    });
+    void runSearch(query, s);
+  }
+
+  const sortLabels: Record<string, string> = {
+    updated: 'Recently Updated',
+    new: 'Newest Arrived',
+    downloads_7d: 'Trending (7d)',
+    downloads_30d: 'Popular (30d)',
+  };
 
   return (
     <div className="space-y-8">
@@ -117,6 +152,40 @@ export function SkillsPage(): JSX.Element {
           {busy ? 'Searching…' : 'Search'}
         </Button>
       </form>
+
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground font-medium">
+          {items.length > 0 ? `Showing ${items.length} skills` : ''}
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="h-9 gap-2 border-border/40 bg-secondary/20">
+              <ArrowUpDown className="h-3.5 w-3.5" />
+              <span className="text-xs">{sortLabels[currentSort] || 'Sort'}</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onSortChange('updated')} className="gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span>Recently Updated</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSortChange('new')} className="gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span>Newest Arrived</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSortChange('downloads_7d')} className="gap-2">
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <span>Trending (7d)</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSortChange('downloads_30d')} className="gap-2">
+              <Download className="h-4 w-4 text-muted-foreground" />
+              <span>Popular (30d)</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       {error && (
         <Alert variant="destructive">
@@ -204,6 +273,16 @@ export function SkillsPage(): JSX.Element {
                       <Clock className="h-3.5 w-3.5" />
                       <span>{formatRelativeTime(item.discoverAt)}</span>
                     </div>
+                    {(item.downloadsTotal > 0 || currentSort.startsWith('downloads')) && (
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                        <Download className="h-3.5 w-3.5" />
+                        <span>
+                          {currentSort === 'downloads_7d' ? `${item.downloads7d} this week` :
+                            currentSort === 'downloads_30d' ? `${item.downloads30d} this month` :
+                              `${item.downloadsTotal} installs`}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 

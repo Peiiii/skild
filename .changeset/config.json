@@ -13,6 +13,8 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "web"
+    "web",
+    "console",
+    "registry"
   ]
 }

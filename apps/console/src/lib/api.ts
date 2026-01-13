@@ -17,7 +17,9 @@ import type {
   LinkedItemsListResponse,
   LinkedItemDetailResponse,
   LinkedItemCreateResponse,
-  LinkedItemParseResponse
+  LinkedItemParseResponse,
+  EntityStatsResponse,
+  LeaderboardResponse
 } from './api-types';
 
 function newApiUrl(pathname: string): URL {
@@ -207,12 +209,43 @@ export async function listSkills(query: string): Promise<SkillsListResponse> {
   return fetchJson<SkillsListResponse>(url.toString(), {}, 10_000);
 }
 
-export async function listDiscoverItems(query: string, cursor?: string | null, limit = 20): Promise<DiscoverListResponse> {
+export async function listDiscoverItems(
+  query: string,
+  cursor?: string | null,
+  limit = 20,
+  sort = 'updated'
+): Promise<DiscoverListResponse> {
   const url = newApiUrl('/discover');
   if (query.trim()) url.searchParams.set('q', query.trim());
   if (cursor) url.searchParams.set('cursor', cursor);
   url.searchParams.set('limit', String(limit));
+  url.searchParams.set('sort', sort);
   return fetchJson<DiscoverListResponse>(url.toString(), {}, 10_000);
+}
+
+export async function getSkillStats(scope: string, skill: string, window = '30d'): Promise<EntityStatsResponse> {
+  const s = scope.startsWith('@') ? scope.slice(1) : scope;
+  const url = newApiUrl(`/stats/registry/${encodeURIComponent(s)}/${encodeURIComponent(skill)}`);
+  url.searchParams.set('window', window);
+  return fetchJson<EntityStatsResponse>(url.toString(), {}, 10_000);
+}
+
+export async function getLinkedItemStats(id: string, window = '30d'): Promise<EntityStatsResponse> {
+  const url = newApiUrl(`/stats/linked-items/${encodeURIComponent(id)}`);
+  url.searchParams.set('window', window);
+  return fetchJson<EntityStatsResponse>(url.toString(), {}, 10_000);
+}
+
+export async function getLeaderboard(
+  type: 'all' | 'registry' | 'linked' = 'all',
+  period: '7d' | '30d' | '90d' = '7d',
+  limitSize = 20
+): Promise<LeaderboardResponse> {
+  const url = newApiUrl('/leaderboard');
+  url.searchParams.set('type', type);
+  url.searchParams.set('period', period);
+  url.searchParams.set('limit', String(limitSize));
+  return fetchJson<LeaderboardResponse>(url.toString(), {}, 10_000);
 }
 
 export async function getSkillDetail(scopeParam: string, skillParam: string): Promise<SkillDetailResponse> {

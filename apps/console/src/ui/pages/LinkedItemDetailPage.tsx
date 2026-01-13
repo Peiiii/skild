@@ -1,14 +1,14 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getLinkedItem } from '@/lib/api';
-import type { LinkedItem } from '@/lib/api-types';
+import { getLinkedItem, getLinkedItemStats } from '@/lib/api';
+import type { LinkedItem, EntityStats } from '@/lib/api-types';
 import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Github, Tag, Folder, Shield, User, Clock, Check, Copy } from 'lucide-react';
+import { Github, Tag, Folder, Shield, User, Clock, Check, Copy, Download, TrendingUp } from 'lucide-react';
 
 function buildGithubTreeUrl(repo: string, path: string | null, ref: string | null): string {
   const url = new URL(`https://github.com/${repo}/tree/${ref ?? 'main'}`);
@@ -24,6 +24,7 @@ export function LinkedItemDetailPage(): JSX.Element {
   const [error, setError] = React.useState<string | null>(null);
   const [item, setItem] = React.useState<LinkedItem | null>(null);
   const [install, setInstall] = React.useState<string | null>(null);
+  const [stats, setStats] = React.useState<EntityStats | null>(null);
   const [copied, setCopied] = React.useState(false);
 
   React.useEffect(() => {
@@ -42,6 +43,16 @@ export function LinkedItemDetailPage(): JSX.Element {
         }
         setItem(res.item);
         setInstall(res.install);
+
+        // Load stats
+        try {
+          const statsRes = await getLinkedItemStats(itemId);
+          if (statsRes.ok && active) {
+            setStats(statsRes);
+          }
+        } catch (err) {
+          console.error('Failed to load stats', err);
+        }
       } catch (err: unknown) {
         if (!active) return;
         if (err instanceof HttpError) setError(err.bodyText || `HTTP ${err.status}`);
@@ -118,24 +129,75 @@ export function LinkedItemDetailPage(): JSX.Element {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-3">
-            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Install</div>
-            {install && (
-              <div className="rounded-md border border-border/60 bg-muted/30 p-3 font-mono text-xs break-all">
-                {install}
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="md:col-span-2 space-y-4">
+              <div className="space-y-3">
+                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
+                  <span className="bg-muted px-2 py-0.5 rounded border border-border/40">Install Command</span>
+                </div>
+                {install && (
+                  <div className="relative group">
+                    <div className="rounded-lg border border-border/60 bg-black/40 p-4 font-mono text-sm break-all leading-relaxed min-h-[56px] flex items-center pr-12">
+                      {install}
+                    </div>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 hover:bg-white/10"
+                      onClick={copyInstall}
+                      disabled={!install}
+                    >
+                      {copied ? <Check className="h-5 w-5 text-emerald-500" /> : <Copy className="h-5 w-5" />}
+                    </Button>
+                  </div>
+                )}
               </div>
-            )}
-            <Button type="button" variant="secondary" onClick={copyInstall} disabled={!install}>
-              {copied ? '✓ Copied!' : 'Copy'}
-            </Button>
-          </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button asChild type="button" variant="outline">
-              <a href={upstreamUrl} target="_blank" rel="noreferrer">
-                View on GitHub
-              </a>
-            </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button asChild type="button" variant="outline" className="h-10 px-6">
+                  <a href={upstreamUrl} target="_blank" rel="noreferrer">
+                    <Github className="mr-2 h-4 w-4" />
+                    Source on GitHub
+                  </a>
+                </Button>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-6 space-y-4 self-start">
+              <h2 className="font-bold flex items-center gap-2 text-sm">
+                <TrendingUp className="h-4 w-4 text-emerald-400" />
+                <span>Usage Insights</span>
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1 leading-none text-muted-foreground/60">Total Installs</div>
+                  <div className="text-3xl font-black flex items-baseline gap-1">
+                    {stats?.total ?? 0}
+                    <span className="text-[10px] font-medium text-muted-foreground">all-time</span>
+                  </div>
+                </div>
+                {stats && stats.trend.length > 0 && (
+                  <div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 leading-none text-muted-foreground/60">Trend (Last 30d)</div>
+                    <div className="flex items-end gap-[2px] h-12">
+                      {stats.trend.slice(-20).map((t, idx) => {
+                        const max = Math.max(...stats.trend.map(d => d.downloads), 1);
+                        const height = (t.downloads / max) * 100;
+                        return (
+                          <div
+                            key={t.day}
+                            title={`${t.day}: ${t.downloads} downloads`}
+                            className="flex-1 bg-emerald-500/40 rounded-t-[1px] hover:bg-emerald-400 transition-colors"
+                            style={{ height: `${Math.max(height, 5)}%` }}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
