@@ -15,7 +15,8 @@ import type {
   PublisherSkillsResponse,
   LinkedItemsListResponse,
   LinkedItemDetailResponse,
-  LinkedItemCreateResponse
+  LinkedItemCreateResponse,
+  LinkedItemParseResponse
 } from './api-types';
 
 function newApiUrl(pathname: string): URL {
@@ -151,10 +152,11 @@ export async function listMySkills(): Promise<PublisherSkillsResponse> {
   return fetchJson<PublisherSkillsResponse>(`${base}/publisher/skills`, { credentials: 'include' }, 10_000);
 }
 
-export async function listLinkedItems(query: string): Promise<LinkedItemsListResponse> {
+export async function listLinkedItems(query: string, cursor?: string | null, limit = 20): Promise<LinkedItemsListResponse> {
   const url = newApiUrl('/linked-items');
   if (query.trim()) url.searchParams.set('q', query.trim());
-  url.searchParams.set('limit', '50');
+  if (cursor) url.searchParams.set('cursor', cursor);
+  url.searchParams.set('limit', String(limit));
   return fetchJson<LinkedItemsListResponse>(url.toString(), {}, 10_000);
 }
 
@@ -163,10 +165,23 @@ export async function getLinkedItem(id: string): Promise<LinkedItemDetailRespons
   return fetchJson<LinkedItemDetailResponse>(url.toString(), {}, 10_000);
 }
 
+export async function parseLinkedItemUrl(url: string): Promise<LinkedItemParseResponse> {
+  const apiUrl = newApiUrl('/linked-items/parse');
+  return fetchJson<LinkedItemParseResponse>(
+    apiUrl.toString(),
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ url })
+    },
+    10_000
+  );
+}
+
 export async function createLinkedItem(input: {
-  source: { provider: 'github'; repo: string; path?: string | null; ref?: string | null; url?: string | null };
-  title: string;
-  description: string;
+  source: { provider: 'github'; repo?: string | null; path?: string | null; ref?: string | null; url?: string | null };
+  title?: string | null;
+  description?: string | null;
   license?: string | null;
   category?: string | null;
   tags?: string[];

@@ -3,15 +3,10 @@ import { Link, useParams } from 'react-router-dom';
 import { getLinkedItem } from '@/lib/api';
 import type { LinkedItem } from '@/lib/api-types';
 import { HttpError } from '@/lib/http';
+import { formatRelativeTime } from '@/lib/time';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-
-function formatDate(value: string): string {
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return value;
-  return d.toLocaleString();
-}
 
 function buildGithubTreeUrl(repo: string, path: string | null, ref: string | null): string {
   const url = new URL(`https://github.com/${repo}/tree/${ref ?? 'main'}`);
@@ -27,6 +22,7 @@ export function LinkedItemDetailPage(): JSX.Element {
   const [error, setError] = React.useState<string | null>(null);
   const [item, setItem] = React.useState<LinkedItem | null>(null);
   const [install, setInstall] = React.useState<string | null>(null);
+  const [copied, setCopied] = React.useState(false);
 
   React.useEffect(() => {
     let active = true;
@@ -65,6 +61,10 @@ export function LinkedItemDetailPage(): JSX.Element {
   async function copyInstall(): Promise<void> {
     if (!install) return;
     await navigator.clipboard.writeText(install);
+    setCopied(true);
+    window.setTimeout(() => {
+      setCopied(false);
+    }, 1500);
   }
 
   if (busy) return <div className="text-sm text-muted-foreground">Loading…</div>;
@@ -88,59 +88,58 @@ export function LinkedItemDetailPage(): JSX.Element {
   const upstreamUrl = item.source.url ?? buildGithubTreeUrl(item.source.repo, item.source.path, item.source.ref);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{item.title}</CardTitle>
-        <CardDescription>Linked · GitHub · Index-only</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="text-sm text-muted-foreground">{item.description}</div>
-
-        <div className="rounded-md border border-border/60 p-3 text-sm">
-          <div>
-            Upstream:{' '}
-            <a className="underline" href={upstreamUrl} target="_blank" rel="noreferrer">
-              {item.source.repo}
-            </a>
+    <div className="space-y-4">
+      <Link className="text-sm text-muted-foreground hover:text-foreground transition-colors" to="/linked">
+        ← Back to Catalog
+      </Link>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between gap-3">
+            <CardTitle>{item.title}</CardTitle>
+            <span className="text-xs text-muted-foreground">Linked</span>
           </div>
-          <div className="mt-1 text-xs text-muted-foreground font-mono break-all">
-            {item.source.repo}
-            {item.source.path ? `/${item.source.path}` : ''}
-            {item.source.ref ? `#${item.source.ref}` : ''}
+          <CardDescription>{item.description}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-3">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Install</div>
+            {install && (
+              <div className="rounded-md border border-border/60 bg-muted/30 p-3 font-mono text-xs break-all">
+                {install}
+              </div>
+            )}
+            <Button type="button" variant="secondary" onClick={copyInstall} disabled={!install}>
+              {copied ? '✓ Copied!' : 'Copy'}
+            </Button>
           </div>
-          <div className="mt-2 text-xs text-muted-foreground">
-            Submitted by {item.submittedBy ? <span className="font-mono">@{item.submittedBy.handle}</span> : 'unknown'} · {formatDate(item.createdAt)}
+
+          <div className="flex flex-wrap gap-2">
+            <Button asChild type="button" variant="outline">
+              <a href={upstreamUrl} target="_blank" rel="noreferrer">
+                View on GitHub
+              </a>
+            </Button>
           </div>
-        </div>
 
-        {install && (
-          <div className="rounded-md bg-muted p-3 font-mono text-xs break-all">
-            {install}
+          <div className="space-y-2 text-sm">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Source</div>
+            <div>Repo: <span className="font-mono">{item.source.repo}</span></div>
+            <div>Path: <span className="font-mono">{item.source.path || '(root)'}</span></div>
+            <div>Ref: <span className="font-mono">{item.source.ref || '(default)'}</span></div>
           </div>
-        )}
 
-        <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="secondary" onClick={copyInstall} disabled={!install}>
-            Copy install command
-          </Button>
-          <Button asChild type="button" variant="outline">
-            <a href={upstreamUrl} target="_blank" rel="noreferrer">
-              Open GitHub
-            </a>
-          </Button>
-          <Button asChild type="button" variant="ghost">
-            <Link to="/linked">Back</Link>
-          </Button>
-        </div>
+          <div className="space-y-2 text-sm">
+            <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Metadata</div>
+            <div>🏷️ Tags: {item.tags.length > 0 ? item.tags.join(', ') : 'none'}</div>
+            <div>📂 Category: {item.category || 'none'}</div>
+            <div>📜 License: {item.license || 'unknown'}</div>
+          </div>
 
-        {(item.tags.length > 0 || item.category || item.license) && (
           <div className="text-xs text-muted-foreground">
-            {item.category ? <span className="mr-3">Category: {item.category}</span> : null}
-            {item.license ? <span className="mr-3">License: {item.license}</span> : null}
-            {item.tags.length > 0 ? <span>Tags: {item.tags.join(', ')}</span> : null}
+            Submitted by {item.submittedBy ? <span className="font-mono">@{item.submittedBy.handle}</span> : 'unknown'} · {formatRelativeTime(item.createdAt)}
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

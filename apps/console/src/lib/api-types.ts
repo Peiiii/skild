@@ -66,9 +66,14 @@ export interface LinkedItem {
   updatedAt: string;
 }
 
-export type LinkedItemsListResponse = { ok: true; items: LinkedItem[] } | ApiError;
+export type LinkedItemWithInstall = LinkedItem & { install: string };
+
+export type LinkedItemsListResponse = { ok: true; items: LinkedItemWithInstall[]; nextCursor: string | null } | ApiError;
 export type LinkedItemDetailResponse = { ok: true; item: LinkedItem; install: string } | ApiError;
 export type LinkedItemCreateResponse = { ok: true; item: LinkedItem; install: string } | ApiError;
+export type LinkedItemParseResponse =
+  | { ok: true; source: LinkedItem['source']; defaults: { title: string; description: string }; install: string }
+  | ApiError;
 
 export interface SkillListItem {
   name: string;

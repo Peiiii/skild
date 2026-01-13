@@ -8,7 +8,7 @@ import { assertEmail, assertHandle, assertSemver, assertSkillName, assertSkillSe
 import { getConsolePublicUrl, getEmailVerifyTtlHours, sendVerificationEmail } from "./email.js";
 import { createSession, parseSessionCookies, revokeSession, serializeClearSessionCookie, serializeSessionCookie } from "./sessions.js";
 import { issuePublishToken, listTokens, revokeToken } from "./tokens.js";
-import { buildInstallCommand, createLinkedItem, getLinkedItemById, getPublisherHandleById, listLinkedItems, toLinkedItem } from "./linked-items.js";
+import { buildInstallCommand, createLinkedItem, getLinkedItemById, getPublisherHandleById, listLinkedItems, parseLinkedItemUrl, toLinkedItem } from "./linked-items.js";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -410,8 +410,10 @@ app.get("/skills", async (c) => {
 app.get("/linked-items", async (c) => {
   try {
     const q = (c.req.query("q") || "").trim();
-    const limit = Math.min(Number.parseInt(c.req.query("limit") || "50", 10) || 50, 100);
-    const rows = await listLinkedItems(c.env, { q, limit });
+    const limit = Number.parseInt(c.req.query("limit") || "20", 10) || 20;
+    const cursor = (c.req.query("cursor") || "").trim() || null;
+    const page = await listLinkedItems(c.env, { q, limit, cursor });
+    const rows = page.rows;
     const publisherIds = Array.from(new Set(rows.map((r) => r.submitted_by_publisher_id)));
     const publisherMap = new Map<string, { id: string; handle: string }>();
     for (const id of publisherIds) {
@@ -420,8 +422,22 @@ app.get("/linked-items", async (c) => {
     }
     return c.json({
       ok: true,
-      items: rows.map((r) => toLinkedItem(r, publisherMap.get(r.submitted_by_publisher_id) ?? null)),
+      items: rows.map((r) => {
+        const item = toLinkedItem(r, publisherMap.get(r.submitted_by_publisher_id) ?? null);
+        return { ...item, install: buildInstallCommand(item.source) };
+      }),
+      nextCursor: page.nextCursor,
     });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/linked-items/parse", async (c) => {
+  try {
+    const body = await c.req.json<{ url: string }>();
+    const parsed = parseLinkedItemUrl(body.url);
+    return c.json({ ok: true, ...parsed });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
   }
@@ -444,9 +460,9 @@ app.post("/linked-items", async (c) => {
   try {
     const auth = await requireSessionAuth(c);
     const body = await c.req.json<{
-      source: { provider: "github"; repo: string; path?: string | null; ref?: string | null; url?: string | null };
-      title: string;
-      description: string;
+      source: { provider: "github"; repo?: string | null; path?: string | null; ref?: string | null; url?: string | null };
+      title?: string | null;
+      description?: string | null;
       license?: string | null;
       category?: string | null;
       tags?: unknown;
