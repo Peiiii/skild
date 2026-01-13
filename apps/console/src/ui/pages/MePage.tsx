@@ -14,6 +14,7 @@ export function MePage(): JSX.Element {
 
   return (
     <div className="grid gap-6">
+      {/* Temporarily hidden as email verification is not yet supported
       {!publisher.emailVerified && (
         <Alert variant="destructive" className="bg-destructive/5 border-destructive/20">
           <MailWarning className="h-4 w-4" />
@@ -27,6 +28,7 @@ export function MePage(): JSX.Element {
           </AlertDescription>
         </Alert>
       )}
+      */}
 
       <Card>
         <CardHeader>

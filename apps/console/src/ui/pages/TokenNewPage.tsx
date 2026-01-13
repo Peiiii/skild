@@ -75,11 +75,13 @@ export function TokenNewPage(): JSX.Element {
                 </Button>
               </div>
               <div className="mt-3 text-xs text-muted-foreground">
+                {/* Temporarily hidden as email verification is not yet supported
                 {emailVerified === false && (
                   <div className="mb-2">
                     Email not verified. Publishing may be restricted by server policy. Go to <a className="underline" href="/verify-email/request">Verify Email</a>.
                   </div>
                 )}
+                */}
                 CLI:
                 <div className="mt-1 rounded-md bg-muted p-2 font-mono text-xs">
                   skild login --registry https://registry.skild.sh --handle-or-email {publisherHandle ?? '<handle>'} --password *** (or paste token when supported)
