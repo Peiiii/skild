@@ -130,23 +130,13 @@ Before publishing:
 
 ## Publishing
 
-When your Skill is ready:
+When your Skill is ready, publish it to share with the community:
 
 ```bash
-# Login
-skild login
-
-# Publish
-skild publish --dir ./my-skill
+skild publish
 ```
 
-After publishing, users can install via:
-
-```bash
-skild install @yourhandle/my-skill
-```
-
-See [Usage Guide](./usage.md#publishing-to-registry) for detailed publishing instructions.
+See **[Publishing Skills](./publishing-skills.md)** for the complete guide.
 
 ---
 
