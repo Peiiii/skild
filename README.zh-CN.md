@@ -108,7 +108,10 @@ skild publish              # 发布到 registry
 
 ## 📚 文档
 
-- **[完整使用指南](./docs/usage.zh-CN.md)** — CLI + registry + 发布完整参考
+- **[使用指南](./docs/usage.zh-CN.md)** — CLI 命令参考
+- **[Console 指南](./docs/console.zh-CN.md)** — Web 界面使用
+- **[Linked Skills](./docs/linked-skills.zh-CN.md)** — Catalog 和 GitHub Skills
+- **[FAQ](./docs/faq.md)** — 常见问题
 - **[English Docs](./docs/usage.md)**
 
 ## 🧑‍💻 本地开发
