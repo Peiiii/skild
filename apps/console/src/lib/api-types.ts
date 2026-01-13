@@ -85,6 +85,22 @@ export interface SkillListItem {
 
 export type SkillsListResponse = { ok: true; skills: SkillListItem[] } | ApiError;
 
+export interface DiscoverItem {
+  type: 'registry' | 'linked';
+  sourceId: string;
+  title: string;
+  description: string;
+  tags: string[];
+  install: string;
+  publisherHandle: string | null;
+  source: { repo: string | null; path: string | null; ref: string | null; url: string | null } | null;
+  discoverAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type DiscoverListResponse = { ok: true; items: DiscoverItem[]; nextCursor: string | null } | ApiError;
+
 export interface DistTagRow {
   tag: string;
   version: string;

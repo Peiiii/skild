@@ -5,6 +5,7 @@ import type {
   SignupResponse,
   SkillDetailResponse,
   SkillsListResponse,
+  DiscoverListResponse,
   VerifyEmailResponse,
   RequestVerifyEmailResponse,
   SessionLoginResponse,
@@ -204,6 +205,14 @@ export async function listSkills(query: string): Promise<SkillsListResponse> {
   if (query.trim()) url.searchParams.set('q', query.trim());
   url.searchParams.set('limit', '50');
   return fetchJson<SkillsListResponse>(url.toString(), {}, 10_000);
+}
+
+export async function listDiscoverItems(query: string, cursor?: string | null, limit = 20): Promise<DiscoverListResponse> {
+  const url = newApiUrl('/discover');
+  if (query.trim()) url.searchParams.set('q', query.trim());
+  if (cursor) url.searchParams.set('cursor', cursor);
+  url.searchParams.set('limit', String(limit));
+  return fetchJson<DiscoverListResponse>(url.toString(), {}, 10_000);
 }
 
 export async function getSkillDetail(scopeParam: string, skillParam: string): Promise<SkillDetailResponse> {

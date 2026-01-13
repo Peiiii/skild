@@ -104,7 +104,11 @@ Run `skild <command> --help` for full options.
 
 ## Documentation
 
-- **[Full Usage Guide](./docs/usage.md)** — Complete reference for CLI + registry + publishing
+- **[Usage Guide](./docs/usage.md)** — CLI commands and options
+- **[Console Guide](./docs/console.md)** — Web interface walkthrough
+- **[Linked Skills](./docs/linked-skills.md)** — Catalog and GitHub Skills
+- **[Creating Skills](./docs/creating-skills.md)** — Build your own Skills
+- **[FAQ](./docs/faq.md)** — Common questions
 - **[中文文档](./docs/usage.zh-CN.md)**
 
 ## License

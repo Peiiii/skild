@@ -9,6 +9,7 @@ import { getConsolePublicUrl, getEmailVerifyTtlHours, sendVerificationEmail } fr
 import { createSession, parseSessionCookies, revokeSession, serializeClearSessionCookie, serializeSessionCookie } from "./sessions.js";
 import { issuePublishToken, listTokens, revokeToken } from "./tokens.js";
 import { buildInstallCommand, createLinkedItem, getLinkedItemById, getPublisherHandleById, listLinkedItems, parseLinkedItemUrl, toLinkedItem } from "./linked-items.js";
+import { listDiscoverItems, toDiscoverItem, upsertDiscoverItemForLinkedItem, upsertDiscoverItemForSkill } from "./discover-items.js";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -433,6 +434,22 @@ app.get("/linked-items", async (c) => {
   }
 });
 
+app.get("/discover", async (c) => {
+  try {
+    const q = (c.req.query("q") || "").trim();
+    const limit = Number.parseInt(c.req.query("limit") || "20", 10) || 20;
+    const cursor = (c.req.query("cursor") || "").trim() || null;
+    const page = await listDiscoverItems(c.env, { q, limit, cursor });
+    return c.json({
+      ok: true,
+      items: page.rows.map((r) => toDiscoverItem(r)),
+      nextCursor: page.nextCursor,
+    });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
 app.post("/linked-items/parse", async (c) => {
   try {
     const body = await c.req.json<{ url: string }>();
@@ -478,6 +495,10 @@ app.post("/linked-items", async (c) => {
       tags: body.tags,
     });
     const submittedBy = await getPublisherHandleById(c.env, row.submitted_by_publisher_id);
+    await upsertDiscoverItemForLinkedItem(c.env, {
+      row,
+      submittedByHandle: submittedBy?.handle ?? null,
+    });
     const item = toLinkedItem(row, submittedBy);
     return c.json({ ok: true, item, install: buildInstallCommand(item.source) }, 201);
   } catch (e) {
@@ -640,7 +661,9 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
     const integrity = await sha256Hex(bytes);
     const artifactKey = `sha256/${integrity}.tgz`;
 
-    const existingSkill = await c.env.DB.prepare("SELECT publisher_id FROM skills WHERE name = ?1 LIMIT 1").bind(name).first<{ publisher_id: string }>();
+    const existingSkill = await c.env.DB.prepare("SELECT publisher_id, created_at FROM skills WHERE name = ?1 LIMIT 1")
+      .bind(name)
+      .first<{ publisher_id: string; created_at: string }>();
     if (existingSkill && existingSkill.publisher_id !== publisher.id) return errorJson(c as any, "Skill name is owned by another publisher.", 403);
 
     const existingVersion = await c.env.DB.prepare(
@@ -675,6 +698,13 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
       ).bind(name, tag, version, now),
     ];
     await c.env.DB.batch(batch);
+    await upsertDiscoverItemForSkill(c.env, {
+      name,
+      description,
+      publisherHandle: publisher.handle,
+      createdAt: existingSkill?.created_at ?? now,
+      updatedAt: now,
+    });
 
     return c.json({
       ok: true,
