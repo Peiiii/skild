@@ -4,8 +4,11 @@ interface Props {
 	description?: string;
 }
 
-const { title, description = "The npm for Agent Skills. Discover, install, manage, and publish AI Agent Skills with ease." } = Astro.props;
-import '../styles/global.css';
+const {
+	title,
+	description = "The npm for Agent Skills. Discover, install, manage, and publish AI Agent Skills with ease.",
+} = Astro.props;
+import "../styles/global.css";
 ---
 
 <!doctype html>
@@ -13,11 +16,11 @@ import '../styles/global.css';
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<meta name="description" content={description} />
-		
+
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content="website" />
 		<meta property="og:url" content={Astro.url} />
@@ -33,23 +36,43 @@ import '../styles/global.css';
 		<!-- Fonts -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+			rel="stylesheet"
+		/>
 	</head>
-	<body class="bg-[#030303] text-white selection:bg-indigo-500/30 font-sans overflow-x-hidden antialiased">
+	<body
+		class="bg-[#030303] text-white selection:bg-indigo-500/30 font-sans overflow-x-hidden antialiased"
+	>
 		<!-- Background Elements -->
 		<div class="fixed inset-0 -z-10 overflow-hidden">
 			<!-- Advanced Glows -->
-			<div class="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-indigo-600/10 blur-[140px] rounded-full"></div>
-			<div class="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-purple-600/10 blur-[140px] rounded-full"></div>
-			
+			<div
+				class="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-indigo-600/10 blur-[140px] rounded-full"
+			>
+			</div>
+			<div
+				class="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-purple-600/10 blur-[140px] rounded-full"
+			>
+			</div>
+
 			<!-- Noise Overlay -->
-			<div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
-			
+			<div
+				class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"
+			>
+			</div>
+
 			<!-- Ultra-fine Grid -->
-			<div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:32px_32px]"></div>
-			
+			<div
+				class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:32px_32px]"
+			>
+			</div>
+
 			<!-- Radial Mask for Grid -->
-			<div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,transparent_0%,#030303_100%)]"></div>
+			<div
+				class="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,transparent_0%,#030303_100%)]"
+			>
+			</div>
 		</div>
 
 		<slot />

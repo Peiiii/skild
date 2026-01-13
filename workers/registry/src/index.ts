@@ -10,6 +10,7 @@ import { createSession, parseSessionCookies, revokeSession, serializeClearSessio
 import { issuePublishToken, listTokens, revokeToken } from "./tokens.js";
 import { buildInstallCommand, createLinkedItem, getLinkedItemById, getPublisherHandleById, listLinkedItems, parseLinkedItemUrl, toLinkedItem } from "./linked-items.js";
 import { listDiscoverItems, toDiscoverItem, upsertDiscoverItemForLinkedItem, upsertDiscoverItemForSkill } from "./discover-items.js";
+import { getDownloadStats, getLeaderboard, recordDownloadEvent } from "./stats.js";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -439,12 +440,89 @@ app.get("/discover", async (c) => {
     const q = (c.req.query("q") || "").trim();
     const limit = Number.parseInt(c.req.query("limit") || "20", 10) || 20;
     const cursor = (c.req.query("cursor") || "").trim() || null;
-    const page = await listDiscoverItems(c.env, { q, limit, cursor });
+    const sort = (c.req.query("sort") || "").trim() || null;
+    const page = await listDiscoverItems(c.env, { q, limit, cursor, sort });
     return c.json({
       ok: true,
       items: page.rows.map((r) => toDiscoverItem(r)),
       nextCursor: page.nextCursor,
     });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/stats/downloads", async (c) => {
+  try {
+    const body = await c.req.json<{
+      entityType?: "registry" | "linked";
+      entityId?: string;
+      source?: string;
+      clientHash?: string | null;
+      sourceInput?: {
+        provider: "github";
+        repo?: string | null;
+        path?: string | null;
+        ref?: string | null;
+        url?: string | null;
+        spec?: string | null;
+      } | null;
+    }>();
+
+    const entityType = body.entityType ?? (body.sourceInput ? "linked" : "registry");
+    const source = (body.source ?? "unknown").trim().toLowerCase() || "unknown";
+    const clientHash = body.clientHash ?? null;
+    const requestIp = c.req.header("cf-connecting-ip") || c.req.header("x-forwarded-for") || null;
+    const userAgent = c.req.header("user-agent") || null;
+
+    const res = await recordDownloadEvent(c.env, {
+      entityType,
+      entityId: body.entityId ?? null,
+      source,
+      clientHash,
+      sourceInput: body.sourceInput ?? null,
+      requestIp,
+      userAgent,
+    });
+    return c.json({ ok: true, entityId: res.entityId });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.get("/stats/registry/:scope/:skill", async (c) => {
+  try {
+    const scope = decodeURIComponent(c.req.param("scope"));
+    const skillSegment = decodeURIComponent(c.req.param("skill"));
+    assertHandle(scope);
+    assertSkillSegment(skillSegment);
+    const name = `@${scope}/${skillSegment}`;
+    const window = (c.req.query("window") || "").trim() || null;
+    const stats = await getDownloadStats(c.env, { entityType: "registry", entityId: name, window });
+    return c.json({ ok: true, ...stats });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.get("/stats/linked-items/:id", async (c) => {
+  try {
+    const id = c.req.param("id");
+    const window = (c.req.query("window") || "").trim() || null;
+    const stats = await getDownloadStats(c.env, { entityType: "linked", entityId: id, window });
+    return c.json({ ok: true, ...stats });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.get("/leaderboard", async (c) => {
+  try {
+    const type = (c.req.query("type") || "all").trim() as "all" | "registry" | "linked";
+    const period = (c.req.query("period") || "7d").trim();
+    const limit = Number.parseInt(c.req.query("limit") || "20", 10) || 20;
+    const result = await getLeaderboard(c.env, { type, period, limit });
+    return c.json({ ok: true, ...result });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
   }

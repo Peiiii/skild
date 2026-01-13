@@ -2,6 +2,7 @@ import type { Env } from "./env.js";
 import type { LinkedItemRow } from "./linked-items.js";
 
 export type DiscoverItemType = "registry" | "linked";
+export type DiscoverSort = "updated" | "new" | "downloads_7d" | "downloads_30d";
 
 export interface DiscoverItemRow {
   type: DiscoverItemType;
@@ -18,6 +19,9 @@ export interface DiscoverItemRow {
   discover_at: string;
   created_at: string;
   updated_at: string;
+  downloads_total: number;
+  downloads_7d: number;
+  downloads_30d: number;
 }
 
 export interface DiscoverItem {
@@ -37,6 +41,9 @@ export interface DiscoverItem {
   discoverAt: string;
   createdAt: string;
   updatedAt: string;
+  downloadsTotal: number;
+  downloads7d: number;
+  downloads30d: number;
 }
 
 export interface DiscoverItemsPage {
@@ -54,17 +61,56 @@ function parseTags(tagsJson: string): string[] {
   return [];
 }
 
-function decodeCursor(cursor: string | null | undefined): { discoverAt: string; type: DiscoverItemType; sourceId: string } | null {
-  if (!cursor) return null;
-  const [discoverAt, typeRaw, sourceId] = cursor.split("|", 3);
-  if (!discoverAt || !typeRaw || !sourceId) return null;
-  const type = typeRaw === "registry" || typeRaw === "linked" ? typeRaw : null;
-  if (!type) return null;
-  return { discoverAt, type, sourceId };
+function resolveSort(input: string | null | undefined): DiscoverSort {
+  switch ((input ?? "").trim().toLowerCase()) {
+    case "downloads_7d":
+      return "downloads_7d";
+    case "downloads_30d":
+      return "downloads_30d";
+    case "new":
+      return "new";
+    case "updated":
+    default:
+      return "updated";
+  }
 }
 
-function encodeCursor(row: DiscoverItemRow): string {
-  return `${row.discover_at}|${row.type}|${row.source_id}`;
+function getSortValue(row: DiscoverItemRow, sort: DiscoverSort): string {
+  switch (sort) {
+    case "downloads_7d":
+      return String(row.downloads_7d ?? 0);
+    case "downloads_30d":
+      return String(row.downloads_30d ?? 0);
+    case "new":
+      return row.created_at;
+    case "updated":
+    default:
+      return row.discover_at;
+  }
+}
+
+function decodeCursor(
+  cursor: string | null | undefined,
+  sort: DiscoverSort,
+): { sortValue: string; discoverAt: string; type: DiscoverItemType; sourceId: string } | null {
+  if (!cursor) return null;
+  const parts = cursor.split("|");
+  if (parts.length === 3) {
+    const [discoverAt, typeRaw, sourceId] = parts;
+    const type = typeRaw === "registry" || typeRaw === "linked" ? typeRaw : null;
+    if (!discoverAt || !type || !sourceId) return null;
+    return { sortValue: discoverAt, discoverAt, type, sourceId };
+  }
+  if (parts.length < 4) return null;
+  const [sortValue, discoverAt, typeRaw, sourceId] = parts;
+  const type = typeRaw === "registry" || typeRaw === "linked" ? typeRaw : null;
+  if (!sortValue || !discoverAt || !type || !sourceId) return null;
+  return { sortValue, discoverAt, type, sourceId };
+}
+
+function encodeCursor(row: DiscoverItemRow, sort: DiscoverSort): string {
+  const sortValue = getSortValue(row, sort);
+  return `${sortValue}|${row.discover_at}|${row.type}|${row.source_id}`;
 }
 
 function buildRegistryInstall(name: string): string {
@@ -98,6 +144,9 @@ export function toDiscoverItem(row: DiscoverItemRow): DiscoverItem {
     discoverAt: row.discover_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    downloadsTotal: row.downloads_total ?? 0,
+    downloads7d: row.downloads_7d ?? 0,
+    downloads30d: row.downloads_30d ?? 0,
   };
 }
 
@@ -162,10 +211,14 @@ export async function upsertDiscoverItemForLinkedItem(env: Env, input: {
     .run();
 }
 
-export async function listDiscoverItems(env: Env, input: { q?: string; limit?: number; cursor?: string | null }): Promise<DiscoverItemsPage> {
+export async function listDiscoverItems(
+  env: Env,
+  input: { q?: string; limit?: number; cursor?: string | null; sort?: string | null },
+): Promise<DiscoverItemsPage> {
   const q = (input.q ?? "").trim().toLowerCase();
   const limit = Math.min(Math.max(input.limit ?? 20, 1), 50);
-  const cursor = decodeCursor(input.cursor ?? null);
+  const sort = resolveSort(input.sort);
+  const cursor = decodeCursor(input.cursor ?? null, sort);
 
   const clauses: string[] = [];
   const params: Array<string | number> = [];
@@ -176,20 +229,65 @@ export async function listDiscoverItems(env: Env, input: { q?: string; limit?: n
     params.push(like, like, like, like, like);
   }
 
+  const today = new Date();
+  const endDay = today.toISOString().slice(0, 10);
+  const start7d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 6))
+    .toISOString()
+    .slice(0, 10);
+  const start30d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 29))
+    .toISOString()
+    .slice(0, 10);
+
+  const baseSql =
+    "SELECT d.*, " +
+    "COALESCE(dt.downloads, 0) AS downloads_total, " +
+    "COALESCE(d7.downloads, 0) AS downloads_7d, " +
+    "COALESCE(d30.downloads, 0) AS downloads_30d " +
+    "FROM discover_items d " +
+    "LEFT JOIN download_total dt ON dt.entity_type = d.type AND dt.entity_id = d.source_id " +
+    "LEFT JOIN (SELECT entity_type, entity_id, SUM(downloads) AS downloads FROM download_daily WHERE day >= ? AND day <= ? GROUP BY entity_type, entity_id) d7 " +
+    "  ON d7.entity_type = d.type AND d7.entity_id = d.source_id " +
+    "LEFT JOIN (SELECT entity_type, entity_id, SUM(downloads) AS downloads FROM download_daily WHERE day >= ? AND day <= ? GROUP BY entity_type, entity_id) d30 " +
+    "  ON d30.entity_type = d.type AND d30.entity_id = d.source_id";
+
+  const baseParams: Array<string | number> = [start7d, endDay, start30d, endDay];
+
+  const outerClauses = [...clauses];
+  const outerParams = [...params];
+
   if (cursor) {
-    clauses.push("(discover_at < ? OR (discover_at = ? AND type < ?) OR (discover_at = ? AND type = ? AND source_id < ?))");
-    params.push(cursor.discoverAt, cursor.discoverAt, cursor.type, cursor.discoverAt, cursor.type, cursor.sourceId);
+    outerClauses.push(
+      "(sort_value < ? OR (sort_value = ? AND discover_at < ?) OR (sort_value = ? AND discover_at = ? AND type < ?) OR (sort_value = ? AND discover_at = ? AND type = ? AND source_id < ?))",
+    );
+    outerParams.push(
+      cursor.sortValue,
+      cursor.sortValue,
+      cursor.discoverAt,
+      cursor.sortValue,
+      cursor.discoverAt,
+      cursor.type,
+      cursor.sortValue,
+      cursor.discoverAt,
+      cursor.type,
+      cursor.sourceId,
+    );
   }
 
-  let sql = "SELECT * FROM discover_items";
-  if (clauses.length > 0) sql += ` WHERE ${clauses.join(" AND ")}`;
-  sql += " ORDER BY discover_at DESC, type DESC, source_id DESC LIMIT ?";
-  params.push(limit + 1);
+  let sortExpr = "discover_at";
+  if (sort === "downloads_7d") sortExpr = "downloads_7d";
+  else if (sort === "downloads_30d") sortExpr = "downloads_30d";
+  else if (sort === "new") sortExpr = "created_at";
 
-  const result = await env.DB.prepare(sql).bind(...params).all();
+  let sql = `SELECT *, ${sortExpr} AS sort_value FROM (${baseSql}) base`;
+  const paramsList = [...baseParams, ...outerParams];
+  if (outerClauses.length > 0) sql += ` WHERE ${outerClauses.join(" AND ")}`;
+  sql += ` ORDER BY ${sortExpr} DESC, discover_at DESC, type DESC, source_id DESC LIMIT ?`;
+  paramsList.push(limit + 1);
+
+  const result = await env.DB.prepare(sql).bind(...paramsList).all();
   const rows = result.results as unknown as DiscoverItemRow[];
   const hasMore = rows.length > limit;
   const sliced = hasMore ? rows.slice(0, limit) : rows;
-  const nextCursor = hasMore && sliced.length > 0 ? encodeCursor(sliced[sliced.length - 1]) : null;
+  const nextCursor = hasMore && sliced.length > 0 ? encodeCursor(sliced[sliced.length - 1], sort) : null;
   return { rows: sliced, nextCursor };
 }

@@ -10,18 +10,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Compass,
+  Library,
+  Upload,
+  LayoutDashboard,
+  Package,
+  Key,
+  Settings,
+  LogOut,
+  ChevronDown,
+  ExternalLink
+} from 'lucide-react';
 
-function TopNavLink({ to, children }: { to: string; children: React.ReactNode }): JSX.Element {
+function TopNavLink({ to, children, icon: Icon }: { to: string; children: React.ReactNode; icon?: React.ElementType }): JSX.Element {
   return (
     <NavLink
       to={to}
       className={({ isActive }) =>
         cn(
-          'text-sm font-medium text-muted-foreground hover:text-foreground transition-colors',
+          'flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-all',
           isActive && 'text-foreground'
         )
       }
     >
+      {Icon && <Icon className="w-4 h-4" />}
       {children}
     </NavLink>
   );
@@ -38,13 +51,16 @@ export function AppLayout(): JSX.Element {
         <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
           {/* Left: Logo + Core Features */}
           <div className="flex items-center gap-6">
-            <Link to="/" className="text-sm font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
-              🛡️ Skild
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <img src="/logo.svg" alt="Skild Logo" className="w-8 h-8 transition-transform group-hover:scale-110" />
+              <span className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                Skild
+              </span>
             </Link>
-            <nav className="flex items-center gap-5">
-              <TopNavLink to="/skills">Discover</TopNavLink>
-              <TopNavLink to="/linked">Catalog</TopNavLink>
-              <TopNavLink to="/publish">Publish</TopNavLink>
+            <nav className="flex items-center gap-6">
+              <TopNavLink to="/skills" icon={Compass}>Discover</TopNavLink>
+              <TopNavLink to="/linked" icon={Library}>Catalog</TopNavLink>
+              <TopNavLink to="/publish" icon={Upload}>Publish</TopNavLink>
             </nav>
           </div>
 
@@ -61,22 +77,35 @@ export function AppLayout(): JSX.Element {
                       </svg>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent align="end" className="w-52">
                     <DropdownMenuItem asChild>
-                      <Link to="/me">Dashboard</Link>
+                      <Link to="/me" className="flex items-center gap-2">
+                        <LayoutDashboard className="w-4 h-4 opacity-70" />
+                        Dashboard
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/me/skills">My Skills</Link>
+                      <Link to="/me/skills" className="flex items-center gap-2">
+                        <Package className="w-4 h-4 opacity-70" />
+                        My Skills
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/me/tokens">Tokens</Link>
+                      <Link to="/me/tokens" className="flex items-center gap-2">
+                        <Key className="w-4 h-4 opacity-70" />
+                        Tokens
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link to="/me/settings">Settings</Link>
+                      <Link to="/me/settings" className="flex items-center gap-2">
+                        <Settings className="w-4 h-4 opacity-70" />
+                        Settings
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => void auth.logout()} className="text-destructive">
+                    <DropdownMenuItem onClick={() => void auth.logout()} className="text-destructive flex items-center gap-2">
+                      <LogOut className="w-4 h-4 opacity-70" />
                       Logout
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -91,12 +120,13 @@ export function AppLayout(): JSX.Element {
               </>
             )}
             <a
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
               href="https://skild.sh"
               target="_blank"
               rel="noreferrer"
             >
-              skild.sh →
+              skild.sh
+              <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
             </a>
           </div>
         </div>
@@ -104,15 +134,22 @@ export function AppLayout(): JSX.Element {
       <main className="mx-auto max-w-4xl px-4 py-10 flex-1 w-full">
         <Outlet />
       </main>
-      <footer className="mx-auto max-w-4xl px-4 pb-12 border-t border-border/30 pt-8 w-full mt-auto">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-4">
+      <footer className="mx-auto max-w-4xl px-4 pb-12 border-t border-border/10 pt-8 w-full mt-auto">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex flex-col gap-2 items-center md:items-start">
+            <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all opacity-50 hover:opacity-100">
+              <img src="/logo.svg" alt="Skild Logo" className="w-5 h-5" />
+              <span className="font-bold text-sm tracking-tight">Skild</span>
+            </div>
+            <div className="text-[10px] text-muted-foreground font-mono">
+              © {new Date().getFullYear()} Skild Protocol · registry.skild.sh
+            </div>
+          </div>
+          <div className="flex items-center gap-6 text-xs text-muted-foreground font-medium">
             <a href="https://skild.sh" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">skild.sh</a>
             <a href="https://github.com/Peiiii/skild" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">GitHub</a>
-            <a href="https://github.com/Peiiii/skild#readme" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">Docs</a>
             <a href="https://agentskills.io" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">Spec</a>
           </div>
-          <div className="font-mono text-foreground/50">registry.skild.sh</div>
         </div>
       </footer>
     </div>

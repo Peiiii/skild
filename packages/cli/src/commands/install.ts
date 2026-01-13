@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { installRegistrySkill, installSkill, SkildError, type Platform } from '@skild/core';
+import { fetchWithTimeout, installRegistrySkill, installSkill, resolveRegistryUrl, SkildError, type Platform } from '@skild/core';
 import { createSpinner, logger } from '../utils/logger.js';
 
 export interface InstallCommandOptions {
@@ -43,10 +43,49 @@ export async function install(source: string, options: InstallCommandOptions = {
     } else if (record.skill?.validation?.ok) {
       logger.installDetail(`Validation: ${chalk.green('ok')}`);
     }
+
+    void reportDownload(record, options.registry);
   } catch (error: unknown) {
     spinner.fail(`Failed to install ${chalk.red(source)}`);
     const message = error instanceof SkildError ? error.message : error instanceof Error ? error.message : String(error);
     console.error(chalk.red(message));
     process.exitCode = 1;
+  }
+}
+
+async function reportDownload(
+  record: { sourceType: string; canonicalName?: string; source: string; registryUrl?: string },
+  registryOverride?: string
+): Promise<void> {
+  try {
+    if (record.sourceType === 'local') return;
+    const registryUrl = resolveRegistryUrl(record.registryUrl || registryOverride);
+    const endpoint = `${registryUrl}/stats/downloads`;
+
+    const payload: Record<string, unknown> = { source: 'cli' };
+    if (record.sourceType === 'registry') {
+      payload.entityType = 'registry';
+      payload.entityId = record.canonicalName || record.source;
+    } else if (record.sourceType === 'github-url') {
+      payload.entityType = 'linked';
+      payload.sourceInput = { provider: 'github', url: record.source };
+    } else if (record.sourceType === 'degit-shorthand') {
+      payload.entityType = 'linked';
+      payload.sourceInput = { provider: 'github', spec: record.source };
+    } else {
+      return;
+    }
+
+    await fetchWithTimeout(
+      endpoint,
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload)
+      },
+      3000
+    );
+  } catch {
+    // best-effort only
   }
 }

@@ -149,22 +149,37 @@ function parseGithubUrl(input: string): { repo: string; path: string | null; ref
   return { repo, path, ref, url: raw };
 }
 
+function parseGithubSpec(input: string): { repo: string; path: string | null; ref: string | null } {
+  const raw = input.trim();
+  if (!raw) throw new Error("Missing GitHub spec.");
+  const [pathPart, refPart] = raw.split("#", 2);
+  const parts = pathPart.split("/").filter(Boolean);
+  if (parts.length < 2) throw new Error("Invalid GitHub spec.");
+  const repo = normalizeRepo(`${parts[0]}/${parts[1]}`);
+  const path = normalizePath(parts.slice(2).join("/"));
+  const ref = normalizeRef(refPart ?? null);
+  return { repo, path, ref };
+}
+
 function resolveSourceInput(input: {
   provider: LinkedItemSourceProvider;
   repo?: string | null;
   path?: string | null;
   ref?: string | null;
   url?: string | null;
+  spec?: string | null;
 }): { repo: string; path: string | null; ref: string | null; url: string | null } {
   if (input.provider !== "github") throw new Error("Unsupported provider.");
   const url = normalizeUrl(input.url);
   const parsed = url ? parseGithubUrl(url) : null;
+  const spec = (input.spec ?? "").trim();
+  const parsedSpec = !parsed && spec ? parseGithubSpec(spec) : null;
   const repoInput = (input.repo ?? "").trim();
-  if (!parsed && !repoInput) throw new Error("Missing repo.");
+  if (!parsed && !parsedSpec && !repoInput) throw new Error("Missing repo.");
 
-  const repo = normalizeRepo(parsed?.repo ?? repoInput);
-  const path = normalizePath(parsed?.path ?? input.path);
-  const ref = normalizeRef(parsed?.ref ?? input.ref);
+  const repo = normalizeRepo(parsed?.repo ?? parsedSpec?.repo ?? repoInput);
+  const path = normalizePath(parsed?.path ?? parsedSpec?.path ?? input.path);
+  const ref = normalizeRef(parsed?.ref ?? parsedSpec?.ref ?? input.ref);
 
   if (parsed && repoInput && normalizeRepo(repoInput) !== parsed.repo) throw new Error("Repo does not match URL.");
   if (parsed && input.path != null && normalizePath(input.path) !== parsed.path) throw new Error("Path does not match URL.");
@@ -188,6 +203,24 @@ function buildDegitPath(input: { repo: string; path: string | null; ref: string 
 export function buildInstallCommand(source: { provider: LinkedItemSourceProvider; repo: string; path: string | null; ref: string | null; url: string | null }): string {
   if (source.provider !== "github") throw new Error("Unsupported provider.");
   return `skild install ${buildDegitPath({ repo: source.repo, path: source.path, ref: source.ref })}`;
+}
+
+export function normalizeLinkedSource(input: {
+  provider: LinkedItemSourceProvider;
+  repo?: string | null;
+  path?: string | null;
+  ref?: string | null;
+  url?: string | null;
+  spec?: string | null;
+}): { provider: LinkedItemSourceProvider; repo: string; path: string | null; ref: string | null; url: string | null } {
+  const resolved = resolveSourceInput(input);
+  return {
+    provider: input.provider,
+    repo: resolved.repo,
+    path: resolved.path,
+    ref: resolved.ref,
+    url: resolved.url ?? buildGithubUrl({ repo: resolved.repo, path: resolved.path, ref: resolved.ref }),
+  };
 }
 
 export function parseLinkedItemUrl(url: string): ParsedLinkedItem {
@@ -327,6 +360,18 @@ export async function listLinkedItems(env: Env, input: { q?: string; limit?: num
 
 export async function getLinkedItemById(env: Env, id: string): Promise<LinkedItemRow | null> {
   const row = await env.DB.prepare("SELECT * FROM linked_items WHERE id = ?1 LIMIT 1").bind(id).first<LinkedItemRow>();
+  return row ?? null;
+}
+
+export async function getLinkedItemBySource(
+  env: Env,
+  input: { repo: string; path: string | null },
+): Promise<LinkedItemRow | null> {
+  const row = await env.DB.prepare(
+    "SELECT * FROM linked_items WHERE source_provider = 'github' AND source_repo = ?1 AND COALESCE(source_path, '') = COALESCE(?2, '') LIMIT 1",
+  )
+    .bind(input.repo, input.path)
+    .first<LinkedItemRow>();
   return row ?? null;
 }
 
