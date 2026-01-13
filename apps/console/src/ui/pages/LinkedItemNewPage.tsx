@@ -16,6 +16,7 @@ export function LinkedItemNewPage(): JSX.Element {
   const [parsedSource, setParsedSource] = React.useState<LinkedItem['source'] | null>(null);
   const [defaults, setDefaults] = React.useState<{ title: string; description: string } | null>(null);
   const [install, setInstall] = React.useState<string | null>(null);
+  const [copied, setCopied] = React.useState(false);
 
   const [title, setTitle] = React.useState('');
   const [description, setDescription] = React.useState('');
@@ -27,6 +28,13 @@ export function LinkedItemNewPage(): JSX.Element {
   const [parseError, setParseError] = React.useState<string | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  async function copyInstall(): Promise<void> {
+    if (!install) return;
+    await navigator.clipboard.writeText(install);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
 
   async function onParse(e: React.FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
@@ -114,19 +122,23 @@ export function LinkedItemNewPage(): JSX.Element {
         )}
         <form className="grid gap-4" onSubmit={onParse}>
           <div className="grid gap-2">
-            <Label htmlFor="url">Step 1: Paste GitHub URL</Label>
-            <Input
-              id="url"
-              value={url}
-              onChange={e => setUrl(e.currentTarget.value)}
-              placeholder="https://github.com/owner/repo/tree/main/path/to/skill"
-              required
-            />
-          </div>
-          <div className="flex items-center justify-end">
-            <Button type="submit" disabled={parseBusy || !url.trim()}>
-              {parseBusy ? 'Parsing…' : 'Parse →'}
-            </Button>
+            <div className="flex items-center gap-2">
+              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">1</span>
+              <Label htmlFor="url" className="text-base font-semibold">Paste GitHub URL</Label>
+            </div>
+            <div className="flex gap-2">
+              <Input
+                id="url"
+                value={url}
+                onChange={e => setUrl(e.currentTarget.value)}
+                placeholder="https://github.com/owner/repo/tree/main/path/to/skill"
+                required
+                className="flex-1"
+              />
+              <Button type="submit" disabled={parseBusy || !url.trim()}>
+                {parseBusy ? 'Parsing…' : 'Parse →'}
+              </Button>
+            </div>
           </div>
         </form>
 
@@ -149,7 +161,10 @@ export function LinkedItemNewPage(): JSX.Element {
         )}
 
         <form className="mt-6 grid gap-4" onSubmit={onSubmit}>
-          <div className="text-sm font-medium">Step 2: Add Details (all optional)</div>
+          <div className="flex items-center gap-2">
+            <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">2</span>
+            <span className="text-base font-semibold">Add Details <span className="text-muted-foreground font-normal text-sm">(all optional)</span></span>
+          </div>
           <div className="grid gap-2">
             <Label htmlFor="title">Title</Label>
             <Input
@@ -201,8 +216,13 @@ export function LinkedItemNewPage(): JSX.Element {
             />
           </div>
 
-          <div className="rounded-md border border-border/60 bg-muted/30 p-3 text-xs font-mono break-all">
-            {install || 'Install command will appear after parsing.'}
+          <div className="rounded-md border border-border/60 bg-muted/30 p-3 text-xs flex items-center justify-between gap-2">
+            <code className="font-mono break-all">{install || 'Install command will appear after parsing.'}</code>
+            {install && (
+              <Button type="button" variant="ghost" size="sm" className="shrink-0 h-7 px-2" onClick={copyInstall}>
+                {copied ? '✓ Copied' : 'Copy'}
+              </Button>
+            )}
           </div>
 
           <div className="flex items-center justify-end">
