@@ -103,8 +103,8 @@ export function LinkedItemsPage(): JSX.Element {
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <CardTitle>Catalog</CardTitle>
-            <CardDescription>Discover curated GitHub Skills.</CardDescription>
+            <CardTitle>Skills from GitHub</CardTitle>
+            <CardDescription>Browse and index skills directly from GitHub repositories.</CardDescription>
           </div>
           <Button asChild variant="secondary">
             <Link to={authed ? '/linked/new' : `/login?next=${encodeURIComponent('/linked/new')}`}>
@@ -120,7 +120,7 @@ export function LinkedItemsPage(): JSX.Element {
             <Input
               value={queryInput}
               onChange={e => setQueryInput(e.currentTarget.value)}
-              placeholder="Search catalog items..."
+              placeholder="Search items submitted from GitHub..."
               className="pl-9 bg-secondary/30 border-border/40"
             />
           </div>
@@ -129,7 +129,7 @@ export function LinkedItemsPage(): JSX.Element {
 
         {error && (
           <Alert variant="destructive">
-            <AlertTitle>Failed to load catalog</AlertTitle>
+            <AlertTitle>Failed to load items</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}

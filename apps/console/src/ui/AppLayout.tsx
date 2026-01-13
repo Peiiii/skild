@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   Compass,
-  Library,
   Upload,
   LayoutDashboard,
   Package,
@@ -21,7 +20,8 @@ import {
   LogOut,
   ChevronDown,
   ExternalLink,
-  Trophy
+  Trophy,
+  Github
 } from 'lucide-react';
 
 function TopNavLink({ to, children, icon: Icon }: { to: string; children: React.ReactNode; icon?: React.ElementType }): JSX.Element {
@@ -50,86 +50,87 @@ export function AppLayout(): JSX.Element {
     <div className="min-h-dvh bg-background flex flex-col">
       <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80">
         <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
-          {/* Left: Logo + Core Features */}
-          <div className="flex items-center gap-6">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <img src="/logo.svg" alt="Skild Logo" className="w-8 h-8 transition-transform group-hover:scale-110" />
-              <span className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                Skild
-              </span>
-            </Link>
-            <nav className="flex items-center gap-6">
+          {/* Logo / Brand */}
+          <Link to="/" className="flex items-center gap-2 group">
+            <img src="/logo.svg" alt="Skild Logo" className="w-8 h-8 transition-transform group-hover:scale-110" />
+            <span className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+              Skild
+            </span>
+          </Link>
+
+          {/* Right Section: Nav + Auth */}
+          <div className="flex items-center gap-8">
+            <nav className="hidden md:flex items-center gap-6 border-r border-border/40 pr-8 mr-2 last:border-0 last:pr-0 last:mr-0">
               <TopNavLink to="/skills" icon={Compass}>Discover</TopNavLink>
-              <TopNavLink to="/linked" icon={Library}>Catalog</TopNavLink>
               <TopNavLink to="/leaderboard" icon={Trophy}>Top</TopNavLink>
+              <TopNavLink to="/linked" icon={Github}>Submit Skills from GitHub</TopNavLink>
               <TopNavLink to="/publish" icon={Upload}>Publish</TopNavLink>
             </nav>
-          </div>
 
-          {/* Right: Auth Actions */}
-          <div className="flex items-center gap-3">
-            {authed ? (
-              <>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 gap-2 font-mono text-sm">
-                      @{publisher.handle}
-                      <svg className="w-3 h-3 opacity-50" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path d="M6 9l6 6 6-6" />
-                      </svg>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52">
-                    <DropdownMenuItem asChild>
-                      <Link to="/me" className="flex items-center gap-2">
-                        <LayoutDashboard className="w-4 h-4 opacity-70" />
-                        Dashboard
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/me/skills" className="flex items-center gap-2">
-                        <Package className="w-4 h-4 opacity-70" />
-                        My Skills
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/me/tokens" className="flex items-center gap-2">
-                        <Key className="w-4 h-4 opacity-70" />
-                        Tokens
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/me/settings" className="flex items-center gap-2">
-                        <Settings className="w-4 h-4 opacity-70" />
-                        Settings
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => void auth.logout()} className="text-destructive flex items-center gap-2">
-                      <LogOut className="w-4 h-4 opacity-70" />
-                      Logout
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : (
-              <>
-                <TopNavLink to="/login">Login</TopNavLink>
-                <Button asChild size="sm" className="h-8">
-                  <Link to="/signup">Sign up</Link>
-                </Button>
-              </>
-            )}
-            <a
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
-              href="https://skild.sh"
-              target="_blank"
-              rel="noreferrer"
-            >
-              skild.sh
-              <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
-            </a>
+            <div className="flex items-center gap-3">
+              {authed ? (
+                <>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 gap-2 font-mono text-sm">
+                        @{publisher.handle}
+                        <svg className="w-3 h-3 opacity-50" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path d="M6 9l6 6 6-6" />
+                        </svg>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-52">
+                      <DropdownMenuItem asChild>
+                        <Link to="/me" className="flex items-center gap-2">
+                          <LayoutDashboard className="w-4 h-4 opacity-70" />
+                          Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/me/skills" className="flex items-center gap-2">
+                          <Package className="w-4 h-4 opacity-70" />
+                          My Skills
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/me/tokens" className="flex items-center gap-2">
+                          <Key className="w-4 h-4 opacity-70" />
+                          Tokens
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/me/settings" className="flex items-center gap-2">
+                          <Settings className="w-4 h-4 opacity-70" />
+                          Settings
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => void auth.logout()} className="text-destructive flex items-center gap-2">
+                        <LogOut className="w-4 h-4 opacity-70" />
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              ) : (
+                <>
+                  <TopNavLink to="/login">Login</TopNavLink>
+                  <Button asChild size="sm" className="h-8">
+                    <Link to="/signup">Sign up</Link>
+                  </Button>
+                </>
+              )}
+              <a
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+                href="https://skild.sh"
+                target="_blank"
+                rel="noreferrer"
+              >
+                skild.sh
+                <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+              </a>
+            </div>
           </div>
         </div>
       </header>

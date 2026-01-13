@@ -99,7 +99,7 @@ export function LinkedItemNewPage(): JSX.Element {
     <Card>
       <CardHeader>
         <CardTitle>Submit GitHub skill</CardTitle>
-        <CardDescription>Add a skill from GitHub to the catalog.</CardDescription>
+        <CardDescription>Submit and share a skill from GitHub repositories with the community.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="mb-6 rounded-md border border-border/60 bg-muted/30 p-3 text-xs text-muted-foreground">

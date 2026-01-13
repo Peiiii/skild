@@ -135,7 +135,7 @@ export function SkillsPage(): JSX.Element {
     <div className="space-y-8">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Discover Skills</h1>
-        <p className="text-muted-foreground">Search the registry and linked catalog, then copy install commands.</p>
+        <p className="text-muted-foreground">Search and explore skills from both the official registry and the GitHub community.</p>
       </div>
 
       <form className="relative flex gap-2" onSubmit={onSubmit}>
