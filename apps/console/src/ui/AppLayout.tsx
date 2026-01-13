@@ -33,7 +33,7 @@ export function AppLayout(): JSX.Element {
   const authed = auth.status === 'authed' && publisher !== null;
 
   return (
-    <div className="min-h-dvh bg-background">
+    <div className="min-h-dvh bg-background flex flex-col">
       <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80">
         <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
           {/* Left: Logo + Core Features */}
@@ -101,10 +101,10 @@ export function AppLayout(): JSX.Element {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-4xl px-4 py-10">
+      <main className="mx-auto max-w-4xl px-4 py-10 flex-1 w-full">
         <Outlet />
       </main>
-      <footer className="mx-auto max-w-4xl px-4 pb-12 border-t border-border/30 pt-8 mt-12">
+      <footer className="mx-auto max-w-4xl px-4 pb-12 border-t border-border/30 pt-8 w-full mt-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-4">
             <a href="https://skild.sh" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">skild.sh</a>
