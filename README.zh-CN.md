@@ -9,7 +9,7 @@
 [![npm version](https://img.shields.io/npm/v/skild.svg)](https://www.npmjs.com/package/skild)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-[官网](https://skild.sh) · [文档](./docs/usage.zh-CN.md) · [Console](https://console.skild.sh)
+[官网](https://skild.sh) · [文档](./docs/README.md) · [Console](https://console.skild.sh)
 
 **[English](./README.md)** | 简体中文
 
@@ -108,51 +108,18 @@ skild publish              # 发布到 registry
 
 ## 📚 文档
 
-- **[使用指南](./docs/usage.zh-CN.md)** — CLI 命令参考
+- **[快速上手](./docs/getting-started.zh-CN.md)** — 2 分钟入门
+- **[安装 Skills](./docs/installing-skills.zh-CN.md)** — 各种安装方式
+- **[创建 Skills](./docs/creating-skills.md)** — 构建你自己的 Skills
+- **[发布 Skills](./docs/publishing.zh-CN.md)** — 分享给社区
+- **[从 GitHub 提交](./docs/submit-from-github.zh-CN.md)** — 收录 GitHub Skills
 - **[Console 指南](./docs/console.zh-CN.md)** — Web 界面使用
-- **[Linked Skills](./docs/linked-skills.zh-CN.md)** — Catalog 和 GitHub Skills
 - **[FAQ](./docs/faq.md)** — 常见问题
-- **[English Docs](./docs/usage.md)**
-
-## 🧑‍💻 本地开发
-
-```bash
-pnpm i
-pnpm build:cli
-pnpm cli --help
-pnpm cli install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
-pnpm cli list -t codex --local
-pnpm cli info pdf -t codex --local
-pnpm cli validate pdf -t codex --local
-```
-
-## 📁 项目结构
-
-```
-skild/
-├── packages/
-│   ├── cli/                 # CLI 工具 (skild 命令)
-│   └── ...                  # 更多 packages（开发中）
-├── apps/
-│   └── web/                 # Web UI (skild.sh)
-├── docs/                    # 文档
-└── examples/                # 示例 Skills
-```
+- **[English Docs](./docs/README.md)**
 
 ## 🤝 参与贡献
 
-欢迎贡献！请查看我们的[贡献指南](./CONTRIBUTING.md)了解详情。
-
-## 🚢 发布（维护者）
-
-```bash
-pnpm release
-```
-
-前置条件：
-- `npm` 已登录（或设置了 `NPM_TOKEN`）
-- `git` 在 `main` 分支且工作区干净
-- 如需创建 GitHub Release：`GITHUB_TOKEN`（或 `GH_TOKEN`）
+欢迎贡献！详见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
 ## 📄 开源许可
 

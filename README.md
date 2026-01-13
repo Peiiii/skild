@@ -9,7 +9,7 @@
 [![npm version](https://img.shields.io/npm/v/skild.svg)](https://www.npmjs.com/package/skild)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-[Website](https://skild.sh) · [Documentation](./docs/usage.md) · [Console](https://console.skild.sh)
+[Website](https://skild.sh) · [Documentation](./docs/README.md) · [Console](https://console.skild.sh)
 
 English | **[简体中文](./README.zh-CN.md)**
 
@@ -17,7 +17,7 @@ English | **[简体中文](./README.zh-CN.md)**
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
 ```bash
 # Install skild
@@ -32,11 +32,11 @@ skild list
 
 That's it. Your agent now has the `pdf` skill.
 
-## What is this?
+## 📖 What is this?
 
 [Agent Skills](https://agentskills.io) is an open standard by Anthropic for extending AI agents. **skild** is the package manager for these Skills — like npm, but for AI agents.
 
-## Install Skills
+## 📦 Install Skills
 
 ```bash
 # From GitHub (degit shorthand)
@@ -48,11 +48,14 @@ skild install https://github.com/anthropics/skills/tree/main/skills/pdf
 # From local directory
 skild install ./my-skill
 
+# From registry
+skild install @publisher/skill-name
+
 # Force reinstall
 skild install anthropics/skills/skills/pdf --force
 ```
 
-## Multi-platform Support
+## 🎯 Multi-platform Support
 
 Default: Claude (`~/.claude/skills`). Also supports Codex and Copilot:
 
@@ -67,7 +70,7 @@ skild install anthropics/skills/skills/pdf -t codex --local
 skild install anthropics/skills/skills/pdf --local
 ```
 
-## Manage Skills
+## 🔧 Manage Skills
 
 ```bash
 skild list                 # List installed Skills
@@ -77,7 +80,7 @@ skild update pdf           # Update a Skill
 skild uninstall pdf        # Remove a Skill
 ```
 
-## Create Skills
+## ✨ Create & Publish Skills
 
 ```bash
 skild init my-skill        # Create a new Skill project
@@ -86,7 +89,7 @@ skild validate .           # Validate before publishing
 skild publish              # Publish to registry
 ```
 
-## All Commands
+## 🛠️ All Commands
 
 | Command | Description |
 |---------|-------------|
@@ -98,20 +101,30 @@ skild publish              # Publish to registry
 | `skild uninstall <skill>` | Remove a Skill |
 | `skild init <name>` | Create a new Skill project |
 | `skild search <query>` | Search the registry |
+| `skild signup` | Create a publisher account |
+| `skild login` | Login to registry |
+| `skild whoami` | Show current identity |
+| `skild logout` | Remove credentials |
 | `skild publish` | Publish a Skill to the registry |
 
 Run `skild <command> --help` for full options.
 
-## Documentation
+## 📚 Documentation
 
-- **[Usage Guide](./docs/usage.md)** — CLI commands and options
-- **[Console Guide](./docs/console.md)** — Web interface walkthrough
-- **[Linked Skills](./docs/linked-skills.md)** — Catalog and GitHub Skills
+- **[Quick Start](./docs/getting-started.md)** — Get up and running in 2 minutes
+- **[Installing Skills](./docs/installing-skills.md)** — All ways to install Skills
 - **[Creating Skills](./docs/creating-skills.md)** — Build your own Skills
+- **[Publishing Skills](./docs/publishing-skills.md)** — Share with the community
+- **[Submit from GitHub](./docs/submit-from-github.md)** — Index GitHub Skills
+- **[Console Guide](./docs/console.md)** — Web interface walkthrough
 - **[FAQ](./docs/faq.md)** — Common questions
-- **[中文文档](./docs/usage.zh-CN.md)**
+- **[中文文档](./docs/README.md#中文文档)**
 
-## License
+## � Contributing
+
+Contributions welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and guidelines.
+
+## 📄 License
 
 MIT © [Peiiii](https://github.com/Peiiii)
 
@@ -120,5 +133,7 @@ MIT © [Peiiii](https://github.com/Peiiii)
 <div align="center">
 
 **🛡️ [skild.sh](https://skild.sh)**
+
+*Get your agents skilled.*
 
 </div>
