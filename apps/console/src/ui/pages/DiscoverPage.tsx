@@ -150,6 +150,40 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
         <p className="text-muted-foreground">{subtitle}</p>
       </div>
 
+      {/* Skillsets Intro Card */}
+      {skillsetOnly && (
+        <div className="relative overflow-hidden rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent p-6">
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl" />
+          <div className="relative grid gap-6 md:grid-cols-2 items-center">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🎁</span>
+                <h2 className="text-lg font-bold">What is a Skillset?</h2>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                A <strong className="text-foreground">Skillset</strong> is a curated bundle of related skills.
+                Instead of installing skills one by one, you get a complete toolkit with a single command.
+                Perfect for <span className="text-indigo-400">data analysts</span>, <span className="text-purple-400">developers</span>, or anyone who needs a ready-to-use workflow.
+              </p>
+              <a
+                href="https://github.com/Peiiii/skild/blob/main/docs/skillsets.md"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+              >
+                Learn more →
+              </a>
+            </div>
+            <div className="rounded-xl bg-black/40 border border-border/40 p-4 font-mono text-xs">
+              <div className="text-muted-foreground mb-2"># Install a data analyst pack</div>
+              <div className="text-indigo-300">skild install @scope/data-analyst-pack</div>
+              <div className="mt-3 text-muted-foreground"># All bundled skills are installed</div>
+              <div className="text-emerald-400">✓ csv, pandas, sql-helper...</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <form className="relative flex gap-2" onSubmit={onSubmit}>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
