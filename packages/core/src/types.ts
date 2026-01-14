@@ -3,6 +3,7 @@ export type Platform = (typeof PLATFORMS)[number];
 export type InstallScope = 'global' | 'project';
 
 export type SourceType = 'local' | 'github-url' | 'degit-shorthand' | 'registry';
+export type DependencySourceType = SourceType | 'inline';
 
 export interface InstallOptions {
   platform?: Platform;
@@ -29,6 +30,8 @@ export interface SkillFrontmatter {
   name: string;
   description: string;
   version?: string;
+  dependencies?: string[];
+  skillset?: boolean;
   [key: string]: unknown;
 }
 
@@ -57,6 +60,7 @@ export interface InstallRecord {
    * Example: "https://registry.skild.sh"
    */
   registryUrl?: string;
+  resolvedVersion?: string;
   platform: Platform;
   scope: InstallScope;
   source: string;
@@ -66,10 +70,23 @@ export interface InstallRecord {
   installDir: string;
   contentHash: string;
   hasSkillMd: boolean;
+  skillset?: boolean;
+  dependencies?: string[];
+  installedDependencies?: InstalledDependency[];
+  dependedBy?: string[];
   skill?: {
     frontmatter?: SkillFrontmatter;
     validation?: SkillValidationResult;
   };
+}
+
+export interface InstalledDependency {
+  name: string;
+  source: string;
+  sourceType: DependencySourceType;
+  canonicalName?: string;
+  installDir?: string;
+  inlinePath?: string;
 }
 
 export interface LockEntry {

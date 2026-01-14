@@ -1,5 +1,13 @@
 # skild
 
+## 0.2.3
+
+### Patch Changes
+
+- Add skillset dependencies support (install/metadata/CLI list and uninstall).
+- Updated dependencies
+  - @skild/core@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes

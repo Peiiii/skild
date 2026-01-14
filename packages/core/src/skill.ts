@@ -44,6 +44,15 @@ export function validateSkillDir(skillDir: string): SkillValidationResult {
   if (!frontmatter.description || typeof frontmatter.description !== 'string') {
     issues.push({ level: 'error', message: 'Frontmatter "description" is required and must be a string' });
   }
+  if (frontmatter.skillset !== undefined && typeof frontmatter.skillset !== 'boolean') {
+    issues.push({ level: 'error', message: 'Frontmatter "skillset" must be a boolean when provided' });
+  }
+  if (frontmatter.dependencies !== undefined) {
+    const deps = frontmatter.dependencies;
+    if (!Array.isArray(deps) || deps.some(dep => typeof dep !== 'string')) {
+      issues.push({ level: 'error', message: 'Frontmatter "dependencies" must be an array of strings when provided' });
+    }
+  }
 
   return { ok: issues.every(i => i.level !== 'error'), issues, frontmatter };
 }
@@ -55,4 +64,3 @@ export function assertValidSkillDir(skillDir: string): SkillValidationResult {
   }
   return result;
 }
-

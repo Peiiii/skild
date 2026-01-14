@@ -10,6 +10,8 @@ export type {
   SkillValidationResult,
   SkillValidationIssue,
   InstallRecord,
+  InstalledDependency,
+  DependencySourceType,
   Lockfile,
   GlobalConfig,
   RegistryAuth

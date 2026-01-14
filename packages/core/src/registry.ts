@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import * as tar from 'tar';
+import semver from 'semver';
 import { SkildError } from './errors.js';
 import { fetchWithTimeout } from './http.js';
 
@@ -35,7 +36,7 @@ export function parseRegistrySpecifier(input: string): RegistrySpecifier {
   if (!/^@[a-z0-9][a-z0-9-]{1,31}\/[a-z0-9][a-z0-9-]{1,63}$/.test(canonicalName)) {
     throw new SkildError('INVALID_SOURCE', `Invalid skill name "${canonicalName}". Expected @publisher/skill (lowercase letters/digits/dashes).`);
   }
-  if (!/^[A-Za-z0-9][A-Za-z0-9.+-]*$/.test(versionOrTag)) {
+  if (!versionOrTag || /\s/.test(versionOrTag)) {
     throw new SkildError('INVALID_SOURCE', `Invalid version or tag "${versionOrTag}".`);
   }
 
@@ -66,11 +67,34 @@ export function resolveRegistryUrl(explicit?: string): string {
 
 export async function resolveRegistryVersion(registryUrl: string, spec: RegistrySpecifier): Promise<RegistryResolvedVersion> {
   const { scope, name } = splitCanonicalName(spec.canonicalName);
-  const url = `${registryUrl}/skills/${encodeURIComponent(scope)}/${encodeURIComponent(name)}/versions/${encodeURIComponent(spec.versionOrTag)}`;
+  const versionOrTag = spec.versionOrTag;
+  const range = semver.validRange(versionOrTag);
+
+  if (range && !semver.valid(versionOrTag)) {
+    const metaUrl = `${registryUrl}/skills/${encodeURIComponent(scope)}/${encodeURIComponent(name)}`;
+    const metaRes = await fetchWithTimeout(metaUrl, { headers: { accept: 'application/json' } }, 10_000);
+    if (!metaRes.ok) {
+      const text = await metaRes.text().catch(() => '');
+      throw new SkildError('REGISTRY_RESOLVE_FAILED', `Failed to resolve ${spec.canonicalName}@${versionOrTag} (${metaRes.status}). ${text}`.trim());
+    }
+    const meta = (await metaRes.json()) as { ok: boolean; versions?: Array<{ version: string }> };
+    if (!meta?.ok || !Array.isArray(meta.versions)) {
+      throw new SkildError('REGISTRY_RESOLVE_FAILED', `Invalid registry response for ${spec.canonicalName}@${versionOrTag}.`);
+    }
+
+    const versions = meta.versions.map(v => v.version).filter(v => semver.valid(v));
+    const matched = semver.maxSatisfying(versions, range);
+    if (!matched) {
+      throw new SkildError('REGISTRY_RESOLVE_FAILED', `No published version satisfies ${spec.canonicalName}@${versionOrTag}.`);
+    }
+    return resolveRegistryVersion(registryUrl, { canonicalName: spec.canonicalName, versionOrTag: matched });
+  }
+
+  const url = `${registryUrl}/skills/${encodeURIComponent(scope)}/${encodeURIComponent(name)}/versions/${encodeURIComponent(versionOrTag)}`;
   const res = await fetchWithTimeout(url, { headers: { accept: 'application/json' } }, 10_000);
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new SkildError('REGISTRY_RESOLVE_FAILED', `Failed to resolve ${spec.canonicalName}@${spec.versionOrTag} (${res.status}). ${text}`.trim());
+    throw new SkildError('REGISTRY_RESOLVE_FAILED', `Failed to resolve ${spec.canonicalName}@${versionOrTag} (${res.status}). ${text}`.trim());
   }
   const json = (await res.json()) as {
     ok: boolean;
@@ -81,7 +105,7 @@ export async function resolveRegistryVersion(registryUrl: string, spec: Registry
     publishedAt?: string;
   };
   if (!json?.ok || !json.tarballUrl || !json.integrity || !json.version) {
-    throw new SkildError('REGISTRY_RESOLVE_FAILED', `Invalid registry response for ${spec.canonicalName}@${spec.versionOrTag}.`);
+    throw new SkildError('REGISTRY_RESOLVE_FAILED', `Invalid registry response for ${spec.canonicalName}@${versionOrTag}.`);
   }
   const tarballUrl = json.tarballUrl.startsWith('http') ? json.tarballUrl : `${registryUrl}${json.tarballUrl}`;
   return { canonicalName: spec.canonicalName, version: json.version, integrity: json.integrity, tarballUrl, publishedAt: json.publishedAt };

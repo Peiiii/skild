@@ -69,6 +69,7 @@ program
     .option('-t, --target <platform>', `Target platform: ${PLATFORMS.join(', ')}`, 'claude')
     .option('-l, --local', 'Use project-level directory instead of global')
     .option('-f, --force', 'Uninstall even if metadata is missing')
+    .option('--with-deps', 'Uninstall dependencies that are only required by this skill')
     .action(async (skill: string, options: any) => uninstall(skill, options));
 
 program

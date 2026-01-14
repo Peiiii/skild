@@ -6,6 +6,7 @@ export interface UninstallCommandOptions {
   target?: Platform | string;
   local?: boolean;
   force?: boolean;
+  withDeps?: boolean;
 }
 
 export async function uninstall(skill: string, options: UninstallCommandOptions = {}): Promise<void> {
@@ -17,7 +18,12 @@ export async function uninstall(skill: string, options: UninstallCommandOptions 
 
   const spinner = createSpinner(`Uninstalling ${chalk.cyan(canonical)} from ${chalk.dim(platform)} (${scope})...`);
   try {
-    uninstallSkill(resolvedName, { platform, scope, allowMissingMetadata: Boolean(options.force) } as any);
+    uninstallSkill(resolvedName, {
+      platform,
+      scope,
+      allowMissingMetadata: Boolean(options.force),
+      withDeps: Boolean(options.withDeps)
+    } as any);
     spinner.succeed(`Uninstalled ${chalk.green(canonical)}`);
   } catch (error: unknown) {
     spinner.fail(`Failed to uninstall ${chalk.red(canonical)}`);
