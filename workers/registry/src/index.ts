@@ -53,6 +53,15 @@ function isAllowedOrigin(origin: string | null | undefined): string | null {
   }
 }
 
+function parseOptionalBoolean(input: string | null | undefined): boolean | null {
+  if (input == null) return null;
+  const raw = String(input).trim().toLowerCase();
+  if (!raw) return null;
+  if (raw === "1" || raw === "true" || raw === "yes") return true;
+  if (raw === "0" || raw === "false" || raw === "no") return false;
+  return null;
+}
+
 function getAllowedOriginFromRequest(c: any): string | null {
   const origin = c.req.header("origin");
   const allowedFromOrigin = isAllowedOrigin(origin);
@@ -442,7 +451,8 @@ app.get("/discover", async (c) => {
     const limit = Number.parseInt(c.req.query("limit") || "20", 10) || 20;
     const cursor = (c.req.query("cursor") || "").trim() || null;
     const sort = (c.req.query("sort") || "").trim() || null;
-    const page = await listDiscoverItems(c.env, { q, limit, cursor, sort });
+    const skillset = parseOptionalBoolean(c.req.query("skillset"));
+    const page = await listDiscoverItems(c.env, { q, limit, cursor, sort, skillset });
     return c.json({
       ok: true,
       items: page.rows.map((r) => toDiscoverItem(r)),

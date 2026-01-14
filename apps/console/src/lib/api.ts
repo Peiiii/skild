@@ -213,13 +213,15 @@ export async function listDiscoverItems(
   query: string,
   cursor?: string | null,
   limit = 20,
-  sort = 'updated'
+  sort = 'updated',
+  options?: { skillset?: boolean }
 ): Promise<DiscoverListResponse> {
   const url = newApiUrl('/discover');
   if (query.trim()) url.searchParams.set('q', query.trim());
   if (cursor) url.searchParams.set('cursor', cursor);
   url.searchParams.set('limit', String(limit));
   url.searchParams.set('sort', sort);
+  if (options?.skillset !== undefined) url.searchParams.set('skillset', options.skillset ? '1' : '0');
   return fetchJson<DiscoverListResponse>(url.toString(), {}, 10_000);
 }
 

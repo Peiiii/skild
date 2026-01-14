@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   Compass,
+  Layers,
   Upload,
   LayoutDashboard,
   Package,
@@ -49,7 +50,7 @@ export function AppLayout(): JSX.Element {
   return (
     <div className="min-h-dvh bg-background flex flex-col">
       <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80">
-        <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
           {/* Logo / Brand */}
           <Link to="/" className="flex items-center gap-2 group">
             <img src="/logo.svg" alt="Skild Logo" className="w-8 h-8 transition-transform group-hover:scale-110" />
@@ -61,7 +62,8 @@ export function AppLayout(): JSX.Element {
           {/* Right Section: Nav + Auth */}
           <div className="flex items-center gap-8">
             <nav className="hidden md:flex items-center gap-6 border-r border-border/40 pr-8 mr-2 last:border-0 last:pr-0 last:mr-0">
-              <TopNavLink to="/skills" icon={Compass}>Discover</TopNavLink>
+              <TopNavLink to="/skills" icon={Compass}>Skills</TopNavLink>
+              <TopNavLink to="/skillsets" icon={Layers}>Skillsets</TopNavLink>
               <TopNavLink to="/leaderboard" icon={Trophy}>Top</TopNavLink>
               <TopNavLink to="/linked" icon={Github}>Submit Skills from GitHub</TopNavLink>
               <TopNavLink to="/publish" icon={Upload}>Publish</TopNavLink>
@@ -134,10 +136,10 @@ export function AppLayout(): JSX.Element {
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-4xl px-4 py-10 flex-1 w-full">
+      <main className="mx-auto max-w-7xl px-4 py-10 flex-1 w-full">
         <Outlet />
       </main>
-      <footer className="mx-auto max-w-4xl px-4 pb-12 border-t border-border/10 pt-8 w-full mt-auto">
+      <footer className="mx-auto max-w-7xl px-4 pb-12 border-t border-border/10 pt-8 w-full mt-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col gap-2 items-center md:items-start">
             <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all opacity-50 hover:opacity-100">

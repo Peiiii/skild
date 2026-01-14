@@ -5,6 +5,7 @@ import { SignupPage } from './ui/pages/SignupPage';
 import { TokenNewPage } from './ui/pages/TokenNewPage';
 import { PublishPage } from './ui/pages/PublishPage';
 import { SkillsPage } from './ui/pages/SkillsPage';
+import { SkillsetsPage } from './ui/pages/SkillsetsPage';
 import { SkillDetailPage } from './ui/pages/SkillDetailPage';
 import { VerifyEmailPage } from './ui/pages/VerifyEmailPage';
 import { VerifyEmailRequestPage } from './ui/pages/VerifyEmailRequestPage';
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
       { path: 'verify-email/request', element: <VerifyEmailRequestPage /> },
       { path: 'publish', element: <PublishPage /> },
       { path: 'skills', element: <SkillsPage /> },
+      { path: 'skillsets', element: <SkillsetsPage /> },
       { path: 'skills/:scope/:skill', element: <SkillDetailPage /> },
       { path: 'linked', element: <LinkedItemsPage /> },
       { path: 'linked/new', element: <RequireAuth><LinkedItemNewPage /></RequireAuth> },

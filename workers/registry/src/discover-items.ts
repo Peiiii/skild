@@ -219,12 +219,13 @@ export async function upsertDiscoverItemForLinkedItem(env: Env, input: {
 
 export async function listDiscoverItems(
   env: Env,
-  input: { q?: string; limit?: number; cursor?: string | null; sort?: string | null },
+  input: { q?: string; limit?: number; cursor?: string | null; sort?: string | null; skillset?: boolean | null },
 ): Promise<DiscoverItemsPage> {
   const q = (input.q ?? "").trim().toLowerCase();
   const limit = Math.min(Math.max(input.limit ?? 20, 1), 50);
   const sort = resolveSort(input.sort);
   const cursor = decodeCursor(input.cursor ?? null, sort);
+  const skillsetFilter = input.skillset ?? null;
 
   const clauses: string[] = [];
   const params: Array<string | number> = [];
@@ -233,6 +234,11 @@ export async function listDiscoverItems(
     const like = `%${q}%`;
     clauses.push("(title LIKE ? OR description LIKE ? OR tags_json LIKE ? OR source_repo LIKE ? OR source_id LIKE ?)");
     params.push(like, like, like, like, like);
+  }
+
+  if (skillsetFilter !== null) {
+    clauses.push("skillset = ?");
+    params.push(skillsetFilter ? 1 : 0);
   }
 
   const today = new Date();
