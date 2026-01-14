@@ -5,6 +5,7 @@ import type { DistTagRow, VersionRow, EntityStats } from '@/lib/api-types';
 import { useAuth } from '@/features/auth/auth-store';
 import { SkillsetBadge } from '@/components/skillset-badge';
 import { isSkillsetFlag, parseJsonStringArray } from '@/lib/skillset';
+import { normalizeAlias, preferredInstallCommand } from '@/lib/install';
 import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
 import { Button } from '@/components/ui/button';
@@ -92,7 +93,11 @@ export function SkillDetailPage(): JSX.Element {
   const [copied, setCopied] = React.useState(false);
 
   async function copyInstall(): Promise<void> {
-    await navigator.clipboard.writeText(`skild install ${canonicalName}`);
+    const cmd = preferredInstallCommand({
+      install: `skild install ${canonicalName}`,
+      alias: normalizeAlias(data?.alias),
+    });
+    await navigator.clipboard.writeText(cmd);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
@@ -128,7 +133,8 @@ export function SkillDetailPage(): JSX.Element {
   }
 
   const latest = findLatest(data.distTags);
-  const install = `skild install ${canonicalName}`;
+  const alias = normalizeAlias(data.alias);
+  const install = preferredInstallCommand({ install: `skild install ${canonicalName}`, alias });
   const canManage = auth.status === 'authed' && auth.publisher?.id === data.publisherId;
 
   return (
@@ -158,11 +164,16 @@ export function SkillDetailPage(): JSX.Element {
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
-                {data.name}
+                {alias ?? data.name}
               </h1>
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="h-6 border-indigo-500/30 bg-indigo-500/5 text-indigo-400">Registry</Badge>
                 {data.skillset && <SkillsetBadge className="h-6" />}
+                  {alias ? (
+                    <Badge variant="secondary" className="h-6 text-[10px] font-mono">alias:{alias}</Badge>
+                  ) : (
+                    <Badge variant="outline" className="h-6 text-[10px] text-muted-foreground">no alias</Badge>
+                  )}
                 {canManage && (
                   <Button asChild size="sm" variant="outline" className="h-6 px-2 text-xs border-border/40">
                     <Link to={`/skills/${encodeURIComponent(scope)}/${encodeURIComponent(skill)}/manage`}>Manage</Link>
@@ -170,16 +181,12 @@ export function SkillDetailPage(): JSX.Element {
                 )}
               </div>
             </div>
+              {alias && (
+                <div className="text-xs text-muted-foreground font-mono">{data.name}</div>
+              )}
             <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed font-medium">
               {data.description || 'Elevate your agents with specialized capabilities.'}
             </p>
-            {data.alias && (
-              <div className="flex flex-wrap items-center gap-2 text-xs">
-                <Badge variant="secondary" className="h-5 text-[10px] font-mono">alias:{data.alias}</Badge>
-                <span className="text-muted-foreground">Install:</span>
-                <code className="text-[11px] bg-muted/30 border border-border/40 px-2 py-1 rounded font-mono">skild install {data.alias}</code>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -241,24 +248,30 @@ export function SkillDetailPage(): JSX.Element {
                     const href = route ? `/skills/${encodeURIComponent(route.scope)}/${encodeURIComponent(route.skill)}` : null;
 
                     return (
-                      <div key={dep} className="group/dep relative rounded-lg border border-border/40 bg-muted/5 p-4 hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all hover:shadow-lg hover:shadow-indigo-500/5">
-                        <div className="flex flex-col gap-2">
+                      <div key={dep} className="group/dep relative rounded-lg border border-border/40 bg-muted/5 p-3.5 hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all hover:shadow-lg hover:shadow-indigo-500/5 overflow-hidden">
+                        <div className="flex flex-col gap-2.5 min-w-0">
                           <div className="flex items-center justify-between">
                             {isInline ? (
-                              <Badge variant="secondary" className="h-5 text-[9px] uppercase tracking-wider bg-purple-500/10 text-purple-400 border-none">Bundled</Badge>
+                              <Badge variant="secondary" className="h-4.5 text-[8px] uppercase tracking-wider bg-purple-500/10 text-purple-400 border-none px-1.5">Bundled</Badge>
                             ) : (
-                              <Badge variant="secondary" className="h-5 text-[9px] uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border-none">Registry</Badge>
+                              <Badge variant="secondary" className="h-4.5 text-[8px] uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border-none px-1.5">Registry</Badge>
                             )}
                           </div>
 
                           <div className="min-w-0">
                             {href ? (
-                              <Link className="font-mono text-sm font-bold text-foreground/80 group-hover/dep:text-indigo-400 transition-colors flex items-center gap-1" to={href}>
-                                {trimmed}
-                                <ExternalLink className="h-3 w-3 opacity-0 group-hover/dep:opacity-100 transition-opacity" />
+                              <Link
+                                className="font-mono text-[11px] font-bold text-foreground/80 group-hover/dep:text-indigo-400 transition-colors flex items-center gap-1.5"
+                                to={href as string}
+                                title={trimmed}
+                              >
+                                <span className="truncate">{trimmed}</span>
+                                <ExternalLink className="h-3 w-3 shrink-0 opacity-0 group-hover/dep:opacity-100 transition-opacity" />
                               </Link>
                             ) : (
-                              <code className="font-mono text-sm text-foreground/70">{trimmed}</code>
+                              <code className="font-mono text-[11px] text-foreground/70 truncate block" title={trimmed}>
+                                {trimmed}
+                              </code>
                             )}
                           </div>
                         </div>

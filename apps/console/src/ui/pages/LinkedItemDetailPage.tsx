@@ -5,6 +5,7 @@ import type { LinkedItem, EntityStats } from '@/lib/api-types';
 import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
 import { useAuth } from '@/features/auth/auth-store';
+import { normalizeAlias, preferredInstallCommand } from '@/lib/install';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -74,8 +75,9 @@ export function LinkedItemDetailPage(): JSX.Element {
   }, [itemId]);
 
   async function copyInstall(): Promise<void> {
-    if (!install) return;
-    await navigator.clipboard.writeText(install);
+    const cmd = preferredInstallCommand({ install: install || '', alias: item?.alias });
+    if (!cmd) return;
+    await navigator.clipboard.writeText(cmd);
     setCopied(true);
     window.setTimeout(() => {
       setCopied(false);
@@ -102,6 +104,8 @@ export function LinkedItemDetailPage(): JSX.Element {
 
   const upstreamUrl = item.source.url ?? buildGithubTreeUrl(item.source.repo, item.source.path, item.source.ref);
   const canManage = auth.status === 'authed' && auth.publisher?.id && item.submittedBy?.id === auth.publisher.id;
+  const alias = normalizeAlias(item.alias);
+  const installCmd = preferredInstallCommand({ install: install || '', alias });
 
   return (
     <div className="space-y-4">
@@ -112,7 +116,8 @@ export function LinkedItemDetailPage(): JSX.Element {
         <CardHeader className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="space-y-1">
-              <CardTitle className="text-2xl font-bold">{item.title}</CardTitle>
+              <CardTitle className="text-2xl font-bold">{alias ?? item.title}</CardTitle>
+              {alias && <div className="text-xs text-muted-foreground font-mono">{item.title}</div>}
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Github className="h-4 w-4" />
                 <a
@@ -127,6 +132,11 @@ export function LinkedItemDetailPage(): JSX.Element {
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="emerald" className="h-6">Linked Item</Badge>
+              {alias ? (
+                <Badge variant="secondary" className="h-6 text-[10px] font-mono">alias:{alias}</Badge>
+              ) : (
+                <Badge variant="outline" className="h-6 text-[10px] text-muted-foreground">no alias</Badge>
+              )}
               {canManage && (
                 <Button asChild size="sm" variant="outline" className="h-6 px-2 text-xs">
                   <Link to={`/linked/${encodeURIComponent(item.id)}/manage`}>Manage</Link>
@@ -145,10 +155,10 @@ export function LinkedItemDetailPage(): JSX.Element {
                 <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
                   <span className="bg-muted px-2 py-0.5 rounded border border-border/40">Install Command</span>
                 </div>
-                {install && (
+                {installCmd && (
                   <div className="relative group">
                     <div className="rounded-lg border border-border/60 bg-black/40 p-4 font-mono text-sm break-all leading-relaxed min-h-[56px] flex items-center pr-12">
-                      {install}
+                      {installCmd}
                     </div>
                     <Button
                       type="button"
@@ -156,7 +166,7 @@ export function LinkedItemDetailPage(): JSX.Element {
                       variant="ghost"
                       className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 hover:bg-white/10"
                       onClick={copyInstall}
-                      disabled={!install}
+                      disabled={!installCmd}
                     >
                       {copied ? <Check className="h-5 w-5 text-emerald-500" /> : <Copy className="h-5 w-5" />}
                     </Button>

@@ -4,6 +4,7 @@ import { canonicalToRoute, listMyLinkedItems, listMySkills } from '@/lib/api';
 import type { LinkedItemWithInstall, MySkillItem } from '@/lib/api-types';
 import { SkillsetBadge } from '@/components/skillset-badge';
 import { isSkillsetFlag } from '@/lib/skillset';
+import { normalizeAlias, preferredDisplayName } from '@/lib/install';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -75,6 +76,8 @@ export function MySkillsPage(): JSX.Element {
                 const route = canonicalToRoute(s.name);
                 const href = route ? `/skills/${encodeURIComponent(route.scope)}/${encodeURIComponent(route.skill)}` : '/skills';
                 const manageHref = route ? `/skills/${encodeURIComponent(route.scope)}/${encodeURIComponent(route.skill)}/manage` : null;
+                const alias = normalizeAlias(s.alias);
+                const displayName = preferredDisplayName({ title: s.name, alias });
                 return (
                   <div
                     key={s.name}
@@ -84,14 +87,17 @@ export function MySkillsPage(): JSX.Element {
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <Link to={href} className="font-mono text-sm break-all hover:underline">
-                            {s.name}
+                            {displayName}
                           </Link>
                           {isSkillsetFlag(s.skillset) && <SkillsetBadge />}
                           <Badge variant="outline" className="h-5 text-[10px]">Registry</Badge>
-                          {typeof s.alias === 'string' && s.alias.trim() ? (
-                            <Badge variant="secondary" className="h-5 text-[10px] font-mono">alias:{s.alias}</Badge>
-                          ) : null}
+                          {alias ? (
+                            <Badge variant="secondary" className="h-5 text-[10px] font-mono">alias:{alias}</Badge>
+                          ) : (
+                            <Badge variant="outline" className="h-5 text-[10px] text-muted-foreground">no alias</Badge>
+                          )}
                         </div>
+                        {alias && <div className="mt-1 text-[11px] text-muted-foreground font-mono break-all">{s.name}</div>}
                         <div className="mt-1 text-xs text-muted-foreground line-clamp-2">{s.description || 'No description.'}</div>
                       </div>
                       <div className="shrink-0 text-xs text-muted-foreground text-right">
@@ -126,31 +132,38 @@ export function MySkillsPage(): JSX.Element {
             <div className="text-sm text-muted-foreground">No linked items submitted yet.</div>
           ) : (
             <div className="grid gap-2">
-              {linked.map(item => (
-                <div key={item.id} className="rounded-md border border-border/60 p-3 hover:bg-muted/40 transition-colors">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Link to={`/linked/${encodeURIComponent(item.id)}`} className="font-medium hover:underline">
-                          {item.title}
-                        </Link>
-                        <Badge variant="emerald" className="h-5 text-[10px]">Linked</Badge>
-                        {typeof item.alias === 'string' && item.alias.trim() ? (
-                          <Badge variant="secondary" className="h-5 text-[10px] font-mono">alias:{item.alias}</Badge>
-                        ) : null}
-                        <span className="font-mono text-xs text-muted-foreground">{item.source.repo}{item.source.path ? ` / ${item.source.path}` : ''}</span>
+              {linked.map(item => {
+                const alias = normalizeAlias(item.alias);
+                const displayName = preferredDisplayName({ title: item.title, alias });
+                return (
+                  <div key={item.id} className="rounded-md border border-border/60 p-3 hover:bg-muted/40 transition-colors">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Link to={`/linked/${encodeURIComponent(item.id)}`} className="font-medium hover:underline">
+                            {displayName}
+                          </Link>
+                          <Badge variant="emerald" className="h-5 text-[10px]">Linked</Badge>
+                          {alias ? (
+                            <Badge variant="secondary" className="h-5 text-[10px] font-mono">alias:{alias}</Badge>
+                          ) : (
+                            <Badge variant="outline" className="h-5 text-[10px] text-muted-foreground">no alias</Badge>
+                          )}
+                          <span className="font-mono text-xs text-muted-foreground">{item.source.repo}{item.source.path ? ` / ${item.source.path}` : ''}</span>
+                        </div>
+                        {alias && <div className="mt-1 text-[11px] text-muted-foreground font-mono break-all">{item.title}</div>}
+                        <div className="mt-1 text-xs text-muted-foreground line-clamp-2">{item.description || 'No description.'}</div>
                       </div>
-                      <div className="mt-1 text-xs text-muted-foreground line-clamp-2">{item.description || 'No description.'}</div>
+                      <div className="shrink-0">
+                        <Link to={`/linked/${encodeURIComponent(item.id)}/manage`} className="text-xs text-muted-foreground hover:text-foreground transition-colors underline">
+                          Manage
+                        </Link>
+                      </div>
                     </div>
-                    <div className="shrink-0">
-                      <Link to={`/linked/${encodeURIComponent(item.id)}/manage`} className="text-xs text-muted-foreground hover:text-foreground transition-colors underline">
-                        Manage
-                      </Link>
-                    </div>
+                    <div className="mt-2 text-xs text-muted-foreground">Updated: {new Date(item.updatedAt).toLocaleString()}</div>
                   </div>
-                  <div className="mt-2 text-xs text-muted-foreground">Updated: {new Date(item.updatedAt).toLocaleString()}</div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>

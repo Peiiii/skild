@@ -5,13 +5,13 @@ import type { LinkedItemWithInstall } from '@/lib/api-types';
 import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
 import { useAuth } from '@/features/auth/auth-store';
+import { normalizeAlias, preferredInstallCommand, preferredDisplayName } from '@/lib/install';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import {
-  Plus,
   Search,
   Github,
   Tag,
@@ -19,7 +19,6 @@ import {
   Clock,
   Check,
   Copy,
-  ExternalLink
 } from 'lucide-react';
 
 export function LinkedItemsPage(): JSX.Element {
@@ -150,15 +149,24 @@ export function LinkedItemsPage(): JSX.Element {
           </div>
         ) : (
           <div className="grid gap-4">
-            {items.map(item => (
+            {items.map(item => {
+              const alias = normalizeAlias(item.alias);
+              const title = preferredDisplayName({ title: item.title, alias });
+              const installCmd = preferredInstallCommand({ install: item.install, alias });
+              return (
               <div key={item.id} className="group relative rounded-xl border border-border/40 bg-card p-6 transition-all hover:border-border/80 hover:bg-muted/5">
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                   <div className="min-w-0 flex-1 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
                       <Link to={`/linked/${item.id}`} className="text-lg font-bold hover:text-primary transition-colors">
-                        {item.title}
+                        {title}
                       </Link>
                       <Badge variant="emerald">Linked</Badge>
+                      {alias ? (
+                        <Badge variant="secondary" className="h-5 text-[10px] font-mono">alias:{alias}</Badge>
+                      ) : (
+                        <Badge variant="outline" className="h-5 text-[10px] text-muted-foreground">no alias</Badge>
+                      )}
                     </div>
 
                     {/* Repository Source */}
@@ -204,14 +212,14 @@ export function LinkedItemsPage(): JSX.Element {
                       <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Install</div>
                       <div className="relative">
                         <div className="rounded-lg bg-black/40 border border-border/40 p-3 font-mono text-[11px] break-all pr-9 min-h-[40px] flex items-center">
-                          {item.install}
+                          {installCmd}
                         </div>
                         <Button
                           type="button"
                           size="icon"
                           variant="ghost"
                           className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                          onClick={() => void copyInstall(item.id, item.install)}
+                          onClick={() => void copyInstall(item.id, installCmd)}
                         >
                           {copiedId === item.id ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
                         </Button>
@@ -220,7 +228,8 @@ export function LinkedItemsPage(): JSX.Element {
                   </div>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         )}
 

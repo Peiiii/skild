@@ -4,6 +4,7 @@ import { canonicalToRoute, listDiscoverItems } from '@/lib/api';
 import type { DiscoverItem } from '@/lib/api-types';
 import { SkillsetBadge } from '@/components/skillset-badge';
 import { isSkillsetFlag } from '@/lib/skillset';
+import { normalizeAlias, preferredDisplayName, preferredInstallCommand } from '@/lib/install';
 import { cn } from '@/lib/utils';
 import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
@@ -95,7 +96,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
   }
 
   async function copyInstall(item: DiscoverItem): Promise<void> {
-    await navigator.clipboard.writeText(item.install);
+    await navigator.clipboard.writeText(preferredInstallCommand({ install: item.install, alias: item.alias }));
     const id = `${item.type}:${item.sourceId}`;
     setCopiedId(id);
     window.setTimeout(() => {
@@ -241,6 +242,9 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
           const isLinked = item.type === 'linked';
           const route = !isLinked ? canonicalToRoute(item.sourceId) : null;
           const href = isLinked ? `/linked/${item.sourceId}` : route ? `/skills/${route.scope}/${encodeURIComponent(route.skill)}` : undefined;
+          const alias = normalizeAlias(item.alias);
+          const displayTitle = preferredDisplayName({ title: item.title, alias });
+          const installCmd = preferredInstallCommand({ install: item.install, alias });
 
           return (
             <div
@@ -256,15 +260,30 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex flex-wrap items-center gap-2 min-w-0">
                       {href ? (
-                        <Link className="text-base font-bold hover:text-primary transition-colors truncate max-w-[200px]" to={href} title={item.title}>
-                          {item.title}
+                        <Link
+                          className="text-base font-bold hover:text-primary transition-colors truncate max-w-[200px]"
+                          to={href}
+                          title={alias ? `${displayTitle} (${item.title})` : item.title}
+                        >
+                          {displayTitle}
                         </Link>
                       ) : (
-                        <div className="text-base font-bold truncate max-w-[200px]" title={item.title}>{item.title}</div>
+                        <div className="text-base font-bold truncate max-w-[200px]" title={alias ? `${displayTitle} (${item.title})` : item.title}>
+                            {displayTitle}
+                          </div>
                       )}
                       <Badge variant={isLinked ? 'emerald' : 'indigo'} className="text-[10px] h-4.5 px-1.5 shrink-0">
                         {isLinked ? 'Linked' : 'Registry'}
                       </Badge>
+                        {alias ? (
+                          <Badge variant="secondary" className="text-[10px] h-4.5 px-1.5 shrink-0 font-mono">
+                            alias:{alias}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-[10px] h-4.5 px-1.5 shrink-0 text-muted-foreground">
+                            no alias
+                          </Badge>
+                        )}
                       {!isLinked && isSkillsetFlag(item.skillset) && <SkillsetBadge className="scale-90 origin-left" />}
                     </div>
                   </div>
@@ -296,7 +315,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
                     </div>
                     <div className="relative group/install">
                       <div className="rounded-lg bg-black/40 border border-border/40 p-2.5 font-mono text-[10px] leading-tight break-all text-foreground/80 pr-9 min-h-[38px] flex items-center transition-colors group-hover/install:border-indigo-500/30">
-                        {item.install}
+                        {installCmd}
                       </div>
                       <Button
                         type="button"
@@ -363,4 +382,3 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
     </div>
   );
 }
-
