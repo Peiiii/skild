@@ -5,7 +5,7 @@ import type { DistTagRow, VersionRow, EntityStats } from '@/lib/api-types';
 import { useAuth } from '@/features/auth/auth-store';
 import { SkillsetBadge } from '@/components/skillset-badge';
 import { isSkillsetFlag, parseJsonStringArray } from '@/lib/skillset';
-import { normalizeAlias, preferredInstallCommand } from '@/lib/install';
+import { normalizeAlias, preferredInstallCommand, parseDependencyDisplay } from '@/lib/install';
 import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
 import { Button } from '@/components/ui/button';
@@ -169,11 +169,11 @@ export function SkillDetailPage(): JSX.Element {
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="h-6 border-indigo-500/30 bg-indigo-500/5 text-indigo-400">Registry</Badge>
                 {data.skillset && <SkillsetBadge className="h-6" />}
-                  {alias ? (
-                    <Badge variant="secondary" className="h-6 text-[10px] font-mono">alias:{alias}</Badge>
-                  ) : (
-                    <Badge variant="outline" className="h-6 text-[10px] text-muted-foreground">no alias</Badge>
-                  )}
+                {alias ? (
+                  <Badge variant="secondary" className="h-6 text-[10px] font-mono">alias:{alias}</Badge>
+                ) : (
+                  <Badge variant="outline" className="h-6 text-[10px] text-muted-foreground">no alias</Badge>
+                )}
                 {canManage && (
                   <Button asChild size="sm" variant="outline" className="h-6 px-2 text-xs border-border/40">
                     <Link to={`/skills/${encodeURIComponent(scope)}/${encodeURIComponent(skill)}/manage`}>Manage</Link>
@@ -181,9 +181,9 @@ export function SkillDetailPage(): JSX.Element {
                 )}
               </div>
             </div>
-              {alias && (
-                <div className="text-xs text-muted-foreground font-mono">{data.name}</div>
-              )}
+            {alias && (
+              <div className="text-xs text-muted-foreground font-mono">{data.name}</div>
+            )}
             <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed font-medium">
               {data.description || 'Elevate your agents with specialized capabilities.'}
             </p>
@@ -235,6 +235,7 @@ export function SkillDetailPage(): JSX.Element {
                     const trimmed = dep.trim();
                     const isInline = trimmed.startsWith('./') || trimmed.startsWith('../');
 
+                    const { name, context } = parseDependencyDisplay(trimmed);
                     const registryName = (() => {
                       if (!trimmed.startsWith('@') || !trimmed.includes('/')) return null;
                       const lastAt = trimmed.lastIndexOf('@');
@@ -256,21 +257,24 @@ export function SkillDetailPage(): JSX.Element {
                             ) : (
                               <Badge variant="secondary" className="h-4.5 text-[8px] uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border-none px-1.5">Registry</Badge>
                             )}
+                            {context && context !== 'Bundled' && (
+                              <span className="text-[9px] text-muted-foreground font-mono truncate max-w-[120px]" title={context}>{context}</span>
+                            )}
                           </div>
 
                           <div className="min-w-0">
                             {href ? (
                               <Link
-                                className="font-mono text-[11px] font-bold text-foreground/80 group-hover/dep:text-indigo-400 transition-colors flex items-center gap-1.5"
+                                className="font-mono text-[13px] font-bold text-foreground/80 group-hover/dep:text-indigo-400 transition-colors flex items-center gap-1.5"
                                 to={href as string}
                                 title={trimmed}
                               >
-                                <span className="truncate">{trimmed}</span>
+                                <span className="truncate">{name}</span>
                                 <ExternalLink className="h-3 w-3 shrink-0 opacity-0 group-hover/dep:opacity-100 transition-opacity" />
                               </Link>
                             ) : (
-                              <code className="font-mono text-[11px] text-foreground/70 truncate block" title={trimmed}>
-                                {trimmed}
+                              <code className="font-mono text-[13px] text-foreground/70 truncate block" title={trimmed}>
+                                {name}
                               </code>
                             )}
                           </div>
