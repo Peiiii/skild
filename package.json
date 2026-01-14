@@ -36,6 +36,8 @@
         "release:dry": "pnpm release:check && (cd packages/core && npm publish --dry-run) && (cd packages/cli && npm publish --dry-run)",
         "release": "pnpm release:publish",
         "deploy:console": "node scripts/deploy/console-pages.mjs",
+        "deploy:workers": "node scripts/deploy/workers.mjs",
+        "deploy:registry": "node scripts/deploy/workers.mjs --only registry",
         "deploy:web": "pnpm build:web && pnpm -C workers/registry exec wrangler --cwd $(pwd) pages deploy apps/web/dist --project-name=skild --commit-dirty=true",
         "deploy:pages": "pnpm deploy:console"
     },
