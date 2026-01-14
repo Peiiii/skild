@@ -1,5 +1,13 @@
 # skild
 
+## 0.2.9
+
+### Patch Changes
+
+- Support `skild publish --alias <alias>` and centralize alias validation in core.
+- Updated dependencies
+  - @skild/core@0.2.9
+
 ## 0.2.8
 
 ### Patch Changes

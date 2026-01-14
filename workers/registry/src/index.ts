@@ -717,7 +717,7 @@ app.get("/skills/:scope/:skill", async (c) => {
 
 app.post("/publisher/skills/:scope/:skill/alias", async (c) => {
   try {
-    const auth = await requireSessionAuth(c);
+    const auth = await requirePublisherAuth(c);
 
     const scope = decodeURIComponent(c.req.param("scope"));
     const skill = decodeURIComponent(c.req.param("skill"));
@@ -762,7 +762,7 @@ app.post("/publisher/skills/:scope/:skill/alias", async (c) => {
 
 app.post("/publisher/linked-items/:id/alias", async (c) => {
   try {
-    const auth = await requireSessionAuth(c);
+    const auth = await requirePublisherAuth(c);
     const id = c.req.param("id");
     if (!id) return errorJson(c as any, "Missing id.", 400);
 
