@@ -1,5 +1,11 @@
 # @skild/core
 
+## 0.2.6
+
+### Patch Changes
+
+- Fix password prompt rendering during interactive `skild login` / `skild signup` when editing input (e.g. backspace) by switching to a raw-mode password prompt.
+
 ## 0.2.5
 
 ### Patch Changes
