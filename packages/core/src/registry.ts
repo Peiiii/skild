@@ -139,6 +139,29 @@ export async function searchRegistrySkills(
   return json.skills as any;
 }
 
+export async function resolveRegistryAlias(
+  registryUrl: string,
+  alias: string
+): Promise<{ type: 'registry'; spec: string } | { type: 'linked'; spec: string }> {
+  const a = alias.trim();
+  if (!a) throw new SkildError('INVALID_SOURCE', 'Missing alias.');
+
+  const url = new URL(`${registryUrl}/resolve`);
+  url.searchParams.set('alias', a);
+  const res = await fetchWithTimeout(url.toString(), { headers: { accept: 'application/json' } }, 10_000);
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new SkildError('REGISTRY_RESOLVE_FAILED', `Failed to resolve alias "${a}" (${res.status}). ${text}`.trim());
+  }
+  const json = (await res.json()) as { ok: boolean; type?: string; spec?: string };
+  if (!json?.ok || !json.type || typeof json.spec !== 'string' || !json.spec.trim()) {
+    throw new SkildError('REGISTRY_RESOLVE_FAILED', `Invalid registry response for alias "${a}".`);
+  }
+  if (json.type === 'registry') return { type: 'registry', spec: json.spec.trim() };
+  if (json.type === 'linked') return { type: 'linked', spec: json.spec.trim() };
+  throw new SkildError('REGISTRY_RESOLVE_FAILED', `Unsupported alias target type "${json.type}".`);
+}
+
 export async function downloadAndExtractTarball(resolved: RegistryResolvedVersion, tempRoot: string, stagingDir: string): Promise<void> {
   const res = await fetchWithTimeout(resolved.tarballUrl, {}, 30_000);
   if (!res.ok) {

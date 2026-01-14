@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { canonicalToRoute, listMySkills } from '@/lib/api';
-import type { MySkillItem } from '@/lib/api-types';
+import { canonicalToRoute, listMyLinkedItems, listMySkills } from '@/lib/api';
+import type { LinkedItemWithInstall, MySkillItem } from '@/lib/api-types';
 import { SkillsetBadge } from '@/components/skillset-badge';
 import { isSkillsetFlag } from '@/lib/skillset';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 function asNumber(value: number | string): number {
   const n = typeof value === 'number' ? value : Number(value);
@@ -16,21 +17,30 @@ export function MySkillsPage(): JSX.Element {
   const [busy, setBusy] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [skills, setSkills] = React.useState<MySkillItem[]>([]);
+  const [linked, setLinked] = React.useState<LinkedItemWithInstall[]>([]);
 
   React.useEffect(() => {
     let active = true;
     async function load(): Promise<void> {
       setBusy(true);
       setError(null);
-      const res = await listMySkills();
+      const [skillsRes, linkedRes] = await Promise.all([listMySkills(), listMyLinkedItems()]);
       if (!active) return;
-      if (!res.ok) {
-        setError(res.error);
+
+      if (!skillsRes.ok) {
+        setError(skillsRes.error);
         setSkills([]);
-        setBusy(false);
-        return;
+      } else {
+        setSkills(skillsRes.skills);
       }
-      setSkills(res.skills);
+
+      if (!linkedRes.ok) {
+        setError(prev => prev || linkedRes.error);
+        setLinked([]);
+      } else {
+        setLinked(linkedRes.items);
+      }
+
       setBusy(false);
     }
     void load();
@@ -50,44 +60,101 @@ export function MySkillsPage(): JSX.Element {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>My skills</CardTitle>
-        <CardDescription>Skills published under your publisher account.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {skills.length === 0 ? (
-          <div className="text-sm text-muted-foreground">No skills published yet.</div>
-        ) : (
-          <div className="grid gap-2">
-            {skills.map(s => {
-              const route = canonicalToRoute(s.name);
-              const href = route ? `/skills/${encodeURIComponent(route.scope)}/${encodeURIComponent(route.skill)}` : '/skills';
-              return (
-                <Link
-                  key={s.name}
-                  to={href}
-                  className="rounded-md border border-border/60 p-3 hover:bg-muted/40 transition-colors"
-                >
-                  <div className="flex items-center justify-between gap-4">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>My skills</CardTitle>
+          <CardDescription>Skills published under your publisher account.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {skills.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No skills published yet.</div>
+          ) : (
+            <div className="grid gap-2">
+              {skills.map(s => {
+                const route = canonicalToRoute(s.name);
+                const href = route ? `/skills/${encodeURIComponent(route.scope)}/${encodeURIComponent(route.skill)}` : '/skills';
+                const manageHref = route ? `/skills/${encodeURIComponent(route.scope)}/${encodeURIComponent(route.skill)}/manage` : null;
+                return (
+                  <div
+                    key={s.name}
+                    className="rounded-md border border-border/60 p-3 hover:bg-muted/40 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Link to={href} className="font-mono text-sm break-all hover:underline">
+                            {s.name}
+                          </Link>
+                          {isSkillsetFlag(s.skillset) && <SkillsetBadge />}
+                          <Badge variant="outline" className="h-5 text-[10px]">Registry</Badge>
+                          {typeof s.alias === 'string' && s.alias.trim() ? (
+                            <Badge variant="secondary" className="h-5 text-[10px] font-mono">alias:{s.alias}</Badge>
+                          ) : null}
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground line-clamp-2">{s.description || 'No description.'}</div>
+                      </div>
+                      <div className="shrink-0 text-xs text-muted-foreground text-right">
+                        <div>
+                          {asNumber(s.versionsCount)} version{asNumber(s.versionsCount) === 1 ? '' : 's'}
+                        </div>
+                        <div className="mt-2">Updated: {new Date(s.updated_at).toLocaleString()}</div>
+                      </div>
+                    </div>
+                    {manageHref && (
+                      <div className="mt-2">
+                        <Link to={manageHref} className="text-xs text-muted-foreground hover:text-foreground transition-colors underline">
+                          Manage
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>My GitHub submissions</CardTitle>
+          <CardDescription>Skills you submitted from GitHub.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {linked.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No linked items submitted yet.</div>
+          ) : (
+            <div className="grid gap-2">
+              {linked.map(item => (
+                <div key={item.id} className="rounded-md border border-border/60 p-3 hover:bg-muted/40 transition-colors">
+                  <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <div className="font-mono text-sm break-all">{s.name}</div>
-                        {isSkillsetFlag(s.skillset) && <SkillsetBadge />}
+                        <Link to={`/linked/${encodeURIComponent(item.id)}`} className="font-medium hover:underline">
+                          {item.title}
+                        </Link>
+                        <Badge variant="emerald" className="h-5 text-[10px]">Linked</Badge>
+                        {typeof item.alias === 'string' && item.alias.trim() ? (
+                          <Badge variant="secondary" className="h-5 text-[10px] font-mono">alias:{item.alias}</Badge>
+                        ) : null}
+                        <span className="font-mono text-xs text-muted-foreground">{item.source.repo}{item.source.path ? ` / ${item.source.path}` : ''}</span>
                       </div>
-                      <div className="mt-1 text-xs text-muted-foreground line-clamp-2">{s.description || 'No description.'}</div>
+                      <div className="mt-1 text-xs text-muted-foreground line-clamp-2">{item.description || 'No description.'}</div>
                     </div>
-                    <div className="shrink-0 text-xs text-muted-foreground">
-                      {asNumber(s.versionsCount)} version{asNumber(s.versionsCount) === 1 ? '' : 's'}
+                    <div className="shrink-0">
+                      <Link to={`/linked/${encodeURIComponent(item.id)}/manage`} className="text-xs text-muted-foreground hover:text-foreground transition-colors underline">
+                        Manage
+                      </Link>
                     </div>
                   </div>
-                  <div className="mt-2 text-xs text-muted-foreground">Updated: {new Date(s.updated_at).toLocaleString()}</div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                  <div className="mt-2 text-xs text-muted-foreground">Updated: {new Date(item.updatedAt).toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

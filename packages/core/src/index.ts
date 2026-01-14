@@ -30,6 +30,7 @@ export {
   resolveRegistryUrl,
   resolveRegistryVersion,
   downloadAndExtractTarball,
+  resolveRegistryAlias,
   searchRegistrySkills
 } from './registry.js';
 export {

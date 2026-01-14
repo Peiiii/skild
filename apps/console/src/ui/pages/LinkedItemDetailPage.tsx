@@ -4,6 +4,7 @@ import { getLinkedItem, getLinkedItemStats } from '@/lib/api';
 import type { LinkedItem, EntityStats } from '@/lib/api-types';
 import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
+import { useAuth } from '@/features/auth/auth-store';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -19,6 +20,7 @@ function buildGithubTreeUrl(repo: string, path: string | null, ref: string | nul
 export function LinkedItemDetailPage(): JSX.Element {
   const { id } = useParams();
   const itemId = id ?? '';
+  const auth = useAuth();
 
   const [busy, setBusy] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -99,6 +101,7 @@ export function LinkedItemDetailPage(): JSX.Element {
   if (!item) return <div className="text-sm text-muted-foreground">Not found.</div>;
 
   const upstreamUrl = item.source.url ?? buildGithubTreeUrl(item.source.repo, item.source.path, item.source.ref);
+  const canManage = auth.status === 'authed' && auth.publisher?.id && item.submittedBy?.id === auth.publisher.id;
 
   return (
     <div className="space-y-4">
@@ -122,7 +125,14 @@ export function LinkedItemDetailPage(): JSX.Element {
                 </a>
               </div>
             </div>
-            <Badge variant="emerald" className="h-6">Linked Item</Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="emerald" className="h-6">Linked Item</Badge>
+              {canManage && (
+                <Button asChild size="sm" variant="outline" className="h-6 px-2 text-xs">
+                  <Link to={`/linked/${encodeURIComponent(item.id)}/manage`}>Manage</Link>
+                </Button>
+              )}
+            </div>
           </div>
           <CardDescription className="text-base text-foreground/80 leading-relaxed">
             {item.description || 'No description provided.'}

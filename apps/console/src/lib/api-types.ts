@@ -47,6 +47,7 @@ export type TokenRevokeResponse = { ok: true; revoked: boolean } | ApiError;
 export interface MySkillItem {
   name: string;
   description: string | null;
+  alias?: string | null;
   skillset?: boolean;
   updated_at: string;
   versionsCount: number | string;
@@ -54,8 +55,13 @@ export interface MySkillItem {
 
 export type PublisherSkillsResponse = { ok: true; skills: MySkillItem[] } | ApiError;
 
+export type PublisherLinkedItemsResponse =
+  | { ok: true; items: LinkedItemWithInstall[] }
+  | ApiError;
+
 export interface LinkedItem {
   id: string;
+  alias?: string | null;
   source: { provider: 'github'; repo: string; path: string | null; ref: string | null; url: string | null };
   title: string;
   description: string;
@@ -81,6 +87,7 @@ export interface SkillListItem {
   description: string | null;
   targets_json: string | null;
   skillset?: boolean;
+  alias?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -90,6 +97,7 @@ export type SkillsListResponse = { ok: true; skills: SkillListItem[] } | ApiErro
 export interface DiscoverItem {
   type: 'registry' | 'linked';
   sourceId: string;
+  alias?: string | null;
   title: string;
   description: string;
   tags: string[];
@@ -126,6 +134,7 @@ export interface SkillDetail {
   targets_json: string | null;
   skillset?: boolean;
   dependencies_json?: string | null;
+  alias?: string | null;
   publisher_id: string;
   created_at: string;
   updated_at: string;

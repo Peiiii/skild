@@ -62,6 +62,20 @@ function parseOptionalBoolean(input: string | null | undefined): boolean | null 
   return null;
 }
 
+function normalizeAlias(input: string): string {
+  return input.trim().toLowerCase();
+}
+
+function assertAlias(alias: string): void {
+  const a = normalizeAlias(alias);
+  if (!a) throw new Error("Missing alias.");
+  if (a.length < 3 || a.length > 64) throw new Error("Alias length must be between 3 and 64.");
+  if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(a)) {
+    throw new Error("Invalid alias format. Use lowercase letters, numbers, and hyphens.");
+  }
+  if (a.includes("--")) throw new Error("Invalid alias format: consecutive hyphens are not allowed.");
+}
+
 function getAllowedOriginFromRequest(c: any): string | null {
   const origin = c.req.header("origin");
   const allowedFromOrigin = isAllowedOrigin(origin);
@@ -390,7 +404,7 @@ app.get("/publisher/skills", async (c) => {
   try {
     const auth = await requireSessionAuth(c);
     const rows = await c.env.DB.prepare(
-      "SELECT s.name, s.description, s.updated_at, s.skillset, COUNT(v.version) AS versionsCount\n" +
+      "SELECT s.name, s.description, s.updated_at, s.skillset, s.alias, COUNT(v.version) AS versionsCount\n" +
         "FROM skills s\n" +
         "LEFT JOIN skill_versions v ON v.skill_name = s.name\n" +
         "WHERE s.publisher_id = ?1\n" +
@@ -406,17 +420,86 @@ app.get("/publisher/skills", async (c) => {
   }
 });
 
+app.get("/publisher/linked-items", async (c) => {
+  try {
+    const auth = await requireSessionAuth(c);
+    const rows = await c.env.DB.prepare("SELECT * FROM linked_items WHERE submitted_by_publisher_id = ?1 ORDER BY created_at DESC LIMIT 200")
+      .bind(auth.publisherId)
+      .all();
+    const publisher = await getPublisherHandleById(c.env, auth.publisherId);
+    return c.json({
+      ok: true,
+      items: (rows.results as any[]).map((r) => {
+        const item = toLinkedItem(r as any, publisher);
+        return { ...item, install: buildInstallCommand(item.source) };
+      }),
+    });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), c.res.status || 401);
+  }
+});
+
 app.get("/skills", async (c) => {
   const q = (c.req.query("q") || "").trim().toLowerCase();
   const limit = Math.min(Number.parseInt(c.req.query("limit") || "50", 10) || 50, 100);
 
   const sql = q
-    ? "SELECT name, description, targets_json, skillset, created_at, updated_at FROM skills WHERE name LIKE ?1 OR description LIKE ?1 ORDER BY updated_at DESC LIMIT ?2"
-    : "SELECT name, description, targets_json, skillset, created_at, updated_at FROM skills ORDER BY updated_at DESC LIMIT ?1";
+    ? "SELECT name, description, targets_json, skillset, alias, created_at, updated_at FROM skills WHERE name LIKE ?1 OR description LIKE ?1 OR alias LIKE ?1 ORDER BY updated_at DESC LIMIT ?2"
+    : "SELECT name, description, targets_json, skillset, alias, created_at, updated_at FROM skills ORDER BY updated_at DESC LIMIT ?1";
 
   const stmt = q ? c.env.DB.prepare(sql).bind(`%${q}%`, limit) : c.env.DB.prepare(sql).bind(limit);
   const result = await stmt.all();
   return c.json({ ok: true, skills: result.results });
+});
+
+app.get("/resolve", async (c) => {
+  try {
+    const raw = String(c.req.query("alias") || "").trim();
+    if (!raw) return errorJson(c as any, "Missing alias.", 400);
+    const alias = normalizeAlias(raw);
+    assertAlias(alias);
+
+    const skillRow = await c.env.DB.prepare("SELECT name, alias FROM skills WHERE alias = ?1 LIMIT 1")
+      .bind(alias)
+      .first<{ name: string; alias: string }>();
+    if (skillRow) {
+      return c.json({
+        ok: true,
+        alias: skillRow.alias,
+        type: "registry",
+        spec: skillRow.name,
+        install: `skild install ${skillRow.name}`,
+      });
+    }
+
+    const linkedRow = await c.env.DB.prepare(
+      "SELECT id, alias, source_repo, source_path, source_ref, source_url FROM linked_items WHERE alias = ?1 LIMIT 1",
+    )
+      .bind(alias)
+      .first<{ id: string; alias: string; source_repo: string; source_path: string | null; source_ref: string | null; source_url: string | null }>();
+    if (linkedRow) {
+      const install = buildInstallCommand({
+        provider: "github",
+        repo: linkedRow.source_repo,
+        path: linkedRow.source_path,
+        ref: linkedRow.source_ref,
+        url: linkedRow.source_url,
+      });
+      return c.json({
+        ok: true,
+        alias: linkedRow.alias,
+        type: "linked",
+        id: linkedRow.id,
+        spec: install.replace(/^skild install\s+/, ""),
+        install,
+      });
+    }
+
+    return errorJson(c as any, "Alias not found.", 404);
+
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
 });
 
 app.get("/linked-items", async (c) => {
@@ -605,7 +688,7 @@ app.get("/skills/:scope/:skill", async (c) => {
     const name = `@${scope}/${skillSegment}`;
 
     const skill = await c.env.DB.prepare(
-      "SELECT name, description, targets_json, skillset, dependencies_json, publisher_id, created_at, updated_at FROM skills WHERE name = ?1 LIMIT 1",
+      "SELECT name, description, targets_json, skillset, dependencies_json, alias, publisher_id, created_at, updated_at FROM skills WHERE name = ?1 LIMIT 1",
     )
       .bind(name)
       .first();
@@ -629,6 +712,147 @@ app.get("/skills/:scope/:skill", async (c) => {
     });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/publisher/skills/:scope/:skill/alias", async (c) => {
+  try {
+    const auth = await requireSessionAuth(c);
+
+    const scope = decodeURIComponent(c.req.param("scope"));
+    const skill = decodeURIComponent(c.req.param("skill"));
+    assertHandle(scope);
+    assertSkillSegment(skill);
+    const name = `@${scope}/${skill}`;
+
+    const body = await c.req.json<{ alias?: unknown }>().catch(() => ({} as { alias?: unknown }));
+    const raw = body.alias == null ? null : String(body.alias).trim();
+    const alias = raw ? normalizeAlias(raw) : null;
+    if (alias) assertAlias(alias);
+
+    if (alias) {
+      const conflict = await c.env.DB.prepare("SELECT 1 FROM linked_items WHERE alias = ?1 LIMIT 1").bind(alias).first();
+      if (conflict) return errorJson(c as any, "Alias already in use.", 409);
+    }
+
+    const now = new Date().toISOString();
+    try {
+      const result = await c.env.DB.prepare(
+        "UPDATE skills SET alias = ?1, updated_at = ?2 WHERE name = ?3 AND publisher_id = ?4",
+      )
+        .bind(alias, now, name, auth.publisherId)
+        .run();
+      if (!result.success || (result.meta?.changes ?? 0) === 0) return errorJson(c as any, "Skill not found.", 404);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.toLowerCase().includes("unique") && msg.toLowerCase().includes("skills.alias")) {
+        return errorJson(c as any, "Alias already in use.", 409);
+      }
+      if (msg.toLowerCase().includes("unique constraint failed")) {
+        return errorJson(c as any, "Alias already in use.", 409);
+      }
+      throw e;
+    }
+
+    return c.json({ ok: true, name, alias });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), c.res.status || 400);
+  }
+});
+
+app.post("/publisher/linked-items/:id/alias", async (c) => {
+  try {
+    const auth = await requireSessionAuth(c);
+    const id = c.req.param("id");
+    if (!id) return errorJson(c as any, "Missing id.", 400);
+
+    const body = await c.req.json<{ alias?: unknown }>().catch(() => ({} as { alias?: unknown }));
+    const raw = body.alias == null ? null : String(body.alias).trim();
+    const alias = raw ? normalizeAlias(raw) : null;
+    if (alias) assertAlias(alias);
+
+    if (alias) {
+      const conflict = await c.env.DB.prepare("SELECT 1 FROM skills WHERE alias = ?1 LIMIT 1").bind(alias).first();
+      if (conflict) return errorJson(c as any, "Alias already in use.", 409);
+    }
+
+    const now = new Date().toISOString();
+    try {
+      const result = await c.env.DB.prepare(
+        "UPDATE linked_items SET alias = ?1, updated_at = ?2 WHERE id = ?3 AND submitted_by_publisher_id = ?4",
+      )
+        .bind(alias, now, id, auth.publisherId)
+        .run();
+      if (!result.success || (result.meta?.changes ?? 0) === 0) return errorJson(c as any, "Not found.", 404);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.toLowerCase().includes("unique") && msg.toLowerCase().includes("linked_items.alias")) {
+        return errorJson(c as any, "Alias already in use.", 409);
+      }
+      if (msg.toLowerCase().includes("unique constraint failed")) {
+        return errorJson(c as any, "Alias already in use.", 409);
+      }
+      throw e;
+    }
+
+    return c.json({ ok: true, id, alias });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), c.res.status || 400);
+  }
+});
+
+app.delete("/publisher/skills/:scope/:skill", async (c) => {
+  try {
+    const auth = await requireSessionAuth(c);
+
+    const scope = decodeURIComponent(c.req.param("scope"));
+    const skill = decodeURIComponent(c.req.param("skill"));
+    assertHandle(scope);
+    assertSkillSegment(skill);
+    const name = `@${scope}/${skill}`;
+
+    const exists = await c.env.DB.prepare("SELECT 1 FROM skills WHERE name = ?1 AND publisher_id = ?2 LIMIT 1")
+      .bind(name, auth.publisherId)
+      .first();
+    if (!exists) return errorJson(c as any, "Skill not found.", 404);
+
+    const batch = [
+      c.env.DB.prepare("DELETE FROM dist_tags WHERE skill_name = ?1").bind(name),
+      c.env.DB.prepare("DELETE FROM skill_versions WHERE skill_name = ?1").bind(name),
+      c.env.DB.prepare("DELETE FROM discover_items WHERE type = 'registry' AND source_id = ?1").bind(name),
+      c.env.DB.prepare("DELETE FROM download_total WHERE entity_type = 'registry' AND entity_id = ?1").bind(name),
+      c.env.DB.prepare("DELETE FROM download_daily WHERE entity_type = 'registry' AND entity_id = ?1").bind(name),
+      c.env.DB.prepare("DELETE FROM skills WHERE name = ?1 AND publisher_id = ?2").bind(name, auth.publisherId),
+    ];
+    await c.env.DB.batch(batch);
+
+    return c.json({ ok: true, deleted: true, name });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), c.res.status || 400);
+  }
+});
+
+app.delete("/publisher/linked-items/:id", async (c) => {
+  try {
+    const auth = await requireSessionAuth(c);
+    const id = c.req.param("id");
+    if (!id) return errorJson(c as any, "Missing id.", 400);
+
+    const row = await c.env.DB.prepare("SELECT id FROM linked_items WHERE id = ?1 AND submitted_by_publisher_id = ?2 LIMIT 1")
+      .bind(id, auth.publisherId)
+      .first<{ id: string }>();
+    if (!row) return errorJson(c as any, "Not found.", 404);
+
+    const batch = [
+      c.env.DB.prepare("DELETE FROM discover_items WHERE type = 'linked' AND source_id = ?1").bind(id),
+      c.env.DB.prepare("DELETE FROM download_total WHERE entity_type = 'linked' AND entity_id = ?1").bind(id),
+      c.env.DB.prepare("DELETE FROM download_daily WHERE entity_type = 'linked' AND entity_id = ?1").bind(id),
+      c.env.DB.prepare("DELETE FROM linked_items WHERE id = ?1 AND submitted_by_publisher_id = ?2").bind(id, auth.publisherId),
+    ];
+    await c.env.DB.batch(batch);
+    return c.json({ ok: true, deleted: true, id });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), c.res.status || 400);
   }
 });
 

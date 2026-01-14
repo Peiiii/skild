@@ -22,7 +22,8 @@ import {
   ChevronDown,
   ExternalLink,
   Trophy,
-  Github
+  Github,
+  Rocket
 } from 'lucide-react';
 
 function TopNavLink({ to, children, icon: Icon }: { to: string; children: React.ReactNode; icon?: React.ElementType }): JSX.Element {
@@ -62,6 +63,7 @@ export function AppLayout(): JSX.Element {
           {/* Right Section: Nav + Auth */}
           <div className="flex items-center gap-8">
             <nav className="hidden md:flex items-center gap-6 border-r border-border/40 pr-8 mr-2 last:border-0 last:pr-0 last:mr-0">
+              <TopNavLink to="/getting-started" icon={Rocket}>Get Started</TopNavLink>
               <TopNavLink to="/skills" icon={Compass}>Skills</TopNavLink>
               <TopNavLink to="/skillsets" icon={Layers}>Skillsets</TopNavLink>
               <TopNavLink to="/leaderboard" icon={Trophy}>Top</TopNavLink>

@@ -14,6 +14,7 @@ import type {
   TokenCreateResponse,
   TokenRevokeResponse,
   PublisherSkillsResponse,
+  PublisherLinkedItemsResponse,
   LinkedItemsListResponse,
   LinkedItemDetailResponse,
   LinkedItemCreateResponse,
@@ -153,6 +154,79 @@ export async function revokeToken(tokenId: string): Promise<TokenRevokeResponse>
 export async function listMySkills(): Promise<PublisherSkillsResponse> {
   const base = getRegistryUrl();
   return fetchJson<PublisherSkillsResponse>(`${base}/publisher/skills`, { credentials: 'include' }, 10_000);
+}
+
+export async function listMyLinkedItems(): Promise<PublisherLinkedItemsResponse> {
+  const base = getRegistryUrl();
+  return fetchJson<PublisherLinkedItemsResponse>(`${base}/publisher/linked-items`, { credentials: 'include' }, 10_000);
+}
+
+export async function updateSkillAlias(
+  scopeParam: string,
+  skillParam: string,
+  alias: string | null
+): Promise<{ ok: true; name: string; alias: string | null } | { ok: false; error: string }> {
+  const base = getRegistryUrl();
+  const decodedScopeParam = decodeURIComponent(scopeParam);
+  const decodedSkillParam = decodeURIComponent(skillParam);
+  const scope = decodedScopeParam.startsWith('@') ? decodedScopeParam.slice(1) : decodedScopeParam;
+  const url = `${base}/publisher/skills/${encodeURIComponent(scope)}/${encodeURIComponent(decodedSkillParam)}/alias`;
+  return fetchJson<{ ok: true; name: string; alias: string | null } | { ok: false; error: string }>(
+    url,
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ alias })
+    },
+    10_000
+  );
+}
+
+export async function deleteSkill(
+  scopeParam: string,
+  skillParam: string
+): Promise<{ ok: true; deleted: boolean; name: string } | { ok: false; error: string }> {
+  const base = getRegistryUrl();
+  const decodedScopeParam = decodeURIComponent(scopeParam);
+  const decodedSkillParam = decodeURIComponent(skillParam);
+  const scope = decodedScopeParam.startsWith('@') ? decodedScopeParam.slice(1) : decodedScopeParam;
+  const url = `${base}/publisher/skills/${encodeURIComponent(scope)}/${encodeURIComponent(decodedSkillParam)}`;
+  return fetchJson<{ ok: true; deleted: boolean; name: string } | { ok: false; error: string }>(
+    url,
+    { method: 'DELETE', credentials: 'include' },
+    10_000
+  );
+}
+
+export async function deleteLinkedItem(
+  id: string
+): Promise<{ ok: true; deleted: boolean; id: string } | { ok: false; error: string }> {
+  const base = getRegistryUrl();
+  const url = `${base}/publisher/linked-items/${encodeURIComponent(id)}`;
+  return fetchJson<{ ok: true; deleted: boolean; id: string } | { ok: false; error: string }>(
+    url,
+    { method: 'DELETE', credentials: 'include' },
+    10_000
+  );
+}
+
+export async function updateLinkedItemAlias(
+  id: string,
+  alias: string | null
+): Promise<{ ok: true; id: string; alias: string | null } | { ok: false; error: string }> {
+  const base = getRegistryUrl();
+  const url = `${base}/publisher/linked-items/${encodeURIComponent(id)}/alias`;
+  return fetchJson<{ ok: true; id: string; alias: string | null } | { ok: false; error: string }>(
+    url,
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ alias })
+    },
+    10_000
+  );
 }
 
 export async function listLinkedItems(query: string, cursor?: string | null, limit = 20): Promise<LinkedItemsListResponse> {

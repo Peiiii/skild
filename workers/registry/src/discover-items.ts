@@ -7,6 +7,7 @@ export type DiscoverSort = "updated" | "new" | "downloads_7d" | "downloads_30d";
 export interface DiscoverItemRow {
   type: DiscoverItemType;
   source_id: string;
+  alias: string | null;
   title: string;
   description: string;
   tags_json: string;
@@ -28,6 +29,7 @@ export interface DiscoverItemRow {
 export interface DiscoverItem {
   type: DiscoverItemType;
   sourceId: string;
+  alias: string | null;
   title: string;
   description: string;
   tags: string[];
@@ -129,6 +131,7 @@ export function toDiscoverItem(row: DiscoverItemRow): DiscoverItem {
   return {
     type: row.type,
     sourceId: row.source_id,
+    alias: row.alias ?? null,
     title: row.title,
     description: row.description,
     tags: parseTags(row.tags_json),
@@ -232,8 +235,10 @@ export async function listDiscoverItems(
 
   if (q) {
     const like = `%${q}%`;
-    clauses.push("(title LIKE ? OR description LIKE ? OR tags_json LIKE ? OR source_repo LIKE ? OR source_id LIKE ?)");
-    params.push(like, like, like, like, like);
+    clauses.push(
+      "(title LIKE ? OR description LIKE ? OR tags_json LIKE ? OR source_repo LIKE ? OR source_id LIKE ? OR alias LIKE ?)",
+    );
+    params.push(like, like, like, like, like, like);
   }
 
   if (skillsetFilter !== null) {
@@ -251,11 +256,13 @@ export async function listDiscoverItems(
     .slice(0, 10);
 
   const baseSql =
-    "SELECT d.*, " +
+    "SELECT d.*, COALESCE(s.alias, li.alias) AS alias, " +
     "COALESCE(dt.downloads, 0) AS downloads_total, " +
     "COALESCE(d7.downloads, 0) AS downloads_7d, " +
     "COALESCE(d30.downloads, 0) AS downloads_30d " +
     "FROM discover_items d " +
+    "LEFT JOIN skills s ON s.name = d.source_id AND d.type = 'registry' " +
+    "LEFT JOIN linked_items li ON li.id = d.source_id AND d.type = 'linked' " +
     "LEFT JOIN download_total dt ON dt.entity_type = d.type AND dt.entity_id = d.source_id " +
     "LEFT JOIN (SELECT entity_type, entity_id, SUM(downloads) AS downloads FROM download_daily WHERE day >= ? AND day <= ? GROUP BY entity_type, entity_id) d7 " +
     "  ON d7.entity_type = d.type AND d7.entity_id = d.source_id " +

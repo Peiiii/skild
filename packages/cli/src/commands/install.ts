@@ -1,5 +1,7 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import chalk from 'chalk';
-import { fetchWithTimeout, installRegistrySkill, installSkill, loadRegistryAuth, resolveRegistryUrl, SkildError, type Platform } from '@skild/core';
+import { fetchWithTimeout, installRegistrySkill, installSkill, loadRegistryAuth, resolveRegistryAlias, resolveRegistryUrl, SkildError, type Platform } from '@skild/core';
 import { createSpinner, logger } from '../utils/logger.js';
 
 export interface InstallCommandOptions {
@@ -10,21 +12,49 @@ export interface InstallCommandOptions {
   json?: boolean;
 }
 
+function looksLikeAlias(input: string): boolean {
+  const s = input.trim();
+  if (!s) return false;
+  if (s.startsWith('@')) return false;
+  if (s.includes('/') || s.includes('\\')) return false;
+  if (/^https?:\/\//i.test(s) || s.includes('github.com')) return false;
+  if (fs.existsSync(path.resolve(s))) return false;
+  if (s.length < 3 || s.length > 64) return false;
+  if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(s)) return false;
+  if (s.includes('--')) return false;
+  return true;
+}
+
 export async function install(source: string, options: InstallCommandOptions = {}): Promise<void> {
   const platform = (options.target as Platform) || 'claude';
   const scope = options.local ? 'project' : 'global';
   const auth = loadRegistryAuth();
   const registryUrlForDeps = options.registry || auth?.registryUrl;
 
+  let resolvedSource = source.trim();
+  try {
+    if (looksLikeAlias(resolvedSource)) {
+      const registryUrl = resolveRegistryUrl(registryUrlForDeps);
+      const resolved = await resolveRegistryAlias(registryUrl, resolvedSource);
+      if (!options.json) logger.info(`Resolved ${chalk.cyan(resolvedSource)} → ${chalk.cyan(resolved.spec)} (${resolved.type})`);
+      resolvedSource = resolved.spec;
+    }
+  } catch (error: unknown) {
+    const message = error instanceof SkildError ? error.message : error instanceof Error ? error.message : String(error);
+    console.error(chalk.red(message));
+    process.exitCode = 1;
+    return;
+  }
+
   const spinner = createSpinner(`Installing ${chalk.cyan(source)} to ${chalk.dim(platform)} (${scope})...`);
   try {
     const record =
-      source.trim().startsWith('@') && source.includes('/')
+      resolvedSource.startsWith('@') && resolvedSource.includes('/')
         ? await installRegistrySkill(
-            { spec: source, registryUrl: registryUrlForDeps },
+            { spec: resolvedSource, registryUrl: registryUrlForDeps },
             { platform, scope, force: Boolean(options.force) }
           )
-        : await installSkill({ source }, { platform, scope, force: Boolean(options.force), registryUrl: registryUrlForDeps });
+        : await installSkill({ source: resolvedSource }, { platform, scope, force: Boolean(options.force), registryUrl: registryUrlForDeps });
 
     const displayName = record.canonicalName || record.name;
     spinner.succeed(`Installed ${chalk.green(displayName)} to ${chalk.dim(record.installDir)}`);

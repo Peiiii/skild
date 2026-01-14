@@ -10,6 +10,7 @@ export interface LinkedItemRow {
   source_path: string | null;
   source_ref: string | null;
   source_url: string | null;
+  alias: string | null;
   title: string;
   description: string;
   license: string | null;
@@ -27,6 +28,7 @@ export interface LinkedItemsPage {
 
 export interface LinkedItem {
   id: string;
+  alias: string | null;
   source: {
     provider: LinkedItemSourceProvider;
     repo: string;
@@ -395,6 +397,7 @@ export function toLinkedItem(row: LinkedItemRow, submittedBy: { id: string; hand
 
   return {
     id: row.id,
+    alias: row.alias ?? null,
     source: {
       provider: row.source_provider,
       repo: row.source_repo,

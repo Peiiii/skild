@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { canonicalToRoute, getSkillDetail, getSkillStats, routeToCanonical } from '@/lib/api';
 import type { DistTagRow, VersionRow, EntityStats } from '@/lib/api-types';
+import { useAuth } from '@/features/auth/auth-store';
 import { SkillsetBadge } from '@/components/skillset-badge';
 import { isSkillsetFlag, parseJsonStringArray } from '@/lib/skillset';
 import { HttpError } from '@/lib/http';
@@ -21,6 +22,7 @@ export function SkillDetailPage(): JSX.Element {
   const params = useParams();
   const scope = params.scope ?? '';
   const skill = params.skill ?? '';
+  const auth = useAuth();
 
   const [busy, setBusy] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -31,6 +33,8 @@ export function SkillDetailPage(): JSX.Element {
     versions: VersionRow[];
     skillset: boolean;
     dependencies: string[];
+    alias: string | null;
+    publisherId: string;
   } | null>(null);
   const [stats, setStats] = React.useState<EntityStats | null>(null);
 
@@ -57,7 +61,9 @@ export function SkillDetailPage(): JSX.Element {
           distTags: res.distTags,
           versions: res.versions,
           skillset,
-          dependencies: skillset ? parseJsonStringArray(res.skill.dependencies_json) : []
+          dependencies: skillset ? parseJsonStringArray(res.skill.dependencies_json) : [],
+          alias: typeof res.skill.alias === 'string' ? res.skill.alias : null,
+          publisherId: res.skill.publisher_id
         });
 
         // Load stats
@@ -123,6 +129,7 @@ export function SkillDetailPage(): JSX.Element {
 
   const latest = findLatest(data.distTags);
   const install = `skild install ${canonicalName}`;
+  const canManage = auth.status === 'authed' && auth.publisher?.id === data.publisherId;
 
   return (
     <div className="space-y-12">
@@ -156,11 +163,23 @@ export function SkillDetailPage(): JSX.Element {
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="h-6 border-indigo-500/30 bg-indigo-500/5 text-indigo-400">Registry</Badge>
                 {data.skillset && <SkillsetBadge className="h-6" />}
+                {canManage && (
+                  <Button asChild size="sm" variant="outline" className="h-6 px-2 text-xs border-border/40">
+                    <Link to={`/skills/${encodeURIComponent(scope)}/${encodeURIComponent(skill)}/manage`}>Manage</Link>
+                  </Button>
+                )}
               </div>
             </div>
             <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed font-medium">
               {data.description || 'Elevate your agents with specialized capabilities.'}
             </p>
+            {data.alias && (
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <Badge variant="secondary" className="h-5 text-[10px] font-mono">alias:{data.alias}</Badge>
+                <span className="text-muted-foreground">Install:</span>
+                <code className="text-[11px] bg-muted/30 border border-border/40 px-2 py-1 rounded font-mono">skild install {data.alias}</code>
+              </div>
+            )}
           </div>
         </div>
       </div>

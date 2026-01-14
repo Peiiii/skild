@@ -7,6 +7,7 @@ import { PublishPage } from './ui/pages/PublishPage';
 import { SkillsPage } from './ui/pages/SkillsPage';
 import { SkillsetsPage } from './ui/pages/SkillsetsPage';
 import { SkillDetailPage } from './ui/pages/SkillDetailPage';
+import { SkillManagePage } from './ui/pages/SkillManagePage';
 import { VerifyEmailPage } from './ui/pages/VerifyEmailPage';
 import { VerifyEmailRequestPage } from './ui/pages/VerifyEmailRequestPage';
 import { HomePage } from './ui/pages/HomePage';
@@ -19,7 +20,9 @@ import { RequireAuth } from './features/auth/RequireAuth';
 import { LinkedItemsPage } from './ui/pages/LinkedItemsPage';
 import { LinkedItemDetailPage } from './ui/pages/LinkedItemDetailPage';
 import { LinkedItemNewPage } from './ui/pages/LinkedItemNewPage';
+import { LinkedItemManagePage } from './ui/pages/LinkedItemManagePage';
 import { LeaderboardPage } from './ui/pages/LeaderboardPage';
+import { GettingStartedPage } from './ui/pages/GettingStartedPage';
 
 export const router = createBrowserRouter([
   {
@@ -34,12 +37,15 @@ export const router = createBrowserRouter([
       { path: 'verify-email', element: <VerifyEmailPage /> },
       { path: 'verify-email/request', element: <VerifyEmailRequestPage /> },
       { path: 'publish', element: <PublishPage /> },
+      { path: 'getting-started', element: <GettingStartedPage /> },
       { path: 'skills', element: <SkillsPage /> },
       { path: 'skillsets', element: <SkillsetsPage /> },
       { path: 'skills/:scope/:skill', element: <SkillDetailPage /> },
+      { path: 'skills/:scope/:skill/manage', element: <RequireAuth><SkillManagePage /></RequireAuth> },
       { path: 'linked', element: <LinkedItemsPage /> },
       { path: 'linked/new', element: <RequireAuth><LinkedItemNewPage /></RequireAuth> },
       { path: 'linked/:id', element: <LinkedItemDetailPage /> },
+      { path: 'linked/:id/manage', element: <RequireAuth><LinkedItemManagePage /></RequireAuth> },
       { path: 'leaderboard', element: <LeaderboardPage /> },
       { path: 'me', element: <RequireAuth><MePage /></RequireAuth> },
       { path: 'me/tokens', element: <RequireAuth><TokensPage /></RequireAuth> },
