@@ -1,0 +1,291 @@
+# skild Command Reference
+
+Complete reference for all skild CLI commands.
+
+---
+
+## Installation Commands
+
+### skild install
+
+Install a Skill from various sources. Alias: `skild i`
+
+```bash
+skild install <source> [options]
+```
+
+**Sources:**
+- GitHub shorthand: `owner/repo/path/to/skill`
+- Full GitHub URL: `https://github.com/owner/repo/tree/main/path`
+- Registry: `@publisher/skill-name` or `@publisher/skill-name@1.0.0`
+- Local directory: `./path/to/skill`
+- Alias: `superpowers` (resolves via registry)
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `-t, --target <platform>` | Target platform: claude, codex, copilot, antigravity |
+| `-l, --local` | Install to project directory (not global) |
+| `-f, --force` | Overwrite existing installation |
+| `--registry <url>` | Override registry URL |
+| `--json` | Output in JSON format |
+
+**Examples:**
+```bash
+# From GitHub
+skild install anthropics/skills/skills/pdf
+
+# From registry with specific version
+skild install @peiiii/hello-skill@1.0.0
+
+# To Antigravity, project-level
+skild install @publisher/skill -t antigravity --local
+
+# Force reinstall
+skild install ./my-skill --force
+```
+
+---
+
+### skild uninstall
+
+Remove an installed Skill. Alias: `skild rm`
+
+```bash
+skild uninstall <skill> [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `-t, --target <platform>` | Target platform |
+| `-l, --local` | Uninstall from project directory |
+| `-f, --force` | Uninstall even if metadata is missing |
+| `--with-deps` | Also uninstall Skillset dependencies |
+
+---
+
+### skild update
+
+Update installed Skills. Alias: `skild up`
+
+```bash
+skild update [skill] [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `-t, --target <platform>` | Target platform |
+| `-l, --local` | Update project-level installations |
+| `--json` | Output in JSON format |
+
+---
+
+## Discovery Commands
+
+### skild list
+
+List installed Skills. Alias: `skild ls`
+
+```bash
+skild list [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `-t, --target <platform>` | Target platform (omit to list all) |
+| `-l, --local` | List project-level installations |
+| `--paths` | Show installation paths |
+| `--verbose` | Show Skillset dependency details |
+| `--json` | Output in JSON format |
+
+**Output Groups:**
+- Skillsets
+- Skills
+- Dependencies (with "required by" info)
+
+---
+
+### skild info
+
+Show details about an installed Skill.
+
+```bash
+skild info <skill> [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `-t, --target <platform>` | Target platform |
+| `-l, --local` | Use project-level directory |
+| `--json` | Output in JSON format |
+
+---
+
+### skild search
+
+Search the Skild registry.
+
+```bash
+skild search <query> [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--registry <url>` | Override registry URL |
+| `--limit <n>` | Max results (default: 50) |
+| `--json` | Output in JSON format |
+
+---
+
+### skild validate
+
+Validate a Skill's structure. Alias: `skild v`
+
+```bash
+skild validate [path|skill] [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `-t, --target <platform>` | Target platform (for installed skill lookup) |
+| `-l, --local` | Use project-level directory |
+| `--json` | Output in JSON format |
+
+---
+
+## Authoring Commands
+
+### skild init
+
+Create a new Skill project.
+
+```bash
+skild init <name> [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--dir <path>` | Target directory (defaults to `<name>`) |
+| `--description <text>` | Skill description |
+| `-f, --force` | Overwrite if directory exists |
+
+Creates a directory with a `SKILL.md` template.
+
+---
+
+### skild publish
+
+Publish a Skill to the registry.
+
+```bash
+skild publish [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--dir <path>` | Skill directory (default: cwd) |
+| `--name <@publisher/skill>` | Override skill name |
+| `--skill-version <semver>` | Override version |
+| `--description <text>` | Override description |
+| `--targets <list>` | Comma-separated target platforms |
+| `--tag <tag>` | Dist-tag (default: latest) |
+| `--registry <url>` | Override registry URL |
+| `--json` | Output in JSON format |
+
+---
+
+## Authentication Commands
+
+### skild signup
+
+Create a publisher account.
+
+```bash
+skild signup [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--email <email>` | Email address |
+| `--handle <handle>` | Publisher handle (owns @handle/* scope) |
+| `--password <password>` | Password |
+| `--registry <url>` | Override registry URL |
+| `--json` | Output in JSON format |
+
+---
+
+### skild login
+
+Login to the registry.
+
+```bash
+skild login [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--handle-or-email <value>` | Handle or email |
+| `--password <password>` | Password |
+| `--token-name <name>` | Token label |
+| `--registry <url>` | Override registry URL |
+| `--json` | Output in JSON format |
+
+---
+
+### skild whoami
+
+Show current registry identity.
+
+```bash
+skild whoami
+```
+
+---
+
+### skild logout
+
+Remove stored credentials.
+
+```bash
+skild logout
+```
+
+---
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `SKILD_REGISTRY_URL` | Override default registry URL |
+| `SKILD_HOME` | Override skild home directory (~/.skild) |
+
+---
+
+## Target Platforms
+
+| Platform | Option | Global Path | Project Path |
+|----------|--------|-------------|--------------|
+| Claude | `-t claude` (default) | `~/.claude/skills` | `./.claude/skills` |
+| Codex | `-t codex` | `~/.codex/skills` | `./.codex/skills` |
+| Copilot | `-t copilot` | `~/.github/skills` | `./.github/skills` |
+| Antigravity | `-t antigravity` | `~/.gemini/antigravity/skills` | `./.agent/skills` |
+
+---
+
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | General error |
+| 2 | Invalid arguments |
