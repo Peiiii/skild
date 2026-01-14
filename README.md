@@ -55,6 +55,20 @@ skild install @publisher/skill-name
 skild install anthropics/skills/skills/pdf --force
 ```
 
+## 🎁 Skillsets: One Pack, Many Skills
+
+Skillsets bundle multiple skills together — install a complete toolkit with one command:
+
+```bash
+# Install a data analyst toolkit (includes csv, pandas, sql-helper...)
+skild install @skild/data-analyst-pack
+
+# All bundled skills are automatically installed
+skild list
+```
+
+See **[Skillsets Guide](./docs/skillsets.md)** for more.
+
 ## 🎯 Multi-platform Support
 
 Default: Claude (`~/.claude/skills`). Also supports Codex and Copilot:
@@ -114,6 +128,7 @@ Run `skild <command> --help` for full options.
 
 - **[Quick Start](./docs/getting-started.md)** — Get up and running in 2 minutes
 - **[Installing Skills](./docs/installing-skills.md)** — All ways to install Skills
+- **[Skillsets](./docs/skillsets.md)** — Install multiple Skills with one command
 - **[Creating Skills](./docs/creating-skills.md)** — Build your own Skills
 - **[Publishing Skills](./docs/publishing-skills.md)** — Share with the community
 - **[Submit from GitHub](./docs/submit-from-github.md)** — Index GitHub Skills
