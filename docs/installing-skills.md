@@ -86,6 +86,14 @@ Project-level paths:
 skild list
 ```
 
+### Install by alias (short name)
+
+If a skill/skillset has an alias, you can install it with a short identifier:
+
+```bash
+skild install superpowers
+```
+
 ### Show Skill Details
 
 ```bash

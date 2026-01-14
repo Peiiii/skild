@@ -86,6 +86,14 @@ skild install @publisher/skill --local
 skild list
 ```
 
+### 通过 alias（短名）安装
+
+如果某个 skill/skillset 配置了 alias，可以直接用短名安装：
+
+```bash
+skild install superpowers
+```
+
 ### 查看 Skill 详情
 
 ```bash

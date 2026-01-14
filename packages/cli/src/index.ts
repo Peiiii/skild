@@ -137,6 +137,7 @@ program
     .option('--name <@publisher/skill>', 'Override skill name (defaults to SKILL.md frontmatter)')
     // NOTE: Do not use `--version` here; it conflicts with Commander’s built-in `--version`.
     .option('--skill-version <semver>', 'Override version (defaults to SKILL.md frontmatter)')
+    .option('--alias <alias>', 'Optional short identifier (global unique) for `skild install <alias>`')
     .option('--description <text>', 'Override description (defaults to SKILL.md frontmatter)')
     .option('--targets <list>', 'Comma-separated target platforms metadata (optional)')
     .option('--tag <tag>', 'Dist-tag (default: latest)', 'latest')

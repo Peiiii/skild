@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
-import { fetchWithTimeout, installRegistrySkill, installSkill, loadRegistryAuth, resolveRegistryAlias, resolveRegistryUrl, SkildError, type Platform } from '@skild/core';
+import { fetchWithTimeout, installRegistrySkill, installSkill, isValidAlias, loadRegistryAuth, resolveRegistryAlias, resolveRegistryUrl, SkildError, type Platform } from '@skild/core';
 import { createSpinner, logger } from '../utils/logger.js';
 
 export interface InstallCommandOptions {
@@ -19,9 +19,7 @@ function looksLikeAlias(input: string): boolean {
   if (s.includes('/') || s.includes('\\')) return false;
   if (/^https?:\/\//i.test(s) || s.includes('github.com')) return false;
   if (fs.existsSync(path.resolve(s))) return false;
-  if (s.length < 3 || s.length > 64) return false;
-  if (!/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(s)) return false;
-  if (s.includes('--')) return false;
+  if (!isValidAlias(s)) return false;
   return true;
 }
 

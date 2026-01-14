@@ -161,6 +161,12 @@ Then:
 skild publish --dir ./my-skill
 ```
 
+Optional: set a short alias (global unique) for easy installs:
+
+```bash
+skild publish --dir ./my-skill --alias my-skill
+```
+
 If publish fails with `Email not verified` (HTTP 403), verify your email in the Skild Hub first.
 
 ---

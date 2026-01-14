@@ -194,11 +194,17 @@ skild publish [options]
 | `--dir <path>` | Skill directory (default: cwd) |
 | `--name <@publisher/skill>` | Override skill name |
 | `--skill-version <semver>` | Override version |
+| `--alias <alias>` | Optional short identifier (global unique) for `skild install <alias>` |
 | `--description <text>` | Override description |
 | `--targets <list>` | Comma-separated target platforms |
 | `--tag <tag>` | Dist-tag (default: latest) |
 | `--registry <url>` | Override registry URL |
 | `--json` | Output in JSON format |
+
+**Example:**
+```bash
+skild publish --dir ./my-skill --alias my-skill
+```
 
 ---
 

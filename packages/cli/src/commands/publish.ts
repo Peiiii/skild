@@ -4,13 +4,14 @@ import path from 'path';
 import crypto from 'crypto';
 import * as tar from 'tar';
 import chalk from 'chalk';
-import { fetchWithTimeout, loadRegistryAuth, resolveRegistryUrl, SkildError, splitCanonicalName, validateSkillDir } from '@skild/core';
+import { assertValidAlias, fetchWithTimeout, loadRegistryAuth, normalizeAlias, resolveRegistryUrl, SkildError, splitCanonicalName, validateSkillDir } from '@skild/core';
 import { createSpinner } from '../utils/logger.js';
 
 export interface PublishCommandOptions {
   dir?: string;
   name?: string;
   skillVersion?: string;
+  alias?: string;
   description?: string;
   targets?: string;
   tag?: string;
@@ -55,6 +56,7 @@ export async function publish(options: PublishCommandOptions = {}): Promise<void
   const fm = validation.frontmatter!;
   let name = (options.name || fm.name || '').trim();
   const version = (options.skillVersion || fm.version || '').trim();
+  const alias = normalizeAlias(options.alias);
   const description = (options.description || fm.description || '').trim();
   const tag = (options.tag || 'latest').trim() || 'latest';
   const targets = parseTargets(options.targets);
@@ -107,6 +109,16 @@ export async function publish(options: PublishCommandOptions = {}): Promise<void
     process.exitCode = 1;
     return;
   }
+  if (alias) {
+    try {
+      assertValidAlias(alias);
+    } catch (error: unknown) {
+      const message = error instanceof SkildError ? error.message : error instanceof Error ? error.message : String(error);
+      console.error(chalk.red(message));
+      process.exitCode = 1;
+      return;
+    }
+  }
 
   const spinner = createSpinner(`Publishing ${chalk.cyan(`${name}@${version}`)} to ${chalk.dim(registry)}...`);
 
@@ -156,12 +168,36 @@ export async function publish(options: PublishCommandOptions = {}): Promise<void
       return;
     }
 
+    if (alias) {
+      spinner.text = `Publishing ${chalk.cyan(`${name}@${version}`)} — setting alias ${chalk.cyan(alias)}...`;
+      const aliasRes = await fetchWithTimeout(
+        `${registry}/publisher/skills/${encodeURIComponent(scope)}/${encodeURIComponent(skillName)}/alias`,
+        {
+          method: 'POST',
+          headers: {
+            authorization: `Bearer ${token}`,
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({ alias })
+        },
+        10_000
+      );
+      const aliasText = await aliasRes.text();
+      if (!aliasRes.ok) {
+        spinner.fail(`Failed to set alias (${aliasRes.status})`);
+        console.error(chalk.red(aliasText));
+        process.exitCode = 1;
+        return;
+      }
+    }
+
     if (options.json) {
       console.log(text);
       return;
     }
 
-    spinner.succeed(`Published ${chalk.green(`${name}@${version}`)} (sha256:${integrity.slice(0, 12)}…)`);
+    const suffix = alias ? ` (alias: ${chalk.cyan(alias)})` : '';
+    spinner.succeed(`Published ${chalk.green(`${name}@${version}`)}${suffix} (sha256:${integrity.slice(0, 12)}…)`);
 
     try {
       const parsed = JSON.parse(text) as { warnings?: unknown };

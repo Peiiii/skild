@@ -151,6 +151,7 @@ skild publish --dir ./path/to/skill
 
 - 用 `--skill-version` 覆盖版本（不使用 `--version`，因为会和 CLI 自己的 `--version` 冲突）。
 - 如果 name 是未带 scope 的（例如 `hello-skill`），`skild publish` 会从 registry 推断 scope，并发布为 `@<你的-handle>/hello-skill`。
+- 可选：用 `--alias <short-name>` 设置短名（全局唯一），便于用户 `skild install <alias>` 安装。
 - 如果 publish 返回 `Email not verified`（HTTP 403），需要先在 Skild Hub（`/verify-email`）完成邮箱验证。
 
 ## Skild Hub（Web）
