@@ -1,5 +1,13 @@
 # skild
 
+## 0.2.5
+
+### Patch Changes
+
+- Fix interactive `skild login` password prompt so the “Password:” label stays visible while input remains hidden.
+- Updated dependencies
+  - @skild/core@0.2.5
+
 ## 0.2.4
 
 ### Patch Changes

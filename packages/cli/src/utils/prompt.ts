@@ -14,20 +14,25 @@ export async function promptLine(question: string, defaultValue?: string): Promi
 
 export async function promptPassword(question: string): Promise<string> {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: true }) as any;
-  rl.stdoutMuted = true;
+  rl.stdoutMuted = false;
+  const prompt = `${question}: `;
   rl._writeToOutput = function _writeToOutput(this: any, stringToWrite: string) {
-    // Hide characters; still allow newlines/prompt to be shown.
-    if (this.stdoutMuted) return;
+    if (this.stdoutMuted) {
+      // Keep line breaks working; hide everything else (typed chars).
+      if (stringToWrite === '\n' || stringToWrite === '\r\n') this.output.write(stringToWrite);
+      return;
+    }
     this.output.write(stringToWrite);
   };
 
   try {
-    const answer = await new Promise<string>(resolve => rl.question(`${question}: `, resolve));
+    const answerPromise = new Promise<string>(resolve => rl.question(prompt, resolve));
+    // Mute after the prompt is printed so the prompt text stays visible.
+    rl.stdoutMuted = true;
+    const answer = await answerPromise;
     return String(answer || '');
   } finally {
     rl.stdoutMuted = false;
     rl.close();
-    // Ensure the next output starts on a new line.
-    process.stdout.write('\n');
   }
 }
