@@ -120,7 +120,7 @@ function buildRegistryInstall(name: string): string {
 function buildLinkedInstall(input: { repo: string; path: string | null; ref: string | null }): string {
   const path = input.path ? `/${input.path}` : "";
   const ref = input.ref ? `#${input.ref}` : "";
-  return `skild install ${input.repo}${path}${ref}`;
+  return `skild install "${input.repo}${path}${ref}"`;
 }
 
 export function toDiscoverItem(row: DiscoverItemRow): DiscoverItem {
