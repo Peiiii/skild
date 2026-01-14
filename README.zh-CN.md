@@ -54,17 +54,20 @@ skild install anthropics/skills/skills/pdf --force
 
 ## 🎯 多平台支持
 
-默认安装到 Claude（`~/.claude/skills`），也支持 Codex 和 Copilot：
+默认安装到 Claude（`~/.claude/skills`），也支持 Codex、Copilot 和 Antigravity：
 
 ```bash
 # 安装到 Codex（全局）
 skild install anthropics/skills/skills/pdf -t codex
 
+# 安装到 Antigravity（全局）
+skild install anthropics/skills/skills/pdf -t antigravity
+
 # 安装到 Codex（项目级别）
 skild install anthropics/skills/skills/pdf -t codex --local
 
-# 安装到 Claude（项目级别）
-skild install anthropics/skills/skills/pdf --local
+# 安装到 Antigravity（项目级别，./.agent/skills）
+skild install anthropics/skills/skills/pdf -t antigravity --local
 ```
 
 ## 🔧 管理 Skills

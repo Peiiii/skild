@@ -1,5 +1,21 @@
 # skild
 
+## 0.2.8
+
+### Patch Changes
+
+- Add Antigravity (`-t antigravity`) platform paths and improve `skild list` readability by grouping Skillsets/Skills/Dependencies with optional `--paths` and `--verbose`.
+- Updated dependencies
+  - @skild/core@0.2.8
+
+## 0.2.7
+
+### Patch Changes
+
+- Support installing by `alias` (short identifier) via registry `/resolve`, so `skild install superpowers` resolves to the correct registry skill/linked source.
+- Updated dependencies
+  - @skild/core@0.2.7
+
 ## 0.2.6
 
 ### Patch Changes

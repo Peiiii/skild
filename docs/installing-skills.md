@@ -48,6 +48,7 @@ Skild supports multiple AI agent platforms:
 | Claude | `-t claude` (default) | `~/.claude/skills` |
 | Codex | `-t codex` | `~/.codex/skills` |
 | Copilot | `-t copilot` | `~/.github/skills` |
+| Antigravity | `-t antigravity` | `~/.gemini/antigravity/skills` |
 
 Example:
 
@@ -73,6 +74,7 @@ Project-level paths:
 - Claude: `./.claude/skills`
 - Codex: `./.codex/skills`
 - Copilot: `./.github/skills`
+- Antigravity: `./.agent/skills`
 
 ---
 
@@ -118,7 +120,7 @@ skild validate skill-name
 
 | Option | Description |
 |--------|-------------|
-| `-t, --target <platform>` | Target platform: `claude`, `codex`, `copilot` |
+| `-t, --target <platform>` | Target platform: `claude`, `codex`, `copilot`, `antigravity` |
 | `--local` | Install to project directory instead of global |
 | `--force` | Overwrite existing installation |
 | `--json` | Output in JSON format |

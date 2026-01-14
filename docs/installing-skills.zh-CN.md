@@ -48,6 +48,7 @@ Skild 支持多个 AI Agent 平台：
 | Claude | `-t claude`（默认） | `~/.claude/skills` |
 | Codex | `-t codex` | `~/.codex/skills` |
 | Copilot | `-t copilot` | `~/.github/skills` |
+| Antigravity | `-t antigravity` | `~/.gemini/antigravity/skills` |
 
 示例：
 
@@ -73,6 +74,7 @@ skild install @publisher/skill --local
 - Claude: `./.claude/skills`
 - Codex: `./.codex/skills`
 - Copilot: `./.github/skills`
+- Antigravity: `./.agent/skills`
 
 ---
 
@@ -118,7 +120,7 @@ skild validate skill-name
 
 | 选项 | 说明 |
 |------|------|
-| `-t, --target <platform>` | 目标平台：`claude`、`codex`、`copilot` |
+| `-t, --target <platform>` | 目标平台：`claude`、`codex`、`copilot`、`antigravity` |
 | `--local` | 安装到项目目录而非全局 |
 | `--force` | 覆盖已有安装 |
 | `--json` | 输出 JSON 格式 |

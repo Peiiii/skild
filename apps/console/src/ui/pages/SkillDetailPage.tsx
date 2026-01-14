@@ -249,17 +249,30 @@ export function SkillDetailPage(): JSX.Element {
                     const href = route ? `/skills/${encodeURIComponent(route.scope)}/${encodeURIComponent(route.skill)}` : null;
 
                     return (
-                      <div key={dep} className="group/dep relative rounded-lg border border-border/40 bg-muted/5 p-3.5 hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all hover:shadow-lg hover:shadow-indigo-500/5 overflow-hidden">
-                        <div className="flex flex-col gap-2.5 min-w-0">
+                      <div key={dep} className="group/dep relative rounded-lg border border-border/40 bg-muted/5 p-3.5 hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all hover:shadow-lg hover:shadow-indigo-500/5 overflow-hidden min-h-[85px] flex flex-col justify-between">
+                        <div className="flex flex-col gap-1.5 min-w-0">
                           <div className="flex items-center justify-between">
-                            {isInline ? (
-                              <Badge variant="secondary" className="h-4.5 text-[8px] uppercase tracking-wider bg-purple-500/10 text-purple-400 border-none px-1.5">Bundled</Badge>
-                            ) : (
-                              <Badge variant="secondary" className="h-4.5 text-[8px] uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border-none px-1.5">Registry</Badge>
-                            )}
-                            {context && context !== 'Bundled' && (
-                              <span className="text-[9px] text-muted-foreground font-mono truncate max-w-[120px]" title={context}>{context}</span>
-                            )}
+                            <div className="flex items-center gap-2">
+                              {isInline ? (
+                                <Badge variant="secondary" className="h-4.5 text-[8px] uppercase tracking-wider bg-purple-500/10 text-purple-400 border-none px-1.5">Bundled</Badge>
+                              ) : (
+                                <Badge variant="secondary" className="h-4.5 text-[8px] uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border-none px-1.5">Registry</Badge>
+                              )}
+                              {context && context !== 'Bundled' && (
+                                <span className="text-[9px] text-muted-foreground font-mono truncate max-w-[100px]" title={context}>{context}</span>
+                              )}
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                void navigator.clipboard.writeText(trimmed);
+                              }}
+                              className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-white/10 text-muted-foreground hover:text-indigo-400 opacity-0 group-hover/dep:opacity-100 transition-opacity"
+                              title="Copy full path"
+                            >
+                              <Copy className="h-3 w-3" />
+                            </button>
                           </div>
 
                           <div className="min-w-0">
@@ -267,17 +280,23 @@ export function SkillDetailPage(): JSX.Element {
                               <Link
                                 className="font-mono text-[13px] font-bold text-foreground/80 group-hover/dep:text-indigo-400 transition-colors flex items-center gap-1.5"
                                 to={href as string}
-                                title={trimmed}
                               >
                                 <span className="truncate">{name}</span>
                                 <ExternalLink className="h-3 w-3 shrink-0 opacity-0 group-hover/dep:opacity-100 transition-opacity" />
                               </Link>
                             ) : (
-                              <code className="font-mono text-[13px] text-foreground/70 truncate block" title={trimmed}>
+                              <code className="font-mono text-[13px] text-foreground/70 truncate block">
                                 {name}
                               </code>
                             )}
                           </div>
+                        </div>
+
+                        {/* Full Path Reveal */}
+                        <div className="mt-2 pt-2 border-t border-border/10">
+                          <p className="font-mono text-[9px] text-muted-foreground/60 truncate group-hover/dep:text-muted-foreground group-hover/dep:break-all group-hover/dep:whitespace-normal transition-colors">
+                            {trimmed}
+                          </p>
                         </div>
                       </div>
                     );

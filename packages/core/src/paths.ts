@@ -30,6 +30,11 @@ export function getSkillsDir(platform: Platform, scope: InstallScope): string {
       return path.join(base, '.codex', 'skills');
     case 'copilot':
       return path.join(base, '.github', 'skills');
+    case 'antigravity':
+      // Antigravity uses a project `.agent/skills/` directory, or a global `~/.gemini/antigravity/skills/` directory.
+      return scope === 'project'
+        ? path.join(getProjectDir(), '.agent', 'skills')
+        : path.join(getHomeDir(), '.gemini', 'antigravity', 'skills');
   }
 }
 

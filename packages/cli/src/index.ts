@@ -51,6 +51,8 @@ program
     .description('List installed Skills')
     .option('-t, --target <platform>', `Target platform: ${PLATFORMS.join(', ')} (optional; omit to list all)`)
     .option('-l, --local', 'List project-level directory instead of global')
+    .option('--paths', 'Show install paths')
+    .option('--verbose', 'Show skillset dependency details')
     .option('--json', 'Output JSON')
     .action(async (options: any) => list(options));
 

@@ -62,8 +62,8 @@ skild install @peiiii/hello-skill@1.0.0
 
 | Option | Description |
 |--------|-------------|
-| `-t, --target` | Platform: `claude` (default), `codex`, `copilot` |
-| `--local` | Install to project (`./.claude/skills`) instead of global |
+| `-t, --target` | Platform: `claude` (default), `codex`, `copilot`, `antigravity` |
+| `--local` | Install to project directory instead of global |
 | `--force` | Overwrite existing Skill |
 
 ---
@@ -98,6 +98,7 @@ All commands accept `-t <platform>` and `--local` options.
 | `claude` | `~/.claude/skills` | `./.claude/skills` |
 | `codex` | `~/.codex/skills` | `./.codex/skills` |
 | `copilot` | `~/.github/skills` | `./.github/skills` |
+| `antigravity` | `~/.gemini/antigravity/skills` | `./.agent/skills` |
 
 Example:
 

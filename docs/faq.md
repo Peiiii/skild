@@ -63,6 +63,7 @@ skild publish --dir ./my-skill
 | Claude | `-t claude` | `~/.claude/skills` |
 | Codex | `-t codex` | `~/.codex/skills` |
 | Copilot | `-t copilot` | `~/.github/skills` |
+| Antigravity | `-t antigravity` | `~/.gemini/antigravity/skills` |
 
 ### Q: 如何切换安装目标平台？
 

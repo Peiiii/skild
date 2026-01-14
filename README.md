@@ -71,17 +71,20 @@ See **[Skillsets Guide](./docs/skillsets.md)** for more.
 
 ## 🎯 Multi-platform Support
 
-Default: Claude (`~/.claude/skills`). Also supports Codex and Copilot:
+Default: Claude (`~/.claude/skills`). Also supports Codex, Copilot, and Antigravity:
 
 ```bash
 # Install to Codex (global)
 skild install anthropics/skills/skills/pdf -t codex
 
+# Install to Antigravity (global)
+skild install anthropics/skills/skills/pdf -t antigravity
+
 # Install to Codex (project-level)
 skild install anthropics/skills/skills/pdf -t codex --local
 
-# Install to Claude (project-level)
-skild install anthropics/skills/skills/pdf --local
+# Install to Antigravity (project-level, ./.agent/skills)
+skild install anthropics/skills/skills/pdf -t antigravity --local
 ```
 
 ## 🔧 Manage Skills
