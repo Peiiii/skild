@@ -381,7 +381,7 @@ app.get("/publisher/skills", async (c) => {
   try {
     const auth = await requireSessionAuth(c);
     const rows = await c.env.DB.prepare(
-      "SELECT s.name, s.description, s.updated_at, COUNT(v.version) AS versionsCount\n" +
+      "SELECT s.name, s.description, s.updated_at, s.skillset, COUNT(v.version) AS versionsCount\n" +
         "FROM skills s\n" +
         "LEFT JOIN skill_versions v ON v.skill_name = s.name\n" +
         "WHERE s.publisher_id = ?1\n" +
@@ -402,8 +402,8 @@ app.get("/skills", async (c) => {
   const limit = Math.min(Number.parseInt(c.req.query("limit") || "50", 10) || 50, 100);
 
   const sql = q
-    ? "SELECT name, description, targets_json, created_at, updated_at FROM skills WHERE name LIKE ?1 OR description LIKE ?1 ORDER BY updated_at DESC LIMIT ?2"
-    : "SELECT name, description, targets_json, created_at, updated_at FROM skills ORDER BY updated_at DESC LIMIT ?1";
+    ? "SELECT name, description, targets_json, skillset, created_at, updated_at FROM skills WHERE name LIKE ?1 OR description LIKE ?1 ORDER BY updated_at DESC LIMIT ?2"
+    : "SELECT name, description, targets_json, skillset, created_at, updated_at FROM skills ORDER BY updated_at DESC LIMIT ?1";
 
   const stmt = q ? c.env.DB.prepare(sql).bind(`%${q}%`, limit) : c.env.DB.prepare(sql).bind(limit);
   const result = await stmt.all();
@@ -594,7 +594,9 @@ app.get("/skills/:scope/:skill", async (c) => {
     assertSkillSegment(skillSegment);
     const name = `@${scope}/${skillSegment}`;
 
-    const skill = await c.env.DB.prepare("SELECT name, description, targets_json, publisher_id, created_at, updated_at FROM skills WHERE name = ?1 LIMIT 1")
+    const skill = await c.env.DB.prepare(
+      "SELECT name, description, targets_json, skillset, dependencies_json, publisher_id, created_at, updated_at FROM skills WHERE name = ?1 LIMIT 1",
+    )
       .bind(name)
       .first();
     if (!skill) return errorJson(c as any, "Skill not found.", 404);
@@ -731,6 +733,19 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
     const version = String(form.get("version") || "").trim();
     const description = String(form.get("description") || "").trim().slice(0, 500);
     const targetsJson = String(form.get("targets") || "[]");
+    const skillsetRaw = String(form.get("skillset") || "").trim().toLowerCase();
+    const skillset = skillsetRaw === "true" || skillsetRaw === "1" || skillsetRaw === "yes";
+    const dependenciesRaw = String(form.get("dependencies") || "[]").trim() || "[]";
+    let dependenciesJson = "[]";
+    try {
+      const parsed = JSON.parse(dependenciesRaw);
+      if (!Array.isArray(parsed) || parsed.some((d) => typeof d !== "string")) {
+        return errorJson(c as any, "Invalid dependencies. Expected JSON array of strings.", 400);
+      }
+      dependenciesJson = JSON.stringify(parsed);
+    } catch {
+      return errorJson(c as any, "Invalid dependencies. Expected JSON array of strings.", 400);
+    }
     const tag = String(form.get("tag") || "latest").trim() || "latest";
     const file = form.get("tarball");
     if (!version || !file || !(file instanceof File)) return errorJson(c as any, "Missing version or tarball.", 400);
@@ -765,9 +780,9 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
     const now = new Date().toISOString();
     const batch = [
       c.env.DB.prepare(
-        "INSERT INTO skills (name, publisher_id, description, targets_json, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6)\n" +
-          "ON CONFLICT(name) DO UPDATE SET description = excluded.description, targets_json = excluded.targets_json, updated_at = excluded.updated_at",
-      ).bind(name, publisher.id, description, targetsJson, now, now),
+        "INSERT INTO skills (name, publisher_id, description, targets_json, skillset, dependencies_json, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)\n" +
+          "ON CONFLICT(name) DO UPDATE SET description = excluded.description, targets_json = excluded.targets_json, skillset = excluded.skillset, dependencies_json = excluded.dependencies_json, updated_at = excluded.updated_at",
+      ).bind(name, publisher.id, description, targetsJson, skillset ? 1 : 0, dependenciesJson, now, now),
       c.env.DB.prepare(
         "INSERT INTO skill_versions (skill_name, version, integrity, artifact_key, published_at, publisher_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
       ).bind(name, version, integrity, artifactKey, now, publisher.id),
@@ -781,6 +796,7 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
       name,
       description,
       publisherHandle: publisher.handle,
+      skillset,
       createdAt: existingSkill?.created_at ?? now,
       updatedAt: now,
     });

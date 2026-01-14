@@ -1,5 +1,13 @@
 # skild
 
+## 0.2.4
+
+### Patch Changes
+
+- Fix registry resolution during installs by defaulting to the logged-in registry URL, and add `SKILD_HOME` to isolate Skild state for testing/smoke runs.
+- Updated dependencies
+  - @skild/core@0.2.4
+
 ## 0.2.3
 
 ### Patch Changes

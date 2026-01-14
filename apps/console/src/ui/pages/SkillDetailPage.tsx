@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getSkillDetail, getSkillStats, routeToCanonical } from '@/lib/api';
+import { canonicalToRoute, getSkillDetail, getSkillStats, routeToCanonical } from '@/lib/api';
 import type { DistTagRow, VersionRow, EntityStats } from '@/lib/api-types';
+import { SkillsetBadge } from '@/components/skillset-badge';
+import { isSkillsetFlag, parseJsonStringArray } from '@/lib/skillset';
 import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
 import { Button } from '@/components/ui/button';
@@ -21,9 +23,14 @@ export function SkillDetailPage(): JSX.Element {
 
   const [busy, setBusy] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [data, setData] = React.useState<{ name: string; description: string | null; distTags: DistTagRow[]; versions: VersionRow[] } | null>(
-    null
-  );
+  const [data, setData] = React.useState<{
+    name: string;
+    description: string | null;
+    distTags: DistTagRow[];
+    versions: VersionRow[];
+    skillset: boolean;
+    dependencies: string[];
+  } | null>(null);
   const [stats, setStats] = React.useState<EntityStats | null>(null);
 
   const canonicalName = routeToCanonical(scope, skill);
@@ -42,11 +49,14 @@ export function SkillDetailPage(): JSX.Element {
           return;
         }
         if (!active) return;
+        const skillset = isSkillsetFlag(res.skill.skillset);
         setData({
           name: res.skill.name,
           description: res.skill.description,
           distTags: res.distTags,
-          versions: res.versions
+          versions: res.versions,
+          skillset,
+          dependencies: skillset ? parseJsonStringArray(res.skill.dependencies_json) : []
         });
 
         // Load stats
@@ -129,7 +139,10 @@ export function SkillDetailPage(): JSX.Element {
             <h1 className="text-4xl font-extrabold tracking-tight">{data.name}</h1>
             <p className="text-lg text-muted-foreground max-w-2xl">{data.description || 'No description provided.'}</p>
           </div>
-          <Badge variant="indigo" className="h-6">Registry Skill</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="indigo" className="h-6">Registry Skill</Badge>
+            {data.skillset && <SkillsetBadge className="h-6" />}
+          </div>
         </div>
       </div>
 
@@ -158,6 +171,52 @@ export function SkillDetailPage(): JSX.Element {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground italic">Requires <code>skild</code> CLI installed on your machine.</p>
+
+          {data.skillset && (
+            <div className="rounded-lg border border-border/40 bg-muted/10 p-4 space-y-2">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">This Skillset includes</div>
+              {data.dependencies.length > 0 ? (
+                <ul className="space-y-1 text-xs">
+                  {data.dependencies.map((dep) => {
+                    const trimmed = dep.trim();
+                    const isInline = trimmed.startsWith('./') || trimmed.startsWith('../');
+
+                    const registryName = (() => {
+                      if (!trimmed.startsWith('@') || !trimmed.includes('/')) return null;
+                      const lastAt = trimmed.lastIndexOf('@');
+                      if (lastAt <= 0) return trimmed;
+                      const maybeName = trimmed.slice(0, lastAt);
+                      if (!maybeName.includes('/')) return trimmed;
+                      return maybeName;
+                    })();
+
+                    const route = registryName ? canonicalToRoute(registryName) : null;
+                    const href = route ? `/skills/${encodeURIComponent(route.scope)}/${encodeURIComponent(route.skill)}` : null;
+
+                    return (
+                      <li key={dep} className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          {href ? (
+                            <Link className="font-mono break-all hover:text-primary transition-colors" to={href}>
+                              {trimmed}
+                            </Link>
+                          ) : (
+                            <code className="font-mono break-all text-foreground/80">{trimmed}</code>
+                          )}
+                        </div>
+                        {isInline && <Badge variant="secondary" className="h-5">Bundled</Badge>}
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <div className="text-xs text-muted-foreground italic">No dependencies declared.</div>
+              )}
+              <div className="text-[11px] text-muted-foreground">
+                Installing the Skillset installs its dependencies automatically.
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Stats Section */}
@@ -249,4 +308,3 @@ export function SkillDetailPage(): JSX.Element {
     </div >
   );
 }
-

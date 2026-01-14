@@ -47,6 +47,7 @@ export type TokenRevokeResponse = { ok: true; revoked: boolean } | ApiError;
 export interface MySkillItem {
   name: string;
   description: string | null;
+  skillset?: boolean;
   updated_at: string;
   versionsCount: number | string;
 }
@@ -79,6 +80,7 @@ export interface SkillListItem {
   name: string;
   description: string | null;
   targets_json: string | null;
+  skillset?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -93,6 +95,7 @@ export interface DiscoverItem {
   tags: string[];
   install: string;
   publisherHandle: string | null;
+  skillset?: boolean;
   source: { repo: string | null; path: string | null; ref: string | null; url: string | null } | null;
   discoverAt: string;
   createdAt: string;
@@ -121,6 +124,8 @@ export interface SkillDetail {
   name: string;
   description: string | null;
   targets_json: string | null;
+  skillset?: boolean;
+  dependencies_json?: string | null;
   publisher_id: string;
   created_at: string;
   updated_at: string;

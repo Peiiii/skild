@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { fetchWithTimeout, installRegistrySkill, installSkill, resolveRegistryUrl, SkildError, type Platform } from '@skild/core';
+import { fetchWithTimeout, installRegistrySkill, installSkill, loadRegistryAuth, resolveRegistryUrl, SkildError, type Platform } from '@skild/core';
 import { createSpinner, logger } from '../utils/logger.js';
 
 export interface InstallCommandOptions {
@@ -13,16 +13,18 @@ export interface InstallCommandOptions {
 export async function install(source: string, options: InstallCommandOptions = {}): Promise<void> {
   const platform = (options.target as Platform) || 'claude';
   const scope = options.local ? 'project' : 'global';
+  const auth = loadRegistryAuth();
+  const registryUrlForDeps = options.registry || auth?.registryUrl;
 
   const spinner = createSpinner(`Installing ${chalk.cyan(source)} to ${chalk.dim(platform)} (${scope})...`);
   try {
     const record =
       source.trim().startsWith('@') && source.includes('/')
         ? await installRegistrySkill(
-            { spec: source, registryUrl: options.registry },
+            { spec: source, registryUrl: registryUrlForDeps },
             { platform, scope, force: Boolean(options.force) }
           )
-        : await installSkill({ source }, { platform, scope, force: Boolean(options.force) });
+        : await installSkill({ source }, { platform, scope, force: Boolean(options.force), registryUrl: registryUrlForDeps });
 
     const displayName = record.canonicalName || record.name;
     spinner.succeed(`Installed ${chalk.green(displayName)} to ${chalk.dim(record.installDir)}`);
@@ -44,7 +46,7 @@ export async function install(source: string, options: InstallCommandOptions = {
       logger.installDetail(`Validation: ${chalk.green('ok')}`);
     }
 
-    void reportDownload(record, options.registry);
+    void reportDownload(record, registryUrlForDeps);
   } catch (error: unknown) {
     spinner.fail(`Failed to install ${chalk.red(source)}`);
     const message = error instanceof SkildError ? error.message : error instanceof Error ? error.message : String(error);

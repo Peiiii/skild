@@ -12,6 +12,7 @@ export interface DiscoverItemRow {
   tags_json: string;
   install: string;
   publisher_handle: string | null;
+  skillset: number;
   source_repo: string | null;
   source_path: string | null;
   source_ref: string | null;
@@ -32,6 +33,7 @@ export interface DiscoverItem {
   tags: string[];
   install: string;
   publisherHandle: string | null;
+  skillset: boolean;
   source: {
     repo: string | null;
     path: string | null;
@@ -132,6 +134,7 @@ export function toDiscoverItem(row: DiscoverItemRow): DiscoverItem {
     tags: parseTags(row.tags_json),
     install: row.install,
     publisherHandle: row.publisher_handle,
+    skillset: row.skillset === 1,
     source:
       row.type === "linked"
         ? {
@@ -154,15 +157,16 @@ export async function upsertDiscoverItemForSkill(env: Env, input: {
   name: string;
   description: string | null;
   publisherHandle: string | null;
+  skillset: boolean;
   createdAt: string;
   updatedAt: string;
 }): Promise<void> {
   const description = (input.description ?? "").trim();
   const discoverAt = input.updatedAt;
   await env.DB.prepare(
-    "INSERT INTO discover_items (type, source_id, title, description, tags_json, install, publisher_handle, source_repo, source_path, source_ref, source_url, discover_at, created_at, updated_at)\n" +
-      "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, NULL, NULL, NULL, NULL, ?8, ?9, ?10)\n" +
-      "ON CONFLICT(type, source_id) DO UPDATE SET title = excluded.title, description = excluded.description, tags_json = excluded.tags_json, install = excluded.install, publisher_handle = excluded.publisher_handle, discover_at = excluded.discover_at, updated_at = excluded.updated_at",
+    "INSERT INTO discover_items (type, source_id, title, description, tags_json, install, publisher_handle, skillset, source_repo, source_path, source_ref, source_url, discover_at, created_at, updated_at)\n" +
+      "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, NULL, NULL, NULL, NULL, ?9, ?10, ?11)\n" +
+      "ON CONFLICT(type, source_id) DO UPDATE SET title = excluded.title, description = excluded.description, tags_json = excluded.tags_json, install = excluded.install, publisher_handle = excluded.publisher_handle, skillset = excluded.skillset, discover_at = excluded.discover_at, updated_at = excluded.updated_at",
   )
     .bind(
       "registry",
@@ -172,6 +176,7 @@ export async function upsertDiscoverItemForSkill(env: Env, input: {
       "[]",
       buildRegistryInstall(input.name),
       input.publisherHandle,
+      input.skillset ? 1 : 0,
       discoverAt,
       input.createdAt,
       input.updatedAt,
@@ -188,9 +193,9 @@ export async function upsertDiscoverItemForLinkedItem(env: Env, input: {
   const install = buildLinkedInstall({ repo: row.source_repo, path: row.source_path, ref: row.source_ref });
 
   await env.DB.prepare(
-    "INSERT INTO discover_items (type, source_id, title, description, tags_json, install, publisher_handle, source_repo, source_path, source_ref, source_url, discover_at, created_at, updated_at)\n" +
-      "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)\n" +
-      "ON CONFLICT(type, source_id) DO UPDATE SET title = excluded.title, description = excluded.description, tags_json = excluded.tags_json, install = excluded.install, publisher_handle = excluded.publisher_handle, source_repo = excluded.source_repo, source_path = excluded.source_path, source_ref = excluded.source_ref, source_url = excluded.source_url, discover_at = excluded.discover_at, updated_at = excluded.updated_at",
+    "INSERT INTO discover_items (type, source_id, title, description, tags_json, install, publisher_handle, skillset, source_repo, source_path, source_ref, source_url, discover_at, created_at, updated_at)\n" +
+      "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)\n" +
+      "ON CONFLICT(type, source_id) DO UPDATE SET title = excluded.title, description = excluded.description, tags_json = excluded.tags_json, install = excluded.install, publisher_handle = excluded.publisher_handle, skillset = excluded.skillset, source_repo = excluded.source_repo, source_path = excluded.source_path, source_ref = excluded.source_ref, source_url = excluded.source_url, discover_at = excluded.discover_at, updated_at = excluded.updated_at",
   )
     .bind(
       "linked",
@@ -200,6 +205,7 @@ export async function upsertDiscoverItemForLinkedItem(env: Env, input: {
       row.tags_json || "[]",
       install,
       input.submittedByHandle,
+      0,
       row.source_repo,
       row.source_path,
       row.source_ref,

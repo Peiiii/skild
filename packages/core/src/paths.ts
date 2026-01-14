@@ -4,6 +4,8 @@ import fs from 'fs';
 import type { InstallScope, Platform } from './types.js';
 
 export function getHomeDir(): string {
+  const override = process.env.SKILD_HOME?.trim();
+  if (override) return path.resolve(override);
   return os.homedir();
 }
 

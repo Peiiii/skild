@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { canonicalToRoute, listMySkills } from '@/lib/api';
 import type { MySkillItem } from '@/lib/api-types';
+import { SkillsetBadge } from '@/components/skillset-badge';
+import { isSkillsetFlag } from '@/lib/skillset';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -69,7 +71,10 @@ export function MySkillsPage(): JSX.Element {
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
-                      <div className="font-mono text-sm break-all">{s.name}</div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="font-mono text-sm break-all">{s.name}</div>
+                        {isSkillsetFlag(s.skillset) && <SkillsetBadge />}
+                      </div>
                       <div className="mt-1 text-xs text-muted-foreground line-clamp-2">{s.description || 'No description.'}</div>
                     </div>
                     <div className="shrink-0 text-xs text-muted-foreground">
@@ -86,4 +91,3 @@ export function MySkillsPage(): JSX.Element {
     </Card>
   );
 }
-

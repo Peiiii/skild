@@ -372,7 +372,7 @@ function createInstallContext(options: InstallOptions, registryUrl?: string): In
     platform,
     scope,
     force: Boolean(options.force),
-    registryUrl,
+    registryUrl: registryUrl ?? options.registryUrl,
     active: new Set<string>(),
     inlineActive: new Set<string>()
   };

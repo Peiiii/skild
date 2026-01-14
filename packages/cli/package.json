@@ -1,6 +1,6 @@
 {
     "name": "skild",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "description": "The npm for Agent Skills — Discover, install, manage, and publish AI Agent Skills with ease.",
     "type": "module",
     "main": "./dist/index.js",

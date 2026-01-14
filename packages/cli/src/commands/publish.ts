@@ -58,6 +58,8 @@ export async function publish(options: PublishCommandOptions = {}): Promise<void
   const description = (options.description || fm.description || '').trim();
   const tag = (options.tag || 'latest').trim() || 'latest';
   const targets = parseTargets(options.targets);
+  const skillset = fm.skillset === true;
+  const dependencies = Array.isArray(fm.dependencies) ? fm.dependencies : [];
 
   if (!name) {
     console.error(chalk.red('Missing name. Provide SKILL.md frontmatter.name or --name.'));
@@ -131,6 +133,8 @@ export async function publish(options: PublishCommandOptions = {}): Promise<void
     form.set('description', description);
     form.set('targets', JSON.stringify(targets));
     form.set('tag', tag);
+    form.set('skillset', skillset ? 'true' : 'false');
+    form.set('dependencies', JSON.stringify(dependencies));
     form.append('tarball', new Blob([buf], { type: 'application/gzip' }), 'skill.tgz');
 
     const { scope, name: skillName } = splitCanonicalName(name);

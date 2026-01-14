@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { canonicalToRoute, listDiscoverItems } from '@/lib/api';
 import type { DiscoverItem } from '@/lib/api-types';
+import { SkillsetBadge } from '@/components/skillset-badge';
+import { isSkillsetFlag } from '@/lib/skillset';
 import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
 import { Button } from '@/components/ui/button';
@@ -220,6 +222,7 @@ export function SkillsPage(): JSX.Element {
                     <Badge variant={isLinked ? 'emerald' : 'indigo'}>
                       {isLinked ? 'Linked' : 'Registry'}
                     </Badge>
+                    {!isLinked && isSkillsetFlag(item.skillset) && <SkillsetBadge />}
                   </div>
 
                   {/* Source Info - High Visibility */}

@@ -9,6 +9,11 @@ export interface InstallOptions {
   platform?: Platform;
   scope?: InstallScope;
   force?: boolean;
+  /**
+   * Registry base URL to use when resolving registry dependencies for non-registry installs (e.g. local skillsets).
+   * If omitted, falls back to `SKILD_REGISTRY_URL` env var or the default registry.
+   */
+  registryUrl?: string;
 }
 
 export interface ListOptions {

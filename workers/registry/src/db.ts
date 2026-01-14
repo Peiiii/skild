@@ -36,6 +36,8 @@ export interface SkillRow {
   publisher_id: string;
   description: string;
   targets_json: string;
+  skillset: number;
+  dependencies_json: string;
   created_at: string;
   updated_at: string;
 }
