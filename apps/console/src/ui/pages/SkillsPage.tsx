@@ -4,6 +4,7 @@ import { canonicalToRoute, listDiscoverItems } from '@/lib/api';
 import type { DiscoverItem } from '@/lib/api-types';
 import { SkillsetBadge } from '@/components/skillset-badge';
 import { isSkillsetFlag } from '@/lib/skillset';
+import { cn } from '@/lib/utils';
 import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
 import { Button } from '@/components/ui/button';
@@ -206,9 +207,13 @@ export function SkillsPage(): JSX.Element {
           return (
             <div
               key={id}
-              className="group relative rounded-xl border border-border/40 bg-card p-6 transition-all hover:border-border/80 hover:shadow-lg hover:shadow-black/20"
+              className={cn(
+                "group relative rounded-xl border border-border/40 bg-card p-6 transition-all duration-300",
+                "hover:border-indigo-500/40 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1",
+                !isLinked && isSkillsetFlag(item.skillset) && "after:absolute after:inset-0 after:border after:border-border/40 after:rounded-xl after:-translate-x-1.5 after:translate-y-1.5 after:-z-10 before:absolute before:inset-0 before:border before:border-border/20 before:rounded-xl before:-translate-x-3 before:translate-y-3 before:-z-20"
+              )}
             >
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                 <div className="min-w-0 flex-1 space-y-3">
                   {/* Header: Title & Badges */}
                   <div className="flex flex-wrap items-center gap-2">

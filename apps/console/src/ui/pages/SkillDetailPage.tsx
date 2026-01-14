@@ -9,7 +9,8 @@ import { formatRelativeTime } from '@/lib/time';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Package, Hash, Layers, Check, Copy, Download, TrendingUp } from 'lucide-react';
+import { Package, Hash, Layers, Check, Copy, Download, TrendingUp, ExternalLink } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 function findLatest(distTags: DistTagRow[]): string | null {
   const row = distTags.find(t => t.tag === 'latest');
@@ -124,59 +125,86 @@ export function SkillDetailPage(): JSX.Element {
   const install = `skild install ${canonicalName}`;
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Link className="hover:text-foreground transition-colors" to="/skills">
-            Skills
-          </Link>
-          <span className="opacity-50">/</span>
-          <code className="text-foreground/80 bg-muted px-1.5 py-0.5 rounded border border-border/40">{canonicalName}</code>
-        </div>
+    <div className="space-y-12">
+      {/* Hero Section */}
+      <div className={cn(
+        "relative -mx-6 -mt-8 px-6 py-16 overflow-hidden border-b border-border/40",
+        data.skillset ? "bg-gradient-to-br from-indigo-950/40 via-purple-950/20 to-transparent" : "bg-muted/10"
+      )}>
+        {/* Decorative elements for Skillsets */}
+        {data.skillset && (
+          <>
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/3" />
+            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-purple-500/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4" />
+          </>
+        )}
 
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-extrabold tracking-tight">{data.name}</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">{data.description || 'No description provided.'}</p>
+        <div className="relative z-10 max-w-5xl mx-auto space-y-6">
+          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground/80">
+            <Link className="hover:text-foreground transition-colors" to="/skills">
+              Skills
+            </Link>
+            <span className="opacity-30">/</span>
+            <span className="text-foreground/60">{scope}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="indigo" className="h-6">Registry Skill</Badge>
-            {data.skillset && <SkillsetBadge className="h-6" />}
+
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
+                {data.name}
+              </h1>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="h-6 border-indigo-500/30 bg-indigo-500/5 text-indigo-400">Registry</Badge>
+                {data.skillset && <SkillsetBadge className="h-6" />}
+              </div>
+            </div>
+            <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed font-medium">
+              {data.description || 'Elevate your agents with specialized capabilities.'}
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Install Section */}
-        <div className="md:col-span-2 rounded-xl border border-border/50 bg-card p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-bold flex items-center gap-2">
-              <Package className="h-4 w-4 text-indigo-400" />
-              <span>Install Skill</span>
-            </h2>
-            <code className="text-[10px] text-muted-foreground uppercase tracking-widest bg-muted/50 px-2 py-0.5 rounded">Terminal CLI</code>
-          </div>
-          <div className="relative group">
-            <div className="rounded-lg bg-black/40 border border-border/40 p-4 font-mono text-sm leading-relaxed break-all text-foreground/90 pr-12 min-h-[56px] flex items-center">
-              {install}
+      <div className="grid gap-8 md:grid-cols-12 max-w-5xl mx-auto">
+        {/* Main Column */}
+        <div className="md:col-span-8 space-y-10">
+          {/* Install Command */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/70 flex items-center gap-2">
+                <Download className="h-3.5 w-3.5" />
+                Quick Installation
+              </h2>
             </div>
-            <Button
-              type="button"
-              size="icon"
-              variant="ghost"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 hover:bg-white/10"
-              onClick={copyInstall}
-            >
-              {copied ? <Check className="h-5 w-5 text-emerald-500" /> : <Copy className="h-5 w-5" />}
-            </Button>
+            <div className="group relative">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl blur opacity-10 group-hover:opacity-20 transition duration-500" />
+              <div className="relative rounded-xl bg-black border border-white/5 p-5 font-mono text-sm leading-relaxed text-foreground pr-14 shadow-2xl overflow-hidden">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500/50" />
+                <span className="text-indigo-400 select-none mr-3">$</span>
+                {install}
+              </div>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 hover:bg-white/5 active:scale-95 transition-all text-muted-foreground hover:text-foreground"
+                onClick={copyInstall}
+              >
+                {copied ? <Check className="h-5 w-5 text-emerald-500" /> : <Copy className="h-5 w-5" />}
+              </Button>
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground italic">Requires <code>skild</code> CLI installed on your machine.</p>
 
+          {/* Skillset Dependencies (if applicable) */}
           {data.skillset && (
-            <div className="rounded-lg border border-border/40 bg-muted/10 p-4 space-y-2">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">This Skillset includes</div>
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <Layers className="h-5 w-5 text-indigo-400" />
+                <h2 className="text-xl font-bold tracking-tight">Included in this Skillset</h2>
+              </div>
+
               {data.dependencies.length > 0 ? (
-                <ul className="space-y-1 text-xs">
+                <div className="grid gap-4 sm:grid-cols-2">
                   {data.dependencies.map((dep) => {
                     const trimmed = dep.trim();
                     const isInline = trimmed.startsWith('./') || trimmed.startsWith('../');
@@ -194,58 +222,71 @@ export function SkillDetailPage(): JSX.Element {
                     const href = route ? `/skills/${encodeURIComponent(route.scope)}/${encodeURIComponent(route.skill)}` : null;
 
                     return (
-                      <li key={dep} className="flex items-center justify-between gap-3">
-                        <div className="min-w-0">
-                          {href ? (
-                            <Link className="font-mono break-all hover:text-primary transition-colors" to={href}>
-                              {trimmed}
-                            </Link>
-                          ) : (
-                            <code className="font-mono break-all text-foreground/80">{trimmed}</code>
-                          )}
+                      <div key={dep} className="group/dep relative rounded-lg border border-border/40 bg-muted/5 p-4 hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all hover:shadow-lg hover:shadow-indigo-500/5">
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center justify-between">
+                            {isInline ? (
+                              <Badge variant="secondary" className="h-5 text-[9px] uppercase tracking-wider bg-purple-500/10 text-purple-400 border-none">Bundled</Badge>
+                            ) : (
+                              <Badge variant="secondary" className="h-5 text-[9px] uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border-none">Registry</Badge>
+                            )}
+                          </div>
+
+                          <div className="min-w-0">
+                            {href ? (
+                              <Link className="font-mono text-sm font-bold text-foreground/80 group-hover/dep:text-indigo-400 transition-colors flex items-center gap-1" to={href}>
+                                {trimmed}
+                                <ExternalLink className="h-3 w-3 opacity-0 group-hover/dep:opacity-100 transition-opacity" />
+                              </Link>
+                            ) : (
+                              <code className="font-mono text-sm text-foreground/70">{trimmed}</code>
+                            )}
+                          </div>
                         </div>
-                        {isInline && <Badge variant="secondary" className="h-5">Bundled</Badge>}
-                      </li>
+                      </div>
                     );
                   })}
-                </ul>
+                </div>
               ) : (
-                <div className="text-xs text-muted-foreground italic">No dependencies declared.</div>
+                <div className="rounded-xl border border-dashed border-border/50 p-8 text-center text-muted-foreground italic text-sm">
+                  No explicit dependencies found in this set.
+                </div>
               )}
-              <div className="text-[11px] text-muted-foreground">
-                Installing the Skillset installs its dependencies automatically.
-              </div>
             </div>
           )}
         </div>
 
-        {/* Stats Section */}
-        <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-6 space-y-4">
-          <h2 className="font-bold flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-emerald-400" />
-            <span>Usage Insights</span>
-          </h2>
-          <div className="space-y-4">
-            <div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">Total Installs</div>
-              <div className="text-3xl font-black flex items-baseline gap-1">
-                {stats?.total ?? 0}
-                <span className="text-xs font-medium text-muted-foreground">all-time</span>
+        {/* Sidebar */}
+        <div className="md:col-span-4 space-y-6">
+          {/* Stats */}
+          <div className="rounded-xl border border-border/40 bg-card p-6 space-y-5 shadow-sm">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/70 flex items-center gap-2">
+              <TrendingUp className="h-3.5 w-3.5" />
+              Insights
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-2xl font-black">{stats?.total ?? 0}</div>
+                <div className="text-[10px] text-muted-foreground uppercase font-bold">Installs</div>
+              </div>
+              <div>
+                <div className="text-2xl font-black text-emerald-400">+{stats?.trend.slice(-1)[0]?.downloads ?? 0}</div>
+                <div className="text-[10px] text-muted-foreground uppercase font-bold">24h</div>
               </div>
             </div>
+
             {stats && stats.trend.length > 0 && (
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Trend (Last 30 days)</div>
-                <div className="flex items-end gap-[2px] h-12">
-                  {stats.trend.slice(-15).map((t, idx) => {
-                    const max = Math.max(...stats.trend.map(d => d.downloads), 1);
+              <div className="pt-4 border-t border-border/20">
+                <div className="flex items-end gap-[2px] h-10 w-full group/graph">
+                  {stats.trend.slice(-30).map((t, idx) => {
+                    const max = Math.max(...stats.trend.slice(-30).map(d => d.downloads), 1);
                     const height = (t.downloads / max) * 100;
                     return (
                       <div
                         key={t.day}
-                        title={`${t.day}: ${t.downloads} downloads`}
-                        className="flex-1 bg-indigo-500/40 rounded-t-[1px] hover:bg-indigo-400 transition-colors"
-                        style={{ height: `${Math.max(height, 5)}%` }}
+                        className="flex-1 bg-indigo-500/20 rounded-t-[1px] group-hover/graph:bg-indigo-500/10 hover:!bg-indigo-400 transition-all duration-300"
+                        style={{ height: `${Math.max(height, 8)}%` }}
+                        title={`${t.day}: ${t.downloads}`}
                       />
                     );
                   })}
@@ -253,58 +294,39 @@ export function SkillDetailPage(): JSX.Element {
               </div>
             )}
           </div>
-        </div>
-      </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border border-border/40 bg-card p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <Hash className="h-4 w-4 text-indigo-400" />
-            <h3 className="font-bold uppercase tracking-wider text-xs text-muted-foreground">Dist-tags</h3>
-          </div>
-          {data.distTags.length ? (
-            <div className="space-y-3">
-              <ul className="space-y-2 text-sm">
-                {data.distTags.map(t => (
-                  <li key={t.tag} className="flex justify-between items-center py-1.5 border-b border-border/10 last:border-0">
-                    <code className="text-indigo-400 font-bold">{t.tag}</code>
-                    <Badge variant="secondary" className="font-mono h-5">{t.version}</Badge>
+          {/* Metadata */}
+          <div className="rounded-xl border border-border/40 bg-card p-6 space-y-6 shadow-sm">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Hash className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Latest Version</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <code className="text-lg font-black text-indigo-400">{latest || '0.0.0'}</code>
+                <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Stable</span>
+              </div>
+            </div>
+
+            <div className="space-y-4 pt-6 border-t border-border/20">
+              <div className="flex items-center gap-2">
+                <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Version History</span>
+              </div>
+              <ul className="space-y-3">
+                {data.versions.slice(0, 5).map(v => (
+                  <li key={v.version} className="flex justify-between items-center text-xs group/ver">
+                    <span className="font-bold text-foreground/80 group-hover/ver:text-indigo-400 transition-colors">{v.version}</span>
+                    <span className="text-[9px] font-mono text-muted-foreground">
+                      {formatRelativeTime(v.published_at)}
+                    </span>
                   </li>
                 ))}
               </ul>
-              {latest && (
-                <div className="text-[10px] text-muted-foreground flex items-center justify-end gap-1">
-                  <span>latest points to</span>
-                  <span className="font-mono text-foreground/80">{latest}</span>
-                </div>
-              )}
             </div>
-          ) : (
-            <div className="text-sm text-muted-foreground italic">No tags associated.</div>
-          )}
-        </div>
-
-        <div className="rounded-xl border border-border/40 bg-card p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <Layers className="h-4 w-4 text-indigo-400" />
-            <h3 className="font-bold uppercase tracking-wider text-xs text-muted-foreground">Version History</h3>
           </div>
-          {data.versions.length ? (
-            <ul className="space-y-2 text-sm">
-              {data.versions.slice(0, 10).map(v => (
-                <li key={v.version} className="flex justify-between items-center py-1.5 border-b border-border/10 last:border-0 hover:bg-muted/30 transition-colors px-2 -mx-2 rounded">
-                  <code className="font-bold text-foreground/90">{v.version}</code>
-                  <code className="text-[10px] text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded border border-border/40">
-                    {v.integrity.slice(0, 16)}…
-                  </code>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="text-sm text-muted-foreground italic">No versions available.</div>
-          )}
         </div>
       </div>
-    </div >
+    </div>
   );
 }

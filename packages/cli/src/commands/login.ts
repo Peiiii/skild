@@ -23,7 +23,18 @@ export async function login(options: LoginCommandOptions): Promise<void> {
   }
 
   const finalHandleOrEmail = handleOrEmail || (await promptLine('Handle or email'));
-  const finalPassword = password || (await promptPassword('Password'));
+  let finalPassword = password;
+  if (!finalPassword) {
+    try {
+      finalPassword = await promptPassword('Password');
+    } catch (e: any) {
+      if (e?.code === 'PROMPT_CANCELLED') {
+        process.exitCode = 130;
+        return;
+      }
+      throw e;
+    }
+  }
   const finalTokenName = options.tokenName?.trim() || undefined;
 
   let text = '';

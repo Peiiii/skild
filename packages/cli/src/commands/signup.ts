@@ -25,7 +25,18 @@ export async function signup(options: SignupCommandOptions): Promise<void> {
 
   const finalEmail = email || (await promptLine('Email'));
   const finalHandle = handle || (await promptLine('Handle (publisher scope)', undefined)).toLowerCase();
-  const finalPassword = password || (await promptPassword('Password'));
+  let finalPassword = password;
+  if (!finalPassword) {
+    try {
+      finalPassword = await promptPassword('Password');
+    } catch (e: any) {
+      if (e?.code === 'PROMPT_CANCELLED') {
+        process.exitCode = 130;
+        return;
+      }
+      throw e;
+    }
+  }
 
   let text = '';
   try {

@@ -13,26 +13,57 @@ export async function promptLine(question: string, defaultValue?: string): Promi
 }
 
 export async function promptPassword(question: string): Promise<string> {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: true }) as any;
-  rl.stdoutMuted = false;
-  const prompt = `${question}: `;
-  rl._writeToOutput = function _writeToOutput(this: any, stringToWrite: string) {
-    if (this.stdoutMuted) {
-      // Keep line breaks working; hide everything else (typed chars).
-      if (stringToWrite === '\n' || stringToWrite === '\r\n') this.output.write(stringToWrite);
-      return;
-    }
-    this.output.write(stringToWrite);
-  };
-
-  try {
-    const answerPromise = new Promise<string>(resolve => rl.question(prompt, resolve));
-    // Mute after the prompt is printed so the prompt text stays visible.
-    rl.stdoutMuted = true;
-    const answer = await answerPromise;
-    return String(answer || '');
-  } finally {
-    rl.stdoutMuted = false;
-    rl.close();
+  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    // Fallback (should be rare): echoing input is better than hanging.
+    return promptLine(question);
   }
+
+  const stdin = process.stdin;
+  const stdout = process.stdout;
+
+  stdout.write(`${question}: `);
+
+  const wasRaw = Boolean((stdin as any).isRaw);
+  stdin.setRawMode(true);
+  stdin.resume();
+  readline.emitKeypressEvents(stdin);
+
+  const buf: string[] = [];
+
+  return await new Promise<string>((resolve, reject) => {
+    function cleanup(): void {
+      stdin.off('keypress', onKeypress);
+      stdin.setRawMode(wasRaw);
+      stdin.pause();
+    }
+
+    function onKeypress(str: string, key: any): void {
+      if (key?.ctrl && key?.name === 'c') {
+        stdout.write('\n');
+        cleanup();
+        const err = new Error('Prompt cancelled');
+        (err as any).code = 'PROMPT_CANCELLED';
+        reject(err);
+        return;
+      }
+
+      if (key?.name === 'return' || key?.name === 'enter') {
+        stdout.write('\n');
+        cleanup();
+        resolve(buf.join(''));
+        return;
+      }
+
+      if (key?.name === 'backspace' || key?.name === 'delete') {
+        if (buf.length) buf.pop();
+        return;
+      }
+
+      if (!str) return;
+      if (key?.ctrl || key?.meta) return;
+      buf.push(str);
+    }
+
+    stdin.on('keypress', onKeypress);
+  });
 }
