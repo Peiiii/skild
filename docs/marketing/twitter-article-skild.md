@@ -1,4 +1,4 @@
-# Skild: The npm for Agent Skills (Claude/Codex/Copilot/Antigravity)
+# Skild: Unified package manager for Agent Skills & Skillsets (Claude/Codex/Copilot/Antigravity/...)
 
 Skild is an open-source CLI + registry that makes agent skills easy to discover, install, and share across different AI agent platforms.
 
@@ -144,4 +144,3 @@ If you build skills, maintain a skill collection, or want to standardize skills 
 - any missing primitives (versioning, pinning, lockfiles, discovery UX, etc.)
 
 GitHub: https://github.com/Peiiii/skild
-
