@@ -1,5 +1,11 @@
 # @skild/core
 
+## 0.4.2
+
+### Patch Changes
+
+- Fix interactive multi-skill install UX by pausing the spinner before printing the discovered skills list and prompting for confirmation, so the prompt is visible and not overwritten.
+
 ## 0.4.1
 
 ### Patch Changes

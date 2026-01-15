@@ -125,7 +125,10 @@ export async function install(source: string, options: InstallCommandOptions = {
     }
   }
 
-  async function maybeEnableRecursiveAndInstall(found: DiscoveredSkillInstall[]): Promise<boolean> {
+  async function maybeEnableRecursiveAndInstall(
+    found: DiscoveredSkillInstall[],
+    spinner: { stop: () => void; start: () => void } | null
+  ): Promise<boolean> {
     if (found.length === 0) return false;
 
     if (found.length > maxSkills) {
@@ -151,6 +154,9 @@ export async function install(source: string, options: InstallCommandOptions = {
         return true;
       }
 
+      // Ora renders on a single line; pause it before printing lists/prompts.
+      if (spinner) spinner.stop();
+
       const headline =
         found.length === 1
           ? `No SKILL.md found at root. Found 1 skill:\n${previewDiscovered(found)}\n`
@@ -166,6 +172,7 @@ export async function install(source: string, options: InstallCommandOptions = {
       }
 
       effectiveRecursive = true;
+      if (spinner) spinner.start();
     }
 
     recursiveSkillCount = found.length;
@@ -202,6 +209,7 @@ export async function install(source: string, options: InstallCommandOptions = {
               if (jsonOnly) {
                 printJson({ ok: false, error: 'SKILL_MD_NOT_FOUND', message, source, resolvedSource });
               } else {
+                if (spinner) spinner.stop();
                 console.error(chalk.red(message));
               }
               process.exitCode = 1;
@@ -209,7 +217,7 @@ export async function install(source: string, options: InstallCommandOptions = {
             }
 
             const found = asDiscoveredSkills(discovered, d => path.join(maybeLocalRoot, d.relPath));
-            const didReturn = await maybeEnableRecursiveAndInstall(found);
+            const didReturn = await maybeEnableRecursiveAndInstall(found, spinner);
             if (didReturn) return;
 
             if (spinner) spinner.text = `Installing ${chalk.cyan(source)} — discovered ${found.length} skills...`;
@@ -233,6 +241,7 @@ export async function install(source: string, options: InstallCommandOptions = {
               if (jsonOnly) {
                 printJson({ ok: false, error: 'SKILL_MD_NOT_FOUND', message, source, resolvedSource });
               } else {
+                if (spinner) spinner.stop();
                 console.error(chalk.red(message));
               }
               process.exitCode = 1;
@@ -244,7 +253,7 @@ export async function install(source: string, options: InstallCommandOptions = {
               d => deriveChildSource(resolvedSource, d.relPath),
               d => d.absDir
             );
-            const didReturn = await maybeEnableRecursiveAndInstall(found);
+            const didReturn = await maybeEnableRecursiveAndInstall(found, spinner);
             if (didReturn) return;
 
             if (spinner) spinner.text = `Installing ${chalk.cyan(source)} — discovered ${found.length} skills...`;
