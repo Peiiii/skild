@@ -1,5 +1,13 @@
 # skild
 
+## 0.4.4
+
+### Patch Changes
+
+- fix skill and platform selection
+- Updated dependencies
+  - @skild/core@0.4.4
+
 ## 0.4.3
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@skild/core",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Skild core library (headless) for installing, validating, and managing Agent Skills locally.",
   "type": "module",
   "main": "./dist/index.js",
