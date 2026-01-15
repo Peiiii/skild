@@ -1,5 +1,11 @@
 # @skild/core
 
+## 0.4.3
+
+### Patch Changes
+
+- improve skill selection
+
 ## 0.4.2
 
 ### Patch Changes

@@ -1,4 +1,4 @@
-# Twitter/X Post — Quick Install (alias + multi-skill)
+# Twitter/X Post — Skillsets + Alias (core)
 
 Below are ready-to-post options (CN + EN). Pick one and paste.
 
@@ -6,40 +6,43 @@ Below are ready-to-post options (CN + EN). Pick one and paste.
 
 ## Option A (Chinese, single post)
 
-我们给 Skild 加了“快捷安装”：
+Skild 的强项：**Skillset + 多来源安装**
 
-1) alias 短名安装：`skild install superpowers`
-2) 多-skill 仓库一键装：`skild install https://github.com/anthropics/skills`（会提示确认）或 `--recursive`
-3) 一次装到所有平台：`--all`
+真实例子（来自 landing page 终端）：
+- Skillset alias：`skild install superpowers`
+- 整仓一键装：`skild install anthropics/skills`
+- 多来源：`skild install anthropics/skills/skills/pdf` / `skild install @peiiii/skild`
 
-Skild = 给 Claude/Codex/Copilot/Antigravity 装 skills 的“npm”。开源：https://github.com/Peiiii/skild
+更多示例：https://hub.skild.sh
 
 ---
 
 ## Option B (English, single post)
 
-Quick installs in Skild:
+Skild’s strongest combo: **Skillsets + multi-source installs**
 
-- Install by alias: `skild install superpowers`
-- Install a multi-skill repo (auto-discover + prompt): `skild install https://github.com/anthropics/skills` (or `--recursive`)
-- Install to all supported platforms: `--all`
+Real examples (from the landing page terminals):
+- Skillset alias: `skild install superpowers`
+- Install an entire repo: `skild install anthropics/skills`
+- Multi-source: `skild install anthropics/skills/skills/pdf` / `skild install @peiiii/skild`
 
-Skild is the “npm for agent skills” (Claude/Codex/Copilot/Antigravity). OSS: https://github.com/Peiiii/skild
+Browse/search: https://hub.skild.sh
 
 ---
 
 ## Option C (English thread, 3 posts)
 
 Tweet 1/3
-Skild is the “npm for agent skills” (Claude/Codex/Copilot/Antigravity). It unifies install/update/uninstall across platforms.
-https://github.com/Peiiii/skild
+Skild’s strongest combo: **Skillsets + multi-source installs**.
+One CLI, many sources.
+https://hub.skild.sh
 
 Tweet 2/3
-Quick installs:
-- alias: `skild install superpowers`
-- all platforms: `skild install <source> --all`
+Skillset / repo installs:
+`skild install superpowers`
+`skild install anthropics/skills`
 
 Tweet 3/3
-Multi-skill repos (like `anthropics/skills`): install the repo root, Skild discovers `skills/*/SKILL.md` and prompts you.
-Non-interactive: `--recursive` / `-y`
-
+Multiple sources:
+`skild install anthropics/skills/skills/pdf`
+`skild install @peiiii/skild`

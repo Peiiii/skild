@@ -51,6 +51,11 @@ skild install https://github.com/anthropics/skills/tree/main/skills/pdf --all
 skild install https://github.com/owner/repo/tree/main --recursive
 ```
 
+交互模式说明：
+
+- 会提示选择要安装的 skills（默认全选），并在继续前输出已选列表。
+- 若未指定 `-t/--target` 或 `--all`，会提示选择平台（默认全选）。
+
 ### list / info / validate
 
 ```bash

@@ -69,6 +69,11 @@ skild install https://github.com/owner/repo/tree/main/skills --recursive
 skild install ./path/to/repo-root-with-many-skills -y
 ```
 
+Interactive mode:
+
+- Prompts you to select which skills to install (default: all).
+- Prints the selected skills before installing.
+
 ### From Registry
 
 ```bash
@@ -80,7 +85,7 @@ skild install @peiiii/hello-skill@1.0.0
 
 | Option | Description |
 |--------|-------------|
-| `-t, --target` | Platform: `claude` (default), `codex`, `copilot`, `antigravity` |
+| `-t, --target` | Platform: `claude`, `codex`, `copilot`, `antigravity` (interactive prompt defaults to all; non-interactive defaults to `claude`) |
 | `--all` | Install to all platforms |
 | `--recursive` | If source is a multi-skill directory/repo (no root `SKILL.md`), install all discovered skills |
 | `-y, --yes` | Skip confirmation prompts (assume yes) |
@@ -89,6 +94,10 @@ skild install @peiiii/hello-skill@1.0.0
 | `--local` | Install to project directory instead of global |
 | `--force` | Overwrite existing Skill |
 | `--json` | Output JSON |
+
+Interactive platform selection:
+
+- If you omit `--target`/`--all`, you will be prompted to select platforms (default: all).
 
 ---
 
