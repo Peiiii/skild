@@ -66,9 +66,11 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
         setNextCursor(null);
         return;
       }
+      const newTotal = typeof res.total === 'number' ? res.total : null;
+      const newCursor = res.nextCursor && res.items.length > 0 ? res.nextCursor : null;
       setItems(res.items);
-      setNextCursor(res.nextCursor);
-      setTotal(typeof res.total === 'number' ? res.total : null);
+      setNextCursor(newTotal !== null && res.items.length >= newTotal ? null : newCursor);
+      setTotal(newTotal);
     } catch (err: unknown) {
       if (err instanceof HttpError) setError(err.bodyText || `HTTP ${err.status}`);
       else setError(err instanceof Error ? err.message : String(err));
@@ -89,9 +91,21 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
         setError(res.error);
         return;
       }
-      setItems(prev => [...prev, ...res.items]);
-      setNextCursor(res.nextCursor);
-      setTotal(typeof res.total === 'number' ? res.total : null);
+      const newTotal = typeof res.total === 'number' ? res.total : null;
+      setItems(prev => {
+        const merged = [...prev, ...res.items];
+        if (res.items.length === 0 || (res.nextCursor && res.nextCursor === nextCursor)) {
+          setNextCursor(null);
+          return merged;
+        }
+        if (newTotal !== null && merged.length >= newTotal) {
+          setNextCursor(null);
+          return merged;
+        }
+        setNextCursor(res.nextCursor || null);
+        return merged;
+      });
+      setTotal(newTotal);
     } catch (err: unknown) {
       if (err instanceof HttpError) setError(err.bodyText || `HTTP ${err.status}`);
       else setError(err instanceof Error ? err.message : String(err));

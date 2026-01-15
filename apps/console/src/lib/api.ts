@@ -292,7 +292,7 @@ export async function listDiscoverItems(
 ): Promise<DiscoverListResponse> {
   const url = newApiUrl('/discover');
   if (query.trim()) url.searchParams.set('q', query.trim());
-  if (cursor) url.searchParams.set('cursor', cursor);
+  if (cursor) url.searchParams.set('cursor', encodeURIComponent(cursor));
   url.searchParams.set('limit', String(limit));
   url.searchParams.set('sort', sort);
   if (options?.skillset !== undefined) url.searchParams.set('skillset', options.skillset ? '1' : '0');
