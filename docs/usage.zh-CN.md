@@ -25,6 +25,7 @@ curl -fsSL https://skild.sh/install | sh
   - `claude` → `~/.claude/skills` 或 `./.claude/skills`
   - `codex` → `~/.codex/skills` 或 `./.codex/skills`
   - `copilot` → `~/.github/skills` 或 `./.github/skills`
+  - `opencode` → `~/.config/opencode/skill` 或 `./.opencode/skill`
   - `antigravity` → `~/.gemini/antigravity/skills` 或 `./.agent/skills`
 - **Scope**：`global`（默认） vs `project`（`--local`）
 - **Registry 身份**：`@publisher/skill[@version|tag]`（例如 `@peiiii/pdf@latest`）

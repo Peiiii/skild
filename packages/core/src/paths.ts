@@ -35,6 +35,10 @@ export function getSkillsDir(platform: Platform, scope: InstallScope): string {
       return scope === 'project'
         ? path.join(getProjectDir(), '.agent', 'skills')
         : path.join(getHomeDir(), '.gemini', 'antigravity', 'skills');
+    case 'opencode':
+      return scope === 'project'
+        ? path.join(getProjectDir(), '.opencode', 'skill')
+        : path.join(getHomeDir(), '.config', 'opencode', 'skill');
   }
 }
 
