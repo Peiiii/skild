@@ -1,5 +1,9 @@
 # Documentation
 
+English | [简体中文](./README.zh-CN.md)
+
+---
+
 ## Get Started
 
 | Document | Description |
@@ -15,6 +19,7 @@ Install, manage, and discover Skills for your AI agents.
 | Document | Description |
 |----------|-------------|
 | **[Installing Skills](./installing-skills.md)** | Install from GitHub, local path, or registry |
+| **[Skillsets](./skillsets.md)** | Install multiple Skills with one command |
 | **[Skild Hub Guide](./hub.md)** | Using the web interface |
 | **[FAQ](./faq.md)** | Common questions and answers |
 
@@ -38,18 +43,6 @@ Found a great Skill on GitHub? Help grow the community by submitting it.
 | Document | Description |
 |----------|-------------|
 | **[Submit from GitHub](./submit-from-github.md)** | Index a GitHub Skill into Skild |
-
----
-
-## 中文文档
-
-| 文档 | 说明 |
-|------|------|
-| **[快速上手](./getting-started.zh-CN.md)** | 2 分钟安装第一个 Skill |
-| **[安装 Skills](./installing-skills.zh-CN.md)** | 从 GitHub、本地或 Registry 安装 |
-| **[发布 Skills](./publishing.zh-CN.md)** | 发布你的 Skill |
-| **[从 GitHub 提交](./submit-from-github.zh-CN.md)** | 收录 GitHub 上的 Skill |
-| **[Skild Hub 指南](./hub.zh-CN.md)** | Web 界面使用 |
 
 ---
 

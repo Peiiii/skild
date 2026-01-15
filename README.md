@@ -137,7 +137,6 @@ Run `skild <command> --help` for full options.
 - **[Submit from GitHub](./docs/submit-from-github.md)** — Index GitHub Skills
 - **[Skild Hub Guide](./docs/hub.md)** — Web interface walkthrough
 - **[FAQ](./docs/faq.md)** — Common questions
-- **[中文文档](./docs/README.md#中文文档)**
 
 ## � Contributing
 
