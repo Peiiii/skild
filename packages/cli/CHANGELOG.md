@@ -1,5 +1,34 @@
 # skild
 
+## 0.4.0
+
+### Minor Changes
+
+- Add `skild install --recursive` (and `-y/--yes`) to detect and install multiple sub-skills from a directory/repo without a root `SKILL.md`, with structured `--json` output for discovery and results.
+
+### Patch Changes
+
+- Updated dependencies
+  - @skild/core@0.4.0
+
+## 0.3.2
+
+### Patch Changes
+
+- Ensure `skild install` sets a non-zero exit code (and prints an error message) when installation fails.
+
+## 0.3.1
+
+### Patch Changes
+
+- Ensure `skild install --json` outputs JSON only (no spinners/log lines), including `--all` installs.
+
+## 0.3.0
+
+### Minor Changes
+
+- Add `skild install --all` to install a skill across all supported platforms.
+
 ## 0.2.9
 
 ### Patch Changes

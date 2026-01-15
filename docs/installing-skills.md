@@ -26,6 +26,18 @@ Install a Skill from your local filesystem:
 skild install ./path/to/my-skill
 ```
 
+### Multi-skill directories / repos (install many skills at once)
+
+If `<source>` does not have a `SKILL.md` at its root but contains multiple Skills under subdirectories (e.g. `skills/*/SKILL.md`), `skild` can detect them.
+
+- In a TTY, `skild install <source>` will prompt you to install all discovered Skills.
+- For non-interactive usage, use `--recursive` (or `-y`) to proceed.
+
+```bash
+# Install all discovered Skills
+skild install https://github.com/owner/repo/tree/main --recursive
+```
+
 ### From Skild Registry
 
 Install officially published Skills:
@@ -54,6 +66,12 @@ Example:
 
 ```bash
 skild install anthropics/skills/skills/pdf -t codex
+```
+
+Install to all platforms:
+
+```bash
+skild install anthropics/skills/skills/pdf --all
 ```
 
 ---
@@ -129,6 +147,11 @@ skild validate skill-name
 | Option | Description |
 |--------|-------------|
 | `-t, --target <platform>` | Target platform: `claude`, `codex`, `copilot`, `antigravity` |
+| `--all` | Install to all platforms |
+| `--recursive` | If source is multi-skill, install all discovered Skills |
+| `-y, --yes` | Skip confirmation prompts (assume yes) |
+| `--depth <n>` | Max directory depth to scan for `SKILL.md` (default: 6) |
+| `--max-skills <n>` | Safety limit for discovered Skills to install (default: 200) |
 | `--local` | Install to project directory instead of global |
 | `--force` | Overwrite existing installation |
 | `--json` | Output in JSON format |

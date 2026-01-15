@@ -26,6 +26,18 @@ skild install https://github.com/anthropics/skills/tree/main/skills/pdf
 skild install ./path/to/my-skill
 ```
 
+### 多 skill 目录 / 仓库（一次安装多个）
+
+如果 `<source>` 根目录没有 `SKILL.md`，但在子目录里包含多个 Skill（例如 `skills/*/SKILL.md`），`skild` 可以自动识别。
+
+- 在交互式终端（TTY）下，`skild install <source>` 会提示你是否一键安装全部。
+- 在非交互场景下，请使用 `--recursive`（或 `-y`）继续。
+
+```bash
+# 一键安装发现的所有 Skills
+skild install https://github.com/owner/repo/tree/main --recursive
+```
+
 ### 从 Skild Registry 安装
 
 安装官方发布的 Skills：
@@ -54,6 +66,12 @@ Skild 支持多个 AI Agent 平台：
 
 ```bash
 skild install anthropics/skills/skills/pdf -t codex
+```
+
+一次性安装到所有平台：
+
+```bash
+skild install anthropics/skills/skills/pdf --all
 ```
 
 ---
@@ -129,6 +147,11 @@ skild validate skill-name
 | 选项 | 说明 |
 |------|------|
 | `-t, --target <platform>` | 目标平台：`claude`、`codex`、`copilot`、`antigravity` |
+| `--all` | 一次性安装到所有平台 |
+| `--recursive` | 如果 source 是多 skill 目录/仓库，一键安装发现的所有 Skills |
+| `-y, --yes` | 跳过确认提示（默认同意） |
+| `--depth <n>` | 扫描 `SKILL.md` 的最大目录深度（默认：6） |
+| `--max-skills <n>` | 发现技能数量的安全上限（默认：200） |
 | `--local` | 安装到项目目录而非全局 |
 | `--force` | 覆盖已有安装 |
 | `--json` | 输出 JSON 格式 |

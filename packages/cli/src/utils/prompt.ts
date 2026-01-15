@@ -67,3 +67,14 @@ export async function promptPassword(question: string): Promise<string> {
     stdin.on('keypress', onKeypress);
   });
 }
+
+export async function promptConfirm(question: string, options: { defaultValue?: boolean } = {}): Promise<boolean> {
+  const defaultValue = options.defaultValue ?? false;
+  const suffix = defaultValue ? ' (Y/n)' : ' (y/N)';
+  const answer = await promptLine(`${question}${suffix}`);
+  const v = answer.trim().toLowerCase();
+  if (!v) return defaultValue;
+  if (v === 'y' || v === 'yes') return true;
+  if (v === 'n' || v === 'no') return false;
+  return defaultValue;
+}

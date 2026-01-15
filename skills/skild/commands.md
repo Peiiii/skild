@@ -25,6 +25,11 @@ skild install <source> [options]
 | Option | Description |
 |--------|-------------|
 | `-t, --target <platform>` | Target platform: claude, codex, copilot, antigravity |
+| `--all` | Install to all platforms |
+| `--recursive` | If source is a multi-skill directory/repo (no root `SKILL.md`), install all discovered skills |
+| `-y, --yes` | Skip confirmation prompts (assume yes) |
+| `--depth <n>` | Max directory depth to scan for `SKILL.md` (default: 6) |
+| `--max-skills <n>` | Safety limit for discovered skills to install (default: 200) |
 | `-l, --local` | Install to project directory (not global) |
 | `-f, --force` | Overwrite existing installation |
 | `--registry <url>` | Override registry URL |

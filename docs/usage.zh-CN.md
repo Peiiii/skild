@@ -42,6 +42,13 @@ skild install ./path/to/your-skill
 
 # 指定平台 + 安装到当前项目（project-level）
 skild install https://github.com/anthropics/skills/tree/main/skills/pdf -t codex --local
+
+# 一次性安装到所有平台
+skild install https://github.com/anthropics/skills/tree/main/skills/pdf --all
+
+# 多 skill 目录/仓库：没有根 SKILL.md，但包含多个 SKILL.md（例如 skills/*/SKILL.md）
+# 用 --recursive 一键安装全部；用 -y 跳过确认（非交互场景推荐）
+skild install https://github.com/owner/repo/tree/main --recursive
 ```
 
 ### list / info / validate

@@ -1,6 +1,5 @@
 import path from 'path';
 import fs from 'fs';
-import degit from 'degit';
 import type {
   InstallOptions,
   InstallRecord,
@@ -15,7 +14,7 @@ import type {
   SourceType
 } from './types.js';
 import { classifySource, extractSkillName, resolveLocalPath, toDegitPath } from './source.js';
-import { createTempDir, copyDir, hashDirectoryContent, isDirEmpty, isDirectory, removeDir, replaceDirAtomic } from './fs.js';
+import { createTempDir, hashDirectoryContent, isDirEmpty, isDirectory, removeDir, replaceDirAtomic } from './fs.js';
 import { ensureDir, getSkillInstallDir, getSkillsDir } from './paths.js';
 import { SkildError } from './errors.js';
 import { readInstallRecord, writeInstallRecord, upsertLockEntry, loadOrCreateGlobalConfig, removeLockEntry, loadRegistryAuth } from './storage.js';
@@ -29,10 +28,17 @@ import {
   canonicalNameToInstallDirName,
   type RegistryResolvedVersion
 } from './registry.js';
+import { materializeSourceToDir } from './materialize.js';
 
 export interface InstallInput {
   source: string;
   nameOverride?: string;
+  /**
+   * Optional local directory containing the already-fetched source content.
+   * When provided, Skild will copy from this directory but still record `source`
+   * and `sourceType` based on the original `source` string (useful for multi-skill installs).
+   */
+  materializedDir?: string;
 }
 
 type InlineDependency = {
@@ -189,17 +195,6 @@ function dedupeInstalledDependencies(entries: InstalledDependency[]): InstalledD
   return out;
 }
 
-async function cloneRemote(degitSrc: string, targetPath: string): Promise<void> {
-  const emitter = degit(degitSrc, { force: true, verbose: false });
-  await emitter.clone(targetPath);
-}
-
-function ensureInstallableLocalDir(sourcePath: string): void {
-  if (!isDirectory(sourcePath)) {
-    throw new SkildError('NOT_A_DIRECTORY', `Source path is not a directory: ${sourcePath}`, { sourcePath });
-  }
-}
-
 function assertNonEmptyInstall(stagingDir: string, source: string): void {
   if (isDirEmpty(stagingDir)) {
     throw new SkildError(
@@ -240,14 +235,7 @@ async function installSkillBase(input: InstallInput, options: InstallOptions = {
   const stagingDir = path.join(tempRoot, 'staging');
 
   try {
-    const localPath = resolveLocalPath(source);
-    if (localPath) {
-      ensureInstallableLocalDir(localPath);
-      copyDir(localPath, stagingDir);
-    } else {
-      const degitPath = toDegitPath(source);
-      await cloneRemote(degitPath, stagingDir);
-    }
+    await materializeSourceToDir({ source, targetDir: stagingDir, materializedDir: input.materializedDir });
 
     assertNonEmptyInstall(stagingDir, source);
     replaceDirAtomic(stagingDir, installDir);

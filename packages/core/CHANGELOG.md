@@ -1,5 +1,11 @@
 # @skild/core
 
+## 0.4.0
+
+### Patch Changes
+
+- Add `skild install --recursive` (and `-y/--yes`) to detect and install multiple sub-skills from a directory/repo without a root `SKILL.md`, with structured `--json` output for discovery and results.
+
 ## 0.2.9
 
 ### Patch Changes
