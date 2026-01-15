@@ -16,13 +16,35 @@ I built **Skild**, an open-source CLI + registry that makes agent skills easy to
 
 **Examples**
 ```bash
+# GitHub URL or shorthand
 skild install https://github.com/anthropics/skills/tree/main/skills/pdf
 skild install anthropics/skills/skills/pdf
+
+# Install to one target or all supported targets
+skild install anthropics/skills/skills/pdf -t codex
 skild install anthropics/skills/skills/pdf --all
+
+# Alias install (if published)
 skild install superpowers
 
-# Publish a skill
-skild publish
+# Multi-skill repo discovery
+skild install https://github.com/anthropics/skills --recursive
+
+# Search, list, validate
+skild search pdf
+skild list
+skild validate ./path/to/skill
+
+# Update or uninstall
+skild update pdf
+skild uninstall pdf
+
+# Create & publish a skill
+skild init my-skill
+cd my-skill
+skild login
+skild publish --name my-skill 
+skild install @yourhandle/my-skill
 ```
 
 Links:

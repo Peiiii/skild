@@ -16,13 +16,35 @@ Hi HN，
 
 **示例**
 ```bash
+# GitHub URL 或简写
 skild install https://github.com/anthropics/skills/tree/main/skills/pdf
 skild install anthropics/skills/skills/pdf
+
+# 安装到单一平台或全部支持平台
+skild install anthropics/skills/skills/pdf -t codex
 skild install anthropics/skills/skills/pdf --all
+
+# Alias 安装（需要已发布）
 skild install superpowers
 
-# 发布技能
-skild publish
+# 多技能仓库自动发现
+skild install https://github.com/anthropics/skills --recursive
+
+# 搜索、列表、验证
+skild search pdf
+skild list
+skild validate ./path/to/skill
+
+# 更新或卸载
+skild update pdf
+skild uninstall pdf
+
+# 创建并发布技能
+skild init my-skill
+cd my-skill
+skild login
+skild publish --name my-skill 
+skild install @yourhandle/my-skill
 ```
 
 链接：
