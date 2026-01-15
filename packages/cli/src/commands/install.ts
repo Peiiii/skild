@@ -3,7 +3,7 @@ import path from 'node:path';
 import chalk from 'chalk';
 import { deriveChildSource, fetchWithTimeout, installRegistrySkill, installSkill, isValidAlias, loadRegistryAuth, materializeSourceToTemp, resolveRegistryAlias, resolveRegistryUrl, SkildError, type InstallRecord, type Platform, PLATFORMS } from '@skild/core';
 import { createSpinner, logger } from '../utils/logger.js';
-import { promptConfirm, promptLine } from '../utils/prompt.js';
+import { promptSkillsInteractive, promptPlatformsInteractive, type SkillChoice } from '../utils/interactive-select.js';
 import { discoverSkillDirsWithHeuristics, parsePositiveInt, type DiscoveredSkillDir } from './install-discovery.js';
 
 export interface InstallCommandOptions {
@@ -120,171 +120,8 @@ function renderSkillTree(root: TreeNode, selected: Set<number>): Array<{ node: T
   return items;
 }
 
-function parseSelectionInput(input: string, maxIndex: number): { command?: 'all' | 'none' | 'invert' | 'done' | 'cancel'; indices?: number[] } | null {
-  const trimmed = input.trim().toLowerCase();
-  if (!trimmed) return { command: 'done' };
-  if (['q', 'quit', 'exit', 'cancel'].includes(trimmed)) return { command: 'cancel' };
-  if (['a', 'all'].includes(trimmed)) return { command: 'all' };
-  if (['n', 'none'].includes(trimmed)) return { command: 'none' };
-  if (['i', 'invert'].includes(trimmed)) return { command: 'invert' };
-
-  const tokens = trimmed.split(/[,\s]+/).filter(Boolean);
-  const indices: number[] = [];
-  for (const token of tokens) {
-    if (/^\d+$/.test(token)) {
-      const value = Number(token);
-      if (value < 1 || value > maxIndex) return null;
-      indices.push(value);
-      continue;
-    }
-    if (/^\d+-\d+$/.test(token)) {
-      const [startRaw, endRaw] = token.split('-');
-      const start = Number(startRaw);
-      const end = Number(endRaw);
-      if (!Number.isFinite(start) || !Number.isFinite(end) || start < 1 || end < 1 || start > maxIndex || end > maxIndex) {
-        return null;
-      }
-      const from = Math.min(start, end);
-      const to = Math.max(start, end);
-      for (let i = from; i <= to; i += 1) indices.push(i);
-      continue;
-    }
-    return null;
-  }
-  return { indices };
-}
-
-async function promptSkillSelection(
-  found: DiscoveredSkillInstall[],
-  options: { defaultAll: boolean }
-): Promise<DiscoveredSkillInstall[] | null> {
-  const root = buildSkillTree(found);
-  const selected = new Set<number>();
-  if (options.defaultAll) {
-    for (let i = 0; i < found.length; i += 1) selected.add(i);
-  }
-
-  while (true) {
-    console.log(chalk.cyan('\nSelect skills to install'));
-    console.log(chalk.dim('Toggle by number. Commands: a=all, n=none, i=invert, enter=continue, q=cancel.'));
-
-    const display = renderSkillTree(root, selected);
-    for (let i = 0; i < display.length; i += 1) {
-      const item = display[i]!;
-      const state = getNodeState(item.node, selected);
-      const box = state === 'all' ? '[x]' : state === 'partial' ? '[-]' : '[ ]';
-      const indent = '  '.repeat(item.depth);
-      const idx = String(i + 1).padStart(2, ' ');
-      console.log(`${idx} ${box} ${indent}${item.node.name}`);
-    }
-
-    const answer = await promptLine('Selection');
-    const parsed = parseSelectionInput(answer, display.length);
-    if (!parsed) {
-      console.log(chalk.yellow('Invalid selection. Use numbers like "1,3-5" or a/n/i.'));
-      continue;
-    }
-    if (parsed.command === 'done') break;
-    if (parsed.command === 'cancel') return null;
-    if (parsed.command === 'all') {
-      selected.clear();
-      for (let i = 0; i < found.length; i += 1) selected.add(i);
-      continue;
-    }
-    if (parsed.command === 'none') {
-      selected.clear();
-      continue;
-    }
-    if (parsed.command === 'invert') {
-      const next = new Set<number>();
-      for (let i = 0; i < found.length; i += 1) {
-        if (!selected.has(i)) next.add(i);
-      }
-      selected.clear();
-      for (const idx of next) selected.add(idx);
-      continue;
-    }
-    if (parsed.indices) {
-      for (const index of parsed.indices) {
-        const item = display[index - 1];
-        if (!item) continue;
-        const state = getNodeState(item.node, selected);
-        if (state === 'all') {
-          for (const leaf of item.node.leafIndices) selected.delete(leaf);
-        } else {
-          for (const leaf of item.node.leafIndices) selected.add(leaf);
-        }
-      }
-    }
-  }
-
-  if (selected.size === 0) return null;
-  const selectedFound: DiscoveredSkillInstall[] = [];
-  for (let i = 0; i < found.length; i += 1) {
-    if (selected.has(i)) selectedFound.push(found[i]!);
-  }
-  return selectedFound;
-}
-
-async function promptPlatformSelection(defaultAll: boolean): Promise<Platform[] | null> {
-  const selected = new Set<number>();
-  if (defaultAll) {
-    for (let i = 0; i < PLATFORMS.length; i += 1) selected.add(i);
-  }
-
-  while (true) {
-    console.log(chalk.cyan('\nSelect platforms to install to'));
-    console.log(chalk.dim('Toggle by number. Commands: a=all, n=none, i=invert, enter=continue, q=cancel.'));
-    for (let i = 0; i < PLATFORMS.length; i += 1) {
-      const label = PLATFORMS[i]!;
-      const box = selected.has(i) ? '[x]' : '[ ]';
-      const idx = String(i + 1).padStart(2, ' ');
-      console.log(`${idx} ${box} ${label}`);
-    }
-
-    const answer = await promptLine('Selection');
-    const parsed = parseSelectionInput(answer, PLATFORMS.length);
-    if (!parsed) {
-      console.log(chalk.yellow('Invalid selection. Use numbers like "1,3-5" or a/n/i.'));
-      continue;
-    }
-    if (parsed.command === 'done') break;
-    if (parsed.command === 'cancel') return null;
-    if (parsed.command === 'all') {
-      selected.clear();
-      for (let i = 0; i < PLATFORMS.length; i += 1) selected.add(i);
-      continue;
-    }
-    if (parsed.command === 'none') {
-      selected.clear();
-      continue;
-    }
-    if (parsed.command === 'invert') {
-      const next = new Set<number>();
-      for (let i = 0; i < PLATFORMS.length; i += 1) {
-        if (!selected.has(i)) next.add(i);
-      }
-      selected.clear();
-      for (const idx of next) selected.add(idx);
-      continue;
-    }
-    if (parsed.indices) {
-      for (const index of parsed.indices) {
-        const idx = index - 1;
-        if (idx < 0 || idx >= PLATFORMS.length) continue;
-        if (selected.has(idx)) selected.delete(idx);
-        else selected.add(idx);
-      }
-    }
-  }
-
-  if (selected.size === 0) return null;
-  const chosen: Platform[] = [];
-  for (let i = 0; i < PLATFORMS.length; i += 1) {
-    if (selected.has(i)) chosen.push(PLATFORMS[i]!);
-  }
-  return chosen;
-}
+// Old parseSelectionInput, promptSkillSelection, promptPlatformSelection removed.
+// Now using modern interactive-select.ts with @inquirer/prompts.
 
 function printSelectedSkills(found: DiscoveredSkillInstall[]): void {
   const names = found.map(skill => skill.relPath);
@@ -318,7 +155,11 @@ export async function install(source: string, options: InstallCommandOptions = {
     return;
   }
 
+  // Platform selection is now deferred until after skill selection for better UX.
+  // Determine initial targets from CLI flags only; interactive selection happens later.
   let targets: Platform[] = [];
+  let deferPlatformSelection = false;
+
   if (requestedAll) {
     targets = [...PLATFORMS];
   } else if (requestedTarget) {
@@ -326,13 +167,9 @@ export async function install(source: string, options: InstallCommandOptions = {
   } else if (yes) {
     targets = [...PLATFORMS];
   } else if (interactive) {
-    const selectedTargets = await promptPlatformSelection(true);
-    if (!selectedTargets) {
-      console.error(chalk.red('No platforms selected.'));
-      process.exitCode = 1;
-      return;
-    }
-    targets = selectedTargets;
+    // Will prompt for platforms after skill selection
+    deferPlatformSelection = true;
+    targets = [...PLATFORMS]; // Temporary default, will be replaced after prompt
   } else {
     targets = ['claude'];
   }
@@ -367,13 +204,13 @@ export async function install(source: string, options: InstallCommandOptions = {
         const record =
           inputSource.startsWith('@') && inputSource.includes('/')
             ? await installRegistrySkill(
-                { spec: inputSource, registryUrl: registryUrlForDeps },
-                { platform: targetPlatform, scope, force: Boolean(options.force) }
-              )
+              { spec: inputSource, registryUrl: registryUrlForDeps },
+              { platform: targetPlatform, scope, force: Boolean(options.force) }
+            )
             : await installSkill(
-                { source: inputSource, materializedDir },
-                { platform: targetPlatform, scope, force: Boolean(options.force), registryUrl: registryUrlForDeps }
-              );
+              { source: inputSource, materializedDir },
+              { platform: targetPlatform, scope, force: Boolean(options.force), registryUrl: registryUrlForDeps }
+            );
 
         results.push(record);
         void reportDownload(record, registryUrlForDeps);
@@ -429,13 +266,26 @@ export async function install(source: string, options: InstallCommandOptions = {
       }
 
       if (!yes) {
-        const selected = await promptSkillSelection(found, { defaultAll: true });
+        // Step 1: Select skills (using new modern UI)
+        const selected = await promptSkillsInteractive(found, { defaultAll: true });
         if (!selected) {
           console.log(chalk.red('No skills selected.'));
           process.exitCode = 1;
           return null;
         }
-        printSelectedSkills(selected);
+
+        // Step 2: Select platforms (after skills, for better UX)
+        if (deferPlatformSelection) {
+          const selectedPlatforms = await promptPlatformsInteractive({ defaultAll: true });
+          if (!selectedPlatforms) {
+            console.log(chalk.red('No platforms selected.'));
+            process.exitCode = 1;
+            return null;
+          }
+          targets = selectedPlatforms;
+          deferPlatformSelection = false;
+        }
+
         effectiveRecursive = true;
         if (spinner) spinner.start();
         recursiveSkillCount = selected.length;
@@ -452,18 +302,35 @@ export async function install(source: string, options: InstallCommandOptions = {
     const spinner = jsonOnly
       ? null
       : createSpinner(
-          allPlatformsSelected
-            ? `Installing ${chalk.cyan(source)} to ${chalk.dim('all platforms')} (${scope})...`
-            : targets.length > 1
-                ? `Installing ${chalk.cyan(source)} to ${chalk.dim(`${targets.length} platforms`)} (${scope})...`
-                : `Installing ${chalk.cyan(source)} to ${chalk.dim(targets[0])} (${scope})...`
-        );
+        allPlatformsSelected
+          ? `Installing ${chalk.cyan(source)} to ${chalk.dim('all platforms')} (${scope})...`
+          : targets.length > 1
+            ? `Installing ${chalk.cyan(source)} to ${chalk.dim(`${targets.length} platforms`)} (${scope})...`
+            : `Installing ${chalk.cyan(source)} to ${chalk.dim(targets[0])} (${scope})...`
+      );
 
     let cleanupMaterialized: null | (() => void) = null;
     let materializedRoot: string | null = null;
 
     try {
+      // Helper to prompt for platforms if deferred
+      async function ensurePlatformSelection(): Promise<boolean> {
+        if (!deferPlatformSelection) return true;
+
+        const selectedPlatforms = await promptPlatformsInteractive({ defaultAll: true });
+        if (!selectedPlatforms) {
+          console.log(chalk.red('No platforms selected.'));
+          process.exitCode = 1;
+          return false;
+        }
+        targets = selectedPlatforms;
+        deferPlatformSelection = false;
+        return true;
+      }
+
       if (resolvedSource.startsWith('@') && resolvedSource.includes('/')) {
+        // Single registry skill: prompt for platforms first
+        if (!(await ensurePlatformSelection())) return;
         await installOne(resolvedSource);
       } else {
         const maybeLocalRoot = path.resolve(resolvedSource);
@@ -472,6 +339,8 @@ export async function install(source: string, options: InstallCommandOptions = {
         if (isLocal) {
           const hasSkillMd = fs.existsSync(path.join(maybeLocalRoot, 'SKILL.md'));
           if (hasSkillMd) {
+            // Single local skill: prompt for platforms first
+            if (!(await ensurePlatformSelection())) return;
             await installOne(resolvedSource);
           } else {
             const discovered = discoverSkillDirsWithHeuristics(maybeLocalRoot, { maxDepth, maxSkills });
@@ -566,8 +435,8 @@ export async function install(source: string, options: InstallCommandOptions = {
         effectiveRecursive
           ? `Installed ${chalk.green(String(recursiveSkillCount ?? results.length))}${chalk.dim(' skills')} to ${chalk.dim(`${targets.length} platforms`)}`
           : targets.length > 1
-              ? `Installed ${chalk.green(displayName)} to ${chalk.dim(`${results.length} platforms`)}`
-              : `Installed ${chalk.green(displayName)} to ${chalk.dim(results[0]?.installDir || '')}`
+            ? `Installed ${chalk.green(displayName)} to ${chalk.dim(`${results.length} platforms`)}`
+            : `Installed ${chalk.green(displayName)} to ${chalk.dim(results[0]?.installDir || '')}`
       );
     } else {
       const attempted = results.length + errors.length;

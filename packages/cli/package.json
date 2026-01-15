@@ -41,6 +41,7 @@
     },
     "homepage": "https://skild.sh",
     "dependencies": {
+        "@inquirer/prompts": "^8.2.0",
         "@skild/core": "workspace:^",
         "chalk": "^5.3.0",
         "commander": "^12.1.0",
