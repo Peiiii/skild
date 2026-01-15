@@ -158,7 +158,7 @@ export function LinkedItemsPage(): JSX.Element {
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                   <div className="min-w-0 flex-1 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Link to={`/linked/${item.id}`} className="text-lg font-bold hover:text-primary transition-colors">
+                      <Link to={`/linked/${encodeURIComponent(item.id)}`} className="text-lg font-bold hover:text-primary transition-colors">
                         {title}
                       </Link>
                       <Badge variant="emerald">Linked</Badge>

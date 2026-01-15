@@ -241,7 +241,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
           const id = `${item.type}:${item.sourceId}`;
           const isLinked = item.type === 'linked';
           const route = !isLinked ? canonicalToRoute(item.sourceId) : null;
-          const href = isLinked ? `/linked/${item.sourceId}` : route ? `/skills/${route.scope}/${encodeURIComponent(route.skill)}` : undefined;
+          const href = isLinked ? `/linked/${encodeURIComponent(item.sourceId)}` : route ? `/skills/${route.scope}/${encodeURIComponent(route.skill)}` : undefined;
           const alias = normalizeAlias(item.alias);
           const displayTitle = preferredDisplayName({ title: item.title, alias });
           const installCmd = preferredInstallCommand({ install: item.install, alias });

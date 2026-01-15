@@ -158,7 +158,7 @@ export function LeaderboardPage(): JSX.Element {
                             {items.map((item, idx) => {
                                 const id = `${item.type}:${item.sourceId}`;
                                 const isLinked = item.type === 'linked';
-                                const href = isLinked ? `/linked/${item.sourceId}` : `/skills/${item.sourceId.replace('/', '%2F')}`; // Simplified, router handles it
+                                const href = isLinked ? `/linked/${encodeURIComponent(item.sourceId)}` : `/skills/${item.sourceId.replace('/', '%2F')}`; // Simplified, router handles it
 
                                 return (
                                     <tr key={id} className="group border-b border-border/20 last:border-0 hover:bg-secondary/20 transition-colors">
@@ -175,7 +175,7 @@ export function LeaderboardPage(): JSX.Element {
                                                     )}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <Link to={isLinked ? `/linked/${item.sourceId}` : `/skills/${item.sourceId.split('/')[0]}/${item.sourceId.split('/')[1]}`} className="font-bold hover:text-indigo-400 transition-colors block truncate">
+                                                    <Link to={isLinked ? `/linked/${encodeURIComponent(item.sourceId)}` : `/skills/${item.sourceId.split('/')[0]}/${item.sourceId.split('/')[1]}`} className="font-bold hover:text-indigo-400 transition-colors block truncate">
                                                         {item.title}
                                                     </Link>
                                                     <div className="flex items-center gap-2 mt-0.5">
