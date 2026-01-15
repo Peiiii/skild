@@ -2,12 +2,12 @@
 
 ---
 
-<div class="max-w-2xl mx-auto mb-20 animate-float">
+<div class="max-w-2xl mx-auto mb-12 animate-float">
     <div
         class="glass rounded-2xl overflow-hidden shadow-2xl shadow-indigo-500/20 border-white/10 group text-left font-mono"
     >
         <div
-            class="flex items-center gap-1.5 px-5 h-12 border-b border-white/5 bg-white/5"
+            class="flex items-center gap-1.5 px-5 h-11 border-b border-white/5 bg-white/5"
         >
             <div class="flex gap-1.5">
                 <div
@@ -26,56 +26,66 @@
             <div
                 class="flex-1 text-[11px] text-center text-white/30 font-mono tracking-widest uppercase"
             >
-                skild — zsh
+                Terminal
             </div>
         </div>
-        <div
-            class="p-8 text-sm md:text-base leading-relaxed h-[220px] overflow-hidden"
-        >
-            <div class="flex gap-3">
+        <div class="p-6 text-sm leading-relaxed h-[240px] overflow-hidden">
+            <!-- Step 1: Install CLI -->
+            <div class="flex gap-3 terminal-step-1">
                 <span class="text-indigo-400 font-bold">➜</span>
                 <span class="text-purple-400">~</span>
-                <span class="terminal-typewriter text-white/90"
-                    >skild install anthropics/skills/skills/pdf</span
+                <span class="terminal-type-1 text-white/90"
+                    >npm install -g skild</span
                 >
             </div>
             <div
-                class="mt-4 flex items-center gap-3 text-white/40 animate-pulse terminal-loading"
+                class="mt-2 text-emerald-400 text-xs opacity-0 terminal-done-1"
+            >
+                ✔ skild installed globally
+            </div>
+
+            <!-- Step 2: Install Skillset -->
+            <div class="mt-4 flex gap-3 opacity-0 terminal-step-2">
+                <span class="text-indigo-400 font-bold">➜</span>
+                <span class="text-purple-400">~</span>
+                <span class="terminal-type-2 text-white/90"
+                    >skild install superpowers</span
+                >
+            </div>
+            <div
+                class="mt-2 flex items-center gap-3 text-white/40 animate-pulse opacity-0 terminal-loading"
             >
                 <span
                     class="inline-block w-4 h-4 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"
                 ></span>
-                <span>Cloning from GitHub...</span>
+                <span>Installing skillset...</span>
             </div>
-            <div class="mt-2 text-indigo-300 hidden terminal-success-message">
-                <div class="flex gap-2">
-                    <span class="text-emerald-400">✔</span>
+
+            <!-- Success output -->
+            <div class="mt-2 opacity-0 terminal-success">
+                <div class="flex gap-2 text-emerald-400">
+                    <span>✔</span>
                     <span
-                        >Installed <span class="text-white font-bold">pdf</span> to
-                        <span class="text-white/60">~/.claude/skills/pdf</span
+                        >Installed <span class="text-white font-bold"
+                            >14 skills</span
+                        > to <span class="text-white/60">~/.claude/skills</span
                         ></span
                     >
                 </div>
-                <div class="mt-2 text-xs text-white/30 space-y-1 ml-6">
-                    <p>└─ SKILL.md found ✓</p>
-                    <p>
-                        └─ Validation: <span class="text-emerald-400">ok</span>
+                <div class="mt-2 ml-6 text-xs text-white/30 space-y-0.5">
+                    <p class="flex items-center gap-2">
+                        <span class="text-emerald-400/60">✓</span>
+                        <span>systematic-debugging</span>
                     </p>
-                </div>
-                <div class="mt-4 flex gap-3 text-white/50">
-                    <span class="text-indigo-400 font-bold">➜</span>
-                    <span class="text-purple-400">~</span>
-                    <span class="text-white/40">skild list</span>
-                </div>
-                <div class="mt-1 text-xs text-white/30 ml-6">
-                    <p>📦 Installed Skills (1) — claude (global):</p>
-                    <p class="mt-1 font-bold">
-                        <span class="text-emerald-400 font-normal">✓</span>
-                        <span class="text-indigo-300">pdf</span>
+                    <p class="flex items-center gap-2">
+                        <span class="text-emerald-400/60">✓</span>
+                        <span>test-driven-development</span>
                     </p>
-                    <p class="text-[10px] opacity-50">
-                        └─ ~/.claude/skills/pdf
+                    <p class="flex items-center gap-2">
+                        <span class="text-emerald-400/60">✓</span>
+                        <span>code-review</span>
                     </p>
+                    <p class="text-white/20">... +11 more</p>
                 </div>
             </div>
         </div>
@@ -83,26 +93,57 @@
 </div>
 
 <script>
-    // Terminal animation logic
-    setTimeout(() => {
-        const successMessage = document.querySelector(
-            ".terminal-success-message",
-        );
-        const pulseLine = document.querySelector(".terminal-loading");
+    // Timeline:
+    // 0s - start typing npm install
+    // 1.5s - npm install done, show success
+    // 2s - show step 2, start typing skild install
+    // 3.5s - show loading
+    // 4.5s - show success output
 
-        if (successMessage && pulseLine) {
-            pulseLine.classList.add("hidden");
-            successMessage.classList.remove("hidden");
-            successMessage.classList.add("animate-fade-in");
-        }
+    // Step 1 done
+    setTimeout(() => {
+        document
+            .querySelector(".terminal-done-1")
+            ?.classList.remove("opacity-0");
+        document
+            .querySelector(".terminal-done-1")
+            ?.classList.add("animate-fade-in");
+    }, 1500);
+
+    // Step 2 appears
+    setTimeout(() => {
+        document
+            .querySelector(".terminal-step-2")
+            ?.classList.remove("opacity-0");
+        document
+            .querySelector(".terminal-step-2")
+            ?.classList.add("animate-fade-in");
+    }, 2000);
+
+    // Loading appears
+    setTimeout(() => {
+        document
+            .querySelector(".terminal-loading")
+            ?.classList.remove("opacity-0");
     }, 3500);
+
+    // Success appears
+    setTimeout(() => {
+        document.querySelector(".terminal-loading")?.classList.add("hidden");
+        document
+            .querySelector(".terminal-success")
+            ?.classList.remove("opacity-0");
+        document
+            .querySelector(".terminal-success")
+            ?.classList.add("animate-fade-in");
+    }, 4500);
 </script>
 
 <style>
     @keyframes fade-in {
         from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(6px);
         }
         to {
             opacity: 1;
@@ -110,21 +151,26 @@
         }
     }
     .animate-fade-in {
-        animation: fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: fade-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    .terminal-typewriter {
+    .terminal-type-1 {
         display: inline-block;
         width: 0;
         overflow: hidden;
         white-space: nowrap;
-        border-right: 2px solid rgba(255, 255, 255, 0.6);
-        animation:
-            typing 2.5s steps(40, end) forwards,
-            blink 0.8s infinite;
+        animation: typing-1 1.2s steps(22, end) forwards;
     }
 
-    @keyframes typing {
+    .terminal-type-2 {
+        display: inline-block;
+        width: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        animation: typing-2 1.2s steps(24, end) 2s forwards;
+    }
+
+    @keyframes typing-1 {
         from {
             width: 0;
         }
@@ -133,13 +179,12 @@
         }
     }
 
-    @keyframes blink {
-        from,
-        to {
-            border-color: transparent;
+    @keyframes typing-2 {
+        from {
+            width: 0;
         }
-        50% {
-            border-color: rgba(255, 255, 255, 0.6);
+        to {
+            width: 100%;
         }
     }
 </style>

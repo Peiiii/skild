@@ -2,76 +2,30 @@
 
 ---
 
-<section class="max-w-6xl mx-auto px-6 text-center reveal">
-    <div
-        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-6"
-    >
-        <span class="relative flex h-2 w-2">
-            <span
-                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
-            ></span>
-            <span
-                class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"
-            ></span>
-        </span>
-        <span
-            class="text-xs font-bold tracking-wider uppercase text-emerald-300"
-            >🚀 Now Live</span
-        >
-    </div>
-
+<section class="max-w-5xl mx-auto px-6 text-center reveal">
+    <!-- Hero Content -->
     <h1
-        class="text-5xl md:text-7xl font-black tracking-tight mb-6 leading-[1.1]"
+        class="text-5xl md:text-7xl font-black tracking-tight mb-6 leading-[1.05]"
     >
-        The <span class="text-gradient">npm</span> for<br />
-        AI Agent Skills
+        The <span class="text-gradient">npm</span> for<br class="md:hidden" />
+        AI Agent Skills.
     </h1>
 
     <p
-        class="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-8 leading-relaxed"
+        class="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed"
     >
-        One command. Any platform. Install skills, skillsets, or entire
-        toolkits.
+        One command to install, manage, and publish skills for<br
+            class="hidden md:inline"
+        />
+        Claude, Codex, Copilot & Antigravity.
     </p>
 
-    <!-- 3 Key Value Props - Above the Fold -->
-    <div class="grid md:grid-cols-3 gap-4 mb-10 max-w-4xl mx-auto text-left">
-        <div class="glass rounded-xl p-4 border border-white/10">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="text-xl">🌐</span>
-                <span class="font-bold text-sm">Multi-platform</span>
-            </div>
-            <p class="text-xs text-white/40">
-                Claude, Codex, Copilot, Antigravity — one tool for all
-            </p>
-        </div>
-        <div
-            class="glass rounded-xl p-4 border border-purple-500/20 bg-purple-500/5"
-        >
-            <div class="flex items-center gap-2 mb-2">
-                <span class="text-xl">🎁</span>
-                <span class="font-bold text-sm text-purple-300">Skillsets</span>
-            </div>
-            <p class="text-xs text-white/40">
-                One pack = many skills. Install complete toolkits
-            </p>
-        </div>
-        <div class="glass rounded-xl p-4 border border-white/10">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="text-xl">📦</span>
-                <span class="font-bold text-sm">npm-like</span>
-            </div>
-            <p class="text-xs text-white/40">
-                install · publish · search — you know the drill
-            </p>
-        </div>
-    </div>
-
+    <!-- Terminal Demo -->
     <slot name="terminal" />
 
     <!-- CTA Buttons -->
     <div
-        class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10"
+        class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8"
     >
         <a
             href="https://hub.skild.sh"
@@ -98,25 +52,36 @@
         </a>
     </div>
 
-    <!-- Platforms + Social Proof in one line -->
+    <!-- Platform Support + Social Proof (one line) -->
     <div
-        class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-white/30 text-xs"
+        class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-white/40 text-sm mb-16"
     >
-        <div class="flex items-center gap-2">
-            <span>Supports:</span>
-            <span class="text-white/60">Claude</span>
-            <span class="opacity-30">•</span>
-            <span class="text-white/60">Codex</span>
-            <span class="opacity-30">•</span>
-            <span class="text-white/60">Copilot</span>
-            <span class="opacity-30">•</span>
-            <span class="text-white/60">Antigravity</span>
+        <div class="flex items-center gap-3">
+            <span class="text-white/30">Supports:</span>
+            <div class="flex items-center gap-2">
+                <span
+                    class="px-2 py-0.5 rounded bg-white/5 text-white/70 text-xs font-medium"
+                    >Claude</span
+                >
+                <span
+                    class="px-2 py-0.5 rounded bg-white/5 text-white/70 text-xs font-medium"
+                    >Codex</span
+                >
+                <span
+                    class="px-2 py-0.5 rounded bg-white/5 text-white/70 text-xs font-medium"
+                    >Copilot</span
+                >
+                <span
+                    class="px-2 py-0.5 rounded bg-white/5 text-white/70 text-xs font-medium"
+                    >Antigravity</span
+                >
+            </div>
         </div>
         <span class="opacity-30 hidden sm:inline">|</span>
         <a
             href="https://github.com/Peiiii/skild"
             target="_blank"
-            class="flex items-center gap-1 hover:text-white/60 transition-colors"
+            class="flex items-center gap-1.5 hover:text-white/60 transition-colors"
         >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                 <path

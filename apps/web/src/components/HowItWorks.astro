@@ -4,179 +4,68 @@
 
 <section
     id="how-it-works"
-    class="max-w-7xl mx-auto px-6 py-40 border-t border-white/5"
+    class="max-w-4xl mx-auto px-6 py-24 border-t border-white/5"
 >
-    <div class="text-center mb-20 reveal">
-        <h2 class="text-4xl md:text-5xl font-black tracking-tighter mb-6">
-            Equip your agents in seconds.
+    <div class="text-center mb-12 reveal">
+        <h2 class="text-3xl md:text-4xl font-black tracking-tight mb-4">
+            Get skilled in <span class="text-gradient">30 seconds</span>
         </h2>
-        <p class="text-xl text-white/50 max-w-2xl mx-auto">
-            Stop manually managing skill folders. Skild handles the distribution
-            and installation so you can focus on building.
-        </p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-10">
-        <!-- Step 1 -->
+    <div class="reveal">
         <div
-            class="glass p-10 rounded-3xl border-white/5 flex flex-col items-center text-center reveal"
+            class="glass rounded-2xl p-6 md:p-8 border border-white/10 font-mono text-sm md:text-base space-y-4"
         >
-            <div
-                class="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black text-xl mb-8"
-            >
-                1
-            </div>
-            <h3 class="text-2xl font-bold mb-4">Install CLI</h3>
-            <p class="text-white/40 mb-8">
-                Get the package manager on your system.
-            </p>
-            <code
-                class="px-4 py-3 bg-black/40 rounded-xl border border-white/5 text-indigo-300 font-mono text-sm w-full"
-                >npm install -g skild</code
-            >
-        </div>
-
-        <!-- Step 2 -->
-        <div
-            class="glass p-10 rounded-3xl border-white/5 flex flex-col items-center text-center reveal [transition-delay:100ms]"
-        >
-            <div
-                class="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black text-xl mb-8"
-            >
-                2
-            </div>
-            <h3 class="text-2xl font-bold mb-4">Get a Skill</h3>
-            <p class="text-white/40 mb-8">
-                Pick a target agent and install any skill from GitHub or local.
-            </p>
-
-            <div class="w-full space-y-3">
-                <div
-                    class="flex p-1 bg-black/20 rounded-xl border border-white/5"
+            <!-- Step 1 -->
+            <div class="flex items-start gap-4">
+                <span
+                    class="text-indigo-400/50 text-xs font-bold shrink-0 mt-0.5"
+                    >①</span
                 >
-                    <button
-                        class="flex-1 py-2 text-xs font-bold rounded-lg transition-all bg-white text-black tab-btn"
-                        data-target="claude">Claude</button
-                    >
-                    <button
-                        class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-white/40 hover:text-white tab-btn"
-                        data-target="codex">Codex</button
-                    >
-                    <button
-                        class="flex-1 py-2 text-xs font-bold rounded-lg transition-all text-white/40 hover:text-white tab-btn"
-                        data-target="local">Local</button
-                    >
-                </div>
-                <!-- Claude Code -->
-                <div id="code-claude" class="code-snippet group relative">
-                    <div
-                        class="absolute -top-3 left-3 px-2 py-0.5 bg-indigo-500/10 text-[10px] text-indigo-300 border border-indigo-500/20 rounded uppercase font-black"
-                    >
-                        Default (Global)
-                    </div>
-                    <code
-                        class="block px-4 py-3 bg-black/40 rounded-xl border border-white/5 text-indigo-300 font-mono text-xs text-left leading-relaxed"
-                    >
-                        skild install <br />
-                        anthropics/skills/skills/pdf
-                    </code>
-                </div>
-                <!-- Codex (Local) -->
-                <div id="code-codex" class="code-snippet hidden group relative">
-                    <div
-                        class="absolute -top-3 left-3 px-2 py-0.5 bg-emerald-500/10 text-[10px] text-emerald-300 border border-emerald-500/20 rounded uppercase font-black"
-                    >
-                        Project-level
-                    </div>
-                    <code
-                        class="block px-4 py-3 bg-black/40 rounded-xl border border-white/5 text-indigo-300 font-mono text-xs text-left leading-relaxed"
-                    >
-                        skild install <br />
-                        anthropics/skills/skills/pdf <br />
-                        <span class="text-emerald-400">-t codex --local</span>
-                    </code>
-                </div>
-                <!-- Local Path -->
-                <div id="code-local" class="code-snippet hidden group relative">
-                    <code
-                        class="block px-4 py-3 bg-black/40 rounded-xl border border-white/5 text-indigo-300 font-mono text-xs text-left leading-relaxed"
-                    >
-                        skild install <span class="text-white">./my-skill</span>
-                    </code>
+                <div>
+                    <span class="text-white/40"># Install CLI</span>
+                    <div class="text-indigo-300 mt-1">npm install -g skild</div>
                 </div>
             </div>
-        </div>
 
-        <!-- Step 3 -->
-        <div
-            class="glass p-10 rounded-3xl border-white/5 flex flex-col items-center text-center reveal [transition-delay:200ms]"
-        >
-            <div
-                class="w-12 h-12 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-black text-xl mb-8"
-            >
-                3
-            </div>
-            <h3 class="text-2xl font-bold mb-4">Empower Agent</h3>
-            <p class="text-white/40 mb-8">
-                Your agent automatically finds the skill and follows
-                instructions.
-            </p>
-            <div class="w-full text-left space-y-2 font-mono text-xs">
-                <div
-                    class="p-4 bg-white/5 rounded-xl border border-white/5 border-l-emerald-500/50 border-l-4"
+            <!-- Step 2 -->
+            <div class="flex items-start gap-4">
+                <span
+                    class="text-indigo-400/50 text-xs font-bold shrink-0 mt-0.5"
+                    >②</span
                 >
-                    <div class="text-emerald-400 mb-1">✓ Ready to use</div>
-                    <div class="text-white/30 truncate" id="path-preview">
-                        ~/.claude/skills/pdf
+                <div>
+                    <span class="text-white/40"># Install any skill</span>
+                    <div class="text-indigo-300 mt-1">
+                        skild install @publisher/skill
                     </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="flex items-start gap-4">
+                <span
+                    class="text-emerald-400/50 text-xs font-bold shrink-0 mt-0.5"
+                    >③</span
+                >
+                <div>
+                    <span class="text-emerald-400 flex items-center gap-2">
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Done. Your agent is equipped.
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 </section>
-
-<script>
-    const btns = document.querySelectorAll(".tab-btn");
-    const snippets = {
-        claude: {
-            el: document.getElementById("code-claude"),
-            path: "~/.claude/skills/pdf",
-        },
-        codex: {
-            el: document.getElementById("code-codex"),
-            path: "./.codex/skills/pdf",
-        },
-        local: {
-            el: document.getElementById("code-local"),
-            path: "~/.claude/skills/my-skill",
-        },
-    };
-    const pathPreview = document.getElementById("path-preview");
-
-    btns.forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const target = btn.getAttribute("data-target");
-
-            // Toggle buttons
-            btns.forEach((b) => {
-                b.classList.remove("bg-white", "text-black");
-                b.classList.add("text-white/40");
-            });
-            btn.classList.add("bg-white", "text-black");
-            btn.classList.remove("text-white/40");
-
-            // Toggle snippets
-            (Object.keys(snippets) as Array<keyof typeof snippets>).forEach(
-                (key) => {
-                    if (key === target) {
-                        snippets[key].el?.classList.remove("hidden");
-                        if (pathPreview)
-                            pathPreview.textContent = snippets[key].path;
-                    } else {
-                        snippets[key].el?.classList.add("hidden");
-                    }
-                },
-            );
-        });
-    });
-</script>

@@ -3,35 +3,27 @@ import Layout from "../layouts/Layout.astro";
 import Navbar from "../components/Navbar.astro";
 import Hero from "../components/Hero.astro";
 import Terminal from "../components/Terminal.astro";
-import WhySkild from "../components/WhySkild.astro";
-import Skillsets from "../components/Skillsets.astro";
-import HowItWorks from "../components/HowItWorks.astro";
 import Features from "../components/Features.astro";
+import HowItWorks from "../components/HowItWorks.astro";
 import Waitlist from "../components/Waitlist.astro";
 import Footer from "../components/Footer.astro";
 ---
 
-<Layout title="skild.sh — The npm for AI Agent Skills">
+<Layout title="skild — The npm for AI Agent Skills">
 	<Navbar />
-	<main class="relative z-10 pt-32">
+	<main class="relative z-10 pt-28">
 		<Hero>
 			<Terminal slot="terminal" />
 		</Hero>
-		<WhySkild />
-		<Skillsets />
-		<HowItWorks />
 		<Features />
+		<HowItWorks />
 		<Waitlist />
 		<Footer />
 	</main>
 </Layout>
 
 <script>
-	// Simple Intersection Observer for reveal animations
-	const observerOptions = {
-		threshold: 0.1,
-	};
-
+	const observerOptions = { threshold: 0.1 };
 	const observer = new IntersectionObserver((entries) => {
 		entries.forEach((entry) => {
 			if (entry.isIntersecting) {
@@ -39,6 +31,5 @@ import Footer from "../components/Footer.astro";
 			}
 		});
 	}, observerOptions);
-
 	document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 </script>
