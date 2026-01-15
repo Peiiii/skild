@@ -97,7 +97,7 @@ skild validate .           # 校验结构
 | `skild install <source>` | 安装 Skill（Git URL / degit 简写 / 本地目录） |
 | `skild list` | 列出已安装的 Skills |
 | `skild info <skill>` | 查看已安装 Skill 详情 |
-| `skild validate [path|skill]` | 校验 Skill 目录或已安装 Skill |
+| `skild validate [path\|skill]` | 校验 Skill 目录或已安装 Skill |
 | `skild uninstall <skill>` | 卸载 Skill |
 | `skild update [skill]` | 更新单个或全部已安装 Skill |
 | `skild init <name>` | 创建新的 Skill 项目 |
