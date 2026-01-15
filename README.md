@@ -153,7 +153,17 @@ Run `skild <command> --help` for full options.
 - **[Skild Hub Guide](./docs/hub.md)** — Web interface walkthrough
 - **[FAQ](./docs/faq.md)** — Common questions
 
-## � Contributing
+## ⭐ Star History
+
+<a href="https://star-history.com/#peiiii/skild&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=peiiii/skild&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=peiiii/skild&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=peiiii/skild&type=Date" />
+ </picture>
+</a>
+
+## 🤝 Contributing
 
 Contributions welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and guidelines.
 

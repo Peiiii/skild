@@ -119,7 +119,16 @@ skild validate .           # 校验结构
 - **[从 GitHub 提交](./docs/submit-from-github.zh-CN.md)** — 收录 GitHub Skills
 - **[Skild Hub 指南](./docs/hub.zh-CN.md)** — Web 界面使用
 - **[FAQ](./docs/faq.md)** — 常见问题
-- **[English Docs](./docs/README.md)**
+
+## ⭐ Star 趋势
+
+<a href="https://star-history.com/#peiiii/skild&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=peiiii/skild&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=peiiii/skild&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=peiiii/skild&type=Date" />
+ </picture>
+</a>
 
 ## 🤝 参与贡献
 
@@ -133,7 +142,7 @@ MIT © [Peiiii](https://github.com/Peiiii)
 
 <div align="center">
 
-**🛡️ skild.sh**
+**🛡️ [skild.sh](https://skild.sh)**
 
 *Get your agents skilled.*
 
