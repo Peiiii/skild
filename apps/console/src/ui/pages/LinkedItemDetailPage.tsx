@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getLinkedItem, getLinkedItemStats } from '@/lib/api';
 import type { LinkedItem, EntityStats } from '@/lib/api-types';
 import { HttpError } from '@/lib/http';
@@ -8,6 +8,7 @@ import { useAuth } from '@/features/auth/auth-store';
 import { normalizeAlias, preferredInstallCommand } from '@/lib/install';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PageLoading } from '@/components/PageLoading';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Github, Tag, Folder, Shield, User, Clock, Check, Copy, Download, TrendingUp } from 'lucide-react';
@@ -21,6 +22,7 @@ function buildGithubTreeUrl(repo: string, path: string | null, ref: string | nul
 export function LinkedItemDetailPage(): JSX.Element {
   const { id } = useParams();
   const itemId = id ?? '';
+  const navigate = useNavigate();
   const auth = useAuth();
 
   const [busy, setBusy] = React.useState(true);
@@ -29,6 +31,14 @@ export function LinkedItemDetailPage(): JSX.Element {
   const [install, setInstall] = React.useState<string | null>(null);
   const [stats, setStats] = React.useState<EntityStats | null>(null);
   const [copied, setCopied] = React.useState(false);
+
+  const handleBack = React.useCallback(() => {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/linked');
+    }
+  }, [navigate]);
 
   React.useEffect(() => {
     let active = true;
@@ -84,7 +94,7 @@ export function LinkedItemDetailPage(): JSX.Element {
     }, 1500);
   }
 
-  if (busy) return <div className="text-sm text-muted-foreground">Loading…</div>;
+  if (busy) return <PageLoading />;
 
   if (error) {
     return (
@@ -93,9 +103,13 @@ export function LinkedItemDetailPage(): JSX.Element {
           <AlertTitle>Failed to load item</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-        <Link className="text-sm text-muted-foreground hover:text-foreground transition-colors" to="/linked">
-          ← Back to catalog
-        </Link>
+        <button
+          type="button"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          onClick={handleBack}
+        >
+          ← Back
+        </button>
       </div>
     );
   }
@@ -109,9 +123,13 @@ export function LinkedItemDetailPage(): JSX.Element {
 
   return (
     <div className="space-y-4">
-      <Link className="text-sm text-muted-foreground hover:text-foreground transition-colors" to="/linked">
-        ← Back to Catalog
-      </Link>
+      <button
+        type="button"
+        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        onClick={handleBack}
+      >
+        ← Back
+      </button>
       <Card>
         <CardHeader className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { canonicalToRoute, getSkillDetail, getSkillStats, routeToCanonical } from '@/lib/api';
 import type { DistTagRow, VersionRow, EntityStats } from '@/lib/api-types';
 import { useAuth } from '@/features/auth/auth-store';
@@ -9,6 +9,7 @@ import { normalizeAlias, preferredInstallCommand, parseDependencyDisplay } from 
 import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
 import { Button } from '@/components/ui/button';
+import { PageLoading } from '@/components/PageLoading';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Package, Hash, Layers, Check, Copy, Download, TrendingUp, ExternalLink } from 'lucide-react';
@@ -23,6 +24,7 @@ export function SkillDetailPage(): JSX.Element {
   const params = useParams();
   const scope = params.scope ?? '';
   const skill = params.skill ?? '';
+  const navigate = useNavigate();
   const auth = useAuth();
 
   const [busy, setBusy] = React.useState(true);
@@ -40,6 +42,10 @@ export function SkillDetailPage(): JSX.Element {
   const [stats, setStats] = React.useState<EntityStats | null>(null);
 
   const canonicalName = routeToCanonical(scope, skill);
+  const handleBack = React.useCallback(() => {
+    if (window.history.length > 1) navigate(-1);
+    else navigate('/skills');
+  }, [navigate]);
 
   React.useEffect(() => {
     let active = true;
@@ -102,7 +108,7 @@ export function SkillDetailPage(): JSX.Element {
     setTimeout(() => setCopied(false), 1500);
   }
 
-  if (busy) return <div className="text-muted-foreground py-8">Loading…</div>;
+  if (busy) return <PageLoading />;
 
   if (error) {
     return (
@@ -111,9 +117,13 @@ export function SkillDetailPage(): JSX.Element {
           <AlertTitle>Failed to load skill</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-        <Link className="text-sm text-muted-foreground hover:text-foreground transition-colors" to="/skills">
-          ← Back to search
-        </Link>
+        <button
+          type="button"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          onClick={handleBack}
+        >
+          ← Back
+        </button>
       </div>
     );
   }
@@ -125,9 +135,13 @@ export function SkillDetailPage(): JSX.Element {
           <AlertTitle>Skill not found</AlertTitle>
           <AlertDescription>Unable to load this skill.</AlertDescription>
         </Alert>
-        <Link className="text-sm text-muted-foreground hover:text-foreground transition-colors" to="/skills">
-          ← Back to search
-        </Link>
+        <button
+          type="button"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          onClick={handleBack}
+        >
+          ← Back
+        </button>
       </div>
     );
   }

@@ -4,6 +4,7 @@ import { deleteSkill, getSkillDetail, routeToCanonical, updateSkillAlias } from 
 import { useAuth } from '@/features/auth/auth-store';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { PageLoading } from '@/components/PageLoading';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -147,7 +148,7 @@ export function SkillManagePage(): JSX.Element {
     );
   }
 
-  if (busy) return <div className="text-sm text-muted-foreground">Loading…</div>;
+  if (busy) return <PageLoading />;
 
   return (
     <Card>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { canonicalToRoute, listDiscoverItems } from '@/lib/api';
 import type { DiscoverItem } from '@/lib/api-types';
 import { SkillsetBadge } from '@/components/skillset-badge';
@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
 import { Button } from '@/components/ui/button';
+import { PageLoading } from '@/components/PageLoading';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -39,6 +40,7 @@ import {
 export type DiscoverMode = 'skills' | 'skillsets';
 
 export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
+  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [queryInput, setQueryInput] = React.useState(params.get('q') || '');
   const [query, setQuery] = React.useState(params.get('q') || '');
@@ -166,14 +168,24 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
                 Instead of installing skills one by one, you get a complete toolkit with a single command.
                 Perfect for <span className="text-indigo-400">data analysts</span>, <span className="text-purple-400">developers</span>, or anyone who needs a ready-to-use workflow.
               </p>
-              <a
-                href="https://github.com/Peiiii/skild/blob/main/docs/skillsets.md"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
-              >
-                Learn more →
-              </a>
+              <div className="flex flex-wrap items-center gap-4">
+                <a
+                  href="https://github.com/Peiiii/skild/blob/main/docs/skillsets.md"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+                >
+                  Learn more →
+                </a>
+                <Button
+                  variant="ghost"
+                  className="h-8 px-3 text-xs font-bold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 rounded-full border border-indigo-500/30 gap-1.5 transition-all"
+                  onClick={() => navigate('/linked/new?from=skillset')}
+                >
+                  <span>✨</span>
+                  Submit your own skillset
+                </Button>
+              </div>
             </div>
             <div className="rounded-xl bg-black/40 border border-border/40 p-4 font-mono text-xs">
               <div className="text-muted-foreground mb-2"># Install a data analyst pack</div>
@@ -236,6 +248,9 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
         </Alert>
       )}
 
+      {busy && items.length === 0 && (
+        <PageLoading />
+      )}
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
         {items.map(item => {
           const id = `${item.type}:${item.sourceId}`;

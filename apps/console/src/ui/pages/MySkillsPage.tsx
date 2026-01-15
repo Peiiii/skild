@@ -6,6 +6,7 @@ import { SkillsetBadge } from '@/components/skillset-badge';
 import { isSkillsetFlag } from '@/lib/skillset';
 import { normalizeAlias, preferredDisplayName } from '@/lib/install';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { PageLoading } from '@/components/PageLoading';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -50,7 +51,7 @@ export function MySkillsPage(): JSX.Element {
     };
   }, []);
 
-  if (busy) return <div className="text-sm text-muted-foreground">Loading…</div>;
+  if (busy) return <PageLoading />;
   if (error) {
     return (
       <Alert variant="destructive">

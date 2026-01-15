@@ -9,7 +9,7 @@ import { getConsolePublicUrl, getEmailVerifyTtlHours, sendVerificationEmail } fr
 import { createSession, parseSessionCookies, revokeSession, serializeClearSessionCookie, serializeSessionCookie } from "./sessions.js";
 import { issuePublishToken, listTokens, revokeToken } from "./tokens.js";
 import { buildInstallCommand, createLinkedItem, getLinkedItemById, getPublisherHandleById, listLinkedItems, parseLinkedItemUrl, toLinkedItem } from "./linked-items.js";
-import { listDiscoverItems, toDiscoverItem, upsertDiscoverItemForLinkedItem, upsertDiscoverItemForSkill } from "./discover-items.js";
+import { buildLinkedInstall, listDiscoverItems, toDiscoverItem, upsertDiscoverItemForLinkedItem, upsertDiscoverItemForSkill } from "./discover-items.js";
 import { getDownloadStats, getLeaderboard, recordDownloadEvent } from "./stats.js";
 import { refreshRepoMetrics } from "./github-metrics.js";
 import { discoverGithubSkills } from "./github-discovery.js";
@@ -685,10 +685,69 @@ app.get("/linked-items/:id", async (c) => {
   try {
     const id = c.req.param("id");
     const row = await getLinkedItemById(c.env, id);
-    if (!row) return errorJson(c as any, "Not found.", 404);
-    const submittedBy = await getPublisherHandleById(c.env, row.submitted_by_publisher_id);
-    const item = toLinkedItem(row, submittedBy);
-    return c.json({ ok: true, item, install: buildInstallCommand(item.source) });
+    if (row) {
+      const submittedBy = await getPublisherHandleById(c.env, row.submitted_by_publisher_id);
+      const item = toLinkedItem(row, submittedBy);
+      return c.json({ ok: true, item, install: buildInstallCommand(item.source) });
+    }
+
+    // Fallback: auto-discovered GitHub skills stored only in discover_items
+    const discoverRow = await c.env.DB.prepare(
+      "SELECT * FROM discover_items WHERE type = 'linked' AND source_id = ?1 LIMIT 1",
+    )
+      .bind(id)
+      .first<{
+        source_repo: string | null;
+        source_path: string | null;
+        source_ref: string | null;
+        source_url: string | null;
+        title: string;
+        description: string;
+        tags_json: string;
+        alias: string | null;
+        discover_at: string;
+        created_at: string;
+        updated_at: string;
+      }>();
+
+    if (!discoverRow) return errorJson(c as any, "Not found.", 404);
+
+    const tags =
+      (() => {
+        try {
+          const parsed = JSON.parse(discoverRow.tags_json);
+          return Array.isArray(parsed) ? parsed.filter(t => typeof t === "string") : [];
+        } catch {
+          return [];
+        }
+      })() || [];
+
+    const item = {
+      id,
+      alias: discoverRow.alias,
+      source: {
+        provider: "github" as const,
+        repo: discoverRow.source_repo || "",
+        path: discoverRow.source_path,
+        ref: discoverRow.source_ref,
+        url: discoverRow.source_url,
+      },
+      title: discoverRow.title || (discoverRow.source_path?.split("/").pop() || discoverRow.source_repo || id),
+      description: discoverRow.description || "",
+      license: null,
+      category: null,
+      tags,
+      submittedBy: null,
+      createdAt: discoverRow.created_at,
+      updatedAt: discoverRow.updated_at,
+    };
+
+    const install = buildLinkedInstall({
+      repo: discoverRow.source_repo || "",
+      path: discoverRow.source_path,
+      ref: discoverRow.source_ref,
+    });
+    return c.json({ ok: true, item, install });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
   }

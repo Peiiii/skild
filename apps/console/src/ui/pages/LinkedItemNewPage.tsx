@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { createLinkedItem, parseLinkedItemUrl } from '@/lib/api';
 import type { LinkedItem } from '@/lib/api-types';
 import { HttpError } from '@/lib/http';
@@ -11,6 +11,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export function LinkedItemNewPage(): JSX.Element {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const isFromSkillset = params.get('from') === 'skillset';
 
   const [url, setUrl] = React.useState('');
   const [parsedSource, setParsedSource] = React.useState<LinkedItem['source'] | null>(null);
@@ -98,10 +100,32 @@ export function LinkedItemNewPage(): JSX.Element {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Submit GitHub skill</CardTitle>
-        <CardDescription>Submit and share a skill from GitHub repositories with the community.</CardDescription>
+        <CardTitle>{isFromSkillset ? 'Submit your Skillset' : 'Submit GitHub skill'}</CardTitle>
+        <CardDescription>
+          {isFromSkillset
+            ? 'A skillset is a GitHub repository that contains multiple skills directories. Link it here to share your curated toolkit.'
+            : 'Submit and share a skill from GitHub repositories with the community.'}
+        </CardDescription>
       </CardHeader>
       <CardContent>
+        {isFromSkillset && (
+          <div className="mb-6 rounded-xl border border-indigo-500/30 bg-indigo-500/5 p-4 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-lg">💡</span>
+              <p className="text-sm text-foreground/80">
+                To create a <span className="font-bold text-indigo-300">Skillset</span>, organize your repository with multiple skill directories.
+              </p>
+            </div>
+            <a
+              href="https://github.com/Peiiii/skild/blob/main/docs/skillsets.md"
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors border-b border-indigo-400/30 pb-0.5"
+            >
+              See Documentation →
+            </a>
+          </div>
+        )}
         <div className="mb-6 rounded-md border border-border/60 bg-muted/30 p-3 text-xs text-muted-foreground">
           <div className="font-medium text-foreground/80">Accepted formats</div>
           <div className="mt-2 space-y-1 font-mono break-all">
@@ -124,14 +148,16 @@ export function LinkedItemNewPage(): JSX.Element {
           <div className="grid gap-2">
             <div className="flex items-center gap-2">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">1</span>
-              <Label htmlFor="url" className="text-base font-semibold">Paste GitHub URL</Label>
+              <Label htmlFor="url" className="text-base font-semibold">
+                {isFromSkillset ? 'Paste Skillset Repository URL' : 'Paste GitHub URL'}
+              </Label>
             </div>
             <div className="flex gap-2">
               <Input
                 id="url"
                 value={url}
                 onChange={e => setUrl(e.currentTarget.value)}
-                placeholder="https://github.com/owner/repo/tree/main/path/to/skill"
+                placeholder={isFromSkillset ? "https://github.com/owner/skillset-repo" : "https://github.com/owner/repo/tree/main/path/to/skill"}
                 required
                 className="flex-1"
               />
