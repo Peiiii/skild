@@ -248,6 +248,12 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
         </Alert>
       )}
 
+      {!busy && !error && (
+        <div className="text-xs text-muted-foreground">
+          Showing {items.length} result{items.length === 1 ? '' : 's'}{nextCursor ? ' (more available)' : ''}.
+        </div>
+      )}
+
       {busy && items.length === 0 && (
         <PageLoading />
       )}
