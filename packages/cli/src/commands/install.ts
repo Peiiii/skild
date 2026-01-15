@@ -510,13 +510,14 @@ function reportResults(ctx: InstallContext): void {
     const displayName = results[0]?.canonicalName || results[0]?.name || ctx.source;
     const skillCount = selectedSkills?.length ?? results.length;
 
+    const uniqueSkippedSkills = [...new Set(skipped.map(s => s.skillName))];
     if (skipped.length > 0 && results.length > 0) {
       spinner?.succeed(
-        `Installed ${chalk.green(results.length)} skill${results.length > 1 ? 's' : ''}, skipped ${chalk.dim(skipped.length)} → ${chalk.dim(platformsLabel)}`
+        `Installed ${chalk.green(results.length)} skill${results.length > 1 ? 's' : ''}, skipped ${chalk.dim(`${uniqueSkippedSkills.length} skill${uniqueSkippedSkills.length > 1 ? 's' : ''}`)} → ${chalk.dim(platformsLabel)}`
       );
     } else if (skipped.length > 0) {
       spinner?.succeed(
-        `Skipped ${chalk.dim(skipped.length)} (already installed) → ${chalk.dim(platformsLabel)}`
+        `Skipped ${chalk.dim(`${uniqueSkippedSkills.length} skill${uniqueSkippedSkills.length > 1 ? 's' : ''}`)} (already installed) → ${chalk.dim(platformsLabel)}`
       );
     } else {
       spinner?.succeed(
@@ -582,7 +583,7 @@ function reportResults(ctx: InstallContext): void {
 
   if (skipped.length > 0) {
     const uniqueSkills = [...new Set(skipped.map(s => s.skillName))];
-    console.log(chalk.dim(`\n  Skipped ${uniqueSkills.length} already installed:`));
+    console.log(chalk.dim(`\n  ${uniqueSkills.length} skill${uniqueSkills.length > 1 ? 's' : ''} already installed (skipped):`));
 
     const bySkill = new Map<string, Platform[]>();
     for (const s of skipped) {
