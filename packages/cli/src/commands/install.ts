@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
-import { deriveChildSource, fetchWithTimeout, installRegistrySkill, installSkill, isValidAlias, loadRegistryAuth, materializeSourceToTemp, resolveRegistryAlias, resolveRegistryUrl, SkildError, type InstallRecord, type Platform, PLATFORMS } from '@skild/core';
+import { deriveChildSource, fetchWithTimeout, getSkillInstallDir, installRegistrySkill, installSkill, isValidAlias, loadRegistryAuth, materializeSourceToTemp, resolveRegistryAlias, resolveRegistryUrl, SkildError, type InstallRecord, type Platform, PLATFORMS } from '@skild/core';
 import { createSpinner, logger } from '../utils/logger.js';
 import { promptSkillsInteractive, promptPlatformsInteractive, type SkillChoice } from '../utils/interactive-select.js';
 import { discoverSkillDirsWithHeuristics, parsePositiveInt, type DiscoveredSkillDir } from './install-discovery.js';
@@ -194,9 +194,11 @@ export async function install(source: string, options: InstallCommandOptions = {
 
   const results: InstallRecord[] = [];
   const errors: Array<{ platform: Platform; error: string; inputSource?: string }> = [];
+  const skipped: Array<{ skillName: string; platform: Platform; installDir: string }> = [];
 
   let effectiveRecursive = recursive;
   let recursiveSkillCount: number | null = null;
+  let forceOverwriteAll = Boolean(options.force);
 
   async function installOne(inputSource: string, materializedDir?: string): Promise<void> {
     for (const targetPlatform of targets) {
@@ -205,16 +207,26 @@ export async function install(source: string, options: InstallCommandOptions = {
           inputSource.startsWith('@') && inputSource.includes('/')
             ? await installRegistrySkill(
               { spec: inputSource, registryUrl: registryUrlForDeps },
-              { platform: targetPlatform, scope, force: Boolean(options.force) }
+              { platform: targetPlatform, scope, force: forceOverwriteAll }
             )
             : await installSkill(
               { source: inputSource, materializedDir },
-              { platform: targetPlatform, scope, force: Boolean(options.force), registryUrl: registryUrlForDeps }
+              { platform: targetPlatform, scope, force: forceOverwriteAll, registryUrl: registryUrlForDeps }
             );
 
         results.push(record);
         void reportDownload(record, registryUrlForDeps);
       } catch (error: unknown) {
+        // Handle already-installed by skipping instead of erroring
+        if (error instanceof SkildError && error.code === 'ALREADY_INSTALLED') {
+          const details = error.details as { skillName?: string; installDir?: string } | undefined;
+          skipped.push({
+            skillName: details?.skillName || inputSource,
+            platform: targetPlatform,
+            installDir: details?.installDir || '',
+          });
+          continue;
+        }
         const message = error instanceof SkildError ? error.message : error instanceof Error ? error.message : String(error);
         errors.push({ platform: targetPlatform, error: message, inputSource });
       }
@@ -471,6 +483,27 @@ export async function install(source: string, options: InstallCommandOptions = {
         for (const e of errors) console.log(chalk.yellow(`  - ${e.platform}: ${e.error}`));
       }
       process.exitCode = errors.length ? 1 : 0;
+    }
+
+    // Show skipped skills summary
+    if (skipped.length > 0) {
+      const uniqueSkills = [...new Set(skipped.map(s => s.skillName))];
+      console.log(chalk.dim(`\nSkipped ${skipped.length} already installed (${uniqueSkills.length} skill${uniqueSkills.length > 1 ? 's' : ''}):`));
+
+      // Group by skill name
+      const bySkill = new Map<string, Platform[]>();
+      for (const s of skipped) {
+        const platforms = bySkill.get(s.skillName) || [];
+        platforms.push(s.platform);
+        bySkill.set(s.skillName, platforms);
+      }
+
+      for (const [skillName, platforms] of bySkill.entries()) {
+        const platformsStr = platforms.length === PLATFORMS.length ? 'all platforms' : platforms.join(', ');
+        console.log(chalk.dim(`  - ${skillName} (${platformsStr})`));
+      }
+
+      console.log(chalk.dim(`\nTo reinstall, use: ${chalk.cyan('skild install <source> --force')}`));
     }
   } catch (error: unknown) {
     const message = error instanceof SkildError ? error.message : error instanceof Error ? error.message : String(error);

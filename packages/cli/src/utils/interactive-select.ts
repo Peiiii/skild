@@ -15,6 +15,8 @@ export type SkillChoice = {
     relPath: string;
     suggestedSource: string;
     materializedDir?: string;
+    /** Platforms where this skill is already installed */
+    installedPlatforms?: Platform[];
 };
 
 // --- Tree Node Structure ---
@@ -66,8 +68,26 @@ function buildSkillTree(skills: SkillChoice[]): TreeNode {
         }
     }
 
+    // Collapse single-child intermediate nodes: if All Skills has only one child
+    // and that child is not a leaf, promote its children directly under All Skills
+    while (allNode.children.length === 1 && !allNode.children[0]!.isLeaf && allNode.children[0]!.children.length > 0) {
+        const singleChild = allNode.children[0]!;
+        // Promote children, adjusting their depth
+        for (const grandchild of singleChild.children) {
+            adjustDepth(grandchild, -1);
+        }
+        allNode.children = singleChild.children;
+    }
+
     const root: TreeNode = { id: '', name: '.', depth: 0, children: [allNode], leafIndices: allNode.leafIndices.slice(), isLeaf: false };
     return root;
+}
+
+function adjustDepth(node: TreeNode, delta: number): void {
+    node.depth += delta;
+    for (const child of node.children) {
+        adjustDepth(child, delta);
+    }
 }
 
 function flattenTree(root: TreeNode): TreeNode[] {
@@ -111,9 +131,11 @@ async function interactiveTreeSelect<T>(
         buildTree: (items: T[]) => TreeNode;
         formatNode: (node: TreeNode, state: 'all' | 'none' | 'partial', isCursor: boolean) => string;
         defaultAll: boolean;
+        /** Custom initial selection (overrides defaultAll if provided) */
+        defaultSelected?: Set<number>;
     }
 ): Promise<number[] | null> {
-    const { title, subtitle, buildTree, formatNode, defaultAll } = options;
+    const { title, subtitle, buildTree, formatNode, defaultAll, defaultSelected } = options;
 
     const root = buildTree(items);
     const flatNodes = flattenTree(root);
@@ -121,7 +143,9 @@ async function interactiveTreeSelect<T>(
     if (flatNodes.length === 0) return null;
 
     const selected = new Set<number>();
-    if (defaultAll) {
+    if (defaultSelected) {
+        for (const idx of defaultSelected) selected.add(idx);
+    } else if (defaultAll) {
         for (let i = 0; i < items.length; i++) selected.add(i);
     }
 
@@ -258,9 +282,26 @@ async function interactiveTreeSelect<T>(
 // --- Skill Selection ---
 export async function promptSkillsInteractive(
     skills: SkillChoice[],
-    options: { defaultAll?: boolean } = {}
+    options: { defaultAll?: boolean; targetPlatforms?: Platform[] } = {}
 ): Promise<SkillChoice[] | null> {
     if (skills.length === 0) return null;
+
+    // Determine which skills are already installed on target platforms
+    const targetPlatforms = options.targetPlatforms || [];
+    const hasInstalledCheck = targetPlatforms.length > 0;
+
+    // Calculate default selection: skip already-installed if we have platform info
+    const defaultSelected = new Set<number>();
+    for (let i = 0; i < skills.length; i++) {
+        const skill = skills[i]!;
+        const installedOnTargets = skill.installedPlatforms?.filter(p => targetPlatforms.includes(p)) || [];
+        const isFullyInstalled = hasInstalledCheck && installedOnTargets.length === targetPlatforms.length;
+
+        // By default: don't select fully-installed skills, select others
+        if (options.defaultAll !== false && !isFullyInstalled) {
+            defaultSelected.add(i);
+        }
+    }
 
     const selectedIndices = await interactiveTreeSelect(skills, {
         title: 'Select skills to install',
@@ -271,6 +312,20 @@ export async function promptSkillsInteractive(
             const checkbox = state === 'all' ? chalk.green('●')
                 : state === 'partial' ? chalk.yellow('◐')
                     : chalk.dim('○');
+
+            // Check if this is a leaf node representing a single skill
+            let installedTag = '';
+            if (node.isLeaf && node.leafIndices.length === 1) {
+                const skill = skills[node.leafIndices[0]!];
+                if (skill?.installedPlatforms?.length) {
+                    if (skill.installedPlatforms.length === targetPlatforms.length && targetPlatforms.length > 0) {
+                        installedTag = chalk.dim(' [installed]');
+                    } else if (skill.installedPlatforms.length > 0) {
+                        installedTag = chalk.dim(` [installed on ${skill.installedPlatforms.length}]`);
+                    }
+                }
+            }
+
             const name = isCursor
                 ? chalk.cyan.underline(node.name)
                 : node.name;
@@ -280,14 +335,19 @@ export async function promptSkillsInteractive(
             // Show action hint when cursor is on this row
             let hint = '';
             if (isCursor && node.leafIndices.length > 0) {
-                hint = state === 'all'
-                    ? chalk.dim(' ← Space to deselect')
-                    : chalk.dim(' ← Space to select');
+                if (installedTag && state !== 'all') {
+                    hint = chalk.dim(' ← Space to reinstall');
+                } else {
+                    hint = state === 'all'
+                        ? chalk.dim(' ← Space to deselect')
+                        : chalk.dim(' ← Space to select');
+                }
             }
 
-            return `${cursor}${indent}${checkbox} ${name}${count}${hint}`;
+            return `${cursor}${indent}${checkbox} ${name}${count}${installedTag}${hint}`;
         },
-        defaultAll: options.defaultAll !== false,
+        defaultAll: false, // We handle default selection manually
+        defaultSelected,
     });
 
     if (!selectedIndices || selectedIndices.length === 0) {
