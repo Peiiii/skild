@@ -44,9 +44,35 @@ export function toDegitPath(url: string): string {
     return `${owner}/${repo}/${subpath}#${branch}`;
   }
 
+  // `.../tree/<branch>` without a subpath
+  const treeRootMatch = url.match(/github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)(?:\/)?$/);
+  if (treeRootMatch) {
+    const [, owner, repo, branch] = treeRootMatch;
+    return `${owner}/${repo}#${branch}`;
+  }
+
   const repoMatch = url.match(/github\.com\/([^/]+\/[^/]+)/);
   if (repoMatch) return repoMatch[1].replace(/\.git$/, '');
 
   return url;
 }
 
+function normalizeRelPath(relPath: string): string {
+  return relPath.split(path.sep).join('/').replace(/^\/+/, '').replace(/\/+$/, '');
+}
+
+/**
+ * Derive a child source spec from a base source and a relative path.
+ *
+ * - GitHub URLs are converted to degit shorthand so the result is a valid install source.
+ * - Keeps `#ref` when present.
+ */
+export function deriveChildSource(baseSource: string, relPath: string): string {
+  const baseType = classifySource(baseSource);
+  const baseSpec = baseType === 'github-url' ? toDegitPath(baseSource) : baseSource;
+
+  const [pathPart, ref] = baseSpec.split('#', 2);
+  const clean = normalizeRelPath(relPath);
+  const joined = clean ? `${pathPart.replace(/\/+$/, '')}/${clean}` : pathPart;
+  return ref ? `${joined}#${ref}` : joined;
+}

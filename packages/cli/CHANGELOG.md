@@ -1,5 +1,13 @@
 # skild
 
+## 0.4.1
+
+### Patch Changes
+
+- Fix `skild install --recursive` for GitHub URL sources by deriving valid child specs (degit shorthand) so multi-skill installs and `--json` suggestions work correctly.
+- Updated dependencies
+  - @skild/core@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes

@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import chalk from 'chalk';
-import { fetchWithTimeout, installRegistrySkill, installSkill, isValidAlias, loadRegistryAuth, materializeSourceToTemp, resolveRegistryAlias, resolveRegistryUrl, SkildError, type InstallRecord, type Platform, PLATFORMS } from '@skild/core';
+import { deriveChildSource, fetchWithTimeout, installRegistrySkill, installSkill, isValidAlias, loadRegistryAuth, materializeSourceToTemp, resolveRegistryAlias, resolveRegistryUrl, SkildError, type InstallRecord, type Platform, PLATFORMS } from '@skild/core';
 import { createSpinner, logger } from '../utils/logger.js';
 import { promptConfirm } from '../utils/prompt.js';
-import { deriveRemoteChildSource, discoverSkillDirsWithHeuristics, parsePositiveInt, type DiscoveredSkillDir } from './install-discovery.js';
+import { discoverSkillDirsWithHeuristics, parsePositiveInt, type DiscoveredSkillDir } from './install-discovery.js';
 
 export interface InstallCommandOptions {
   target?: Platform | string;
@@ -241,7 +241,7 @@ export async function install(source: string, options: InstallCommandOptions = {
 
             const found = asDiscoveredSkills(
               discovered,
-              d => deriveRemoteChildSource(resolvedSource, d.relPath),
+              d => deriveChildSource(resolvedSource, d.relPath),
               d => d.absDir
             );
             const didReturn = await maybeEnableRecursiveAndInstall(found);

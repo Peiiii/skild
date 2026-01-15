@@ -96,11 +96,3 @@ export function discoverSkillDirsWithHeuristics(
 
   return discoverSkillDirs(root, options);
 }
-
-export function deriveRemoteChildSource(baseSource: string, relPath: string): string {
-  const [pathPart, ref] = baseSource.split('#', 2);
-  const clean = normalizeRelPath(relPath);
-  const joined = clean ? `${pathPart.replace(/\/+$/, '')}/${clean}` : pathPart;
-  return ref ? `${joined}#${ref}` : joined;
-}
-
