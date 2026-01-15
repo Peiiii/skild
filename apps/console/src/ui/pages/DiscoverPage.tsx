@@ -46,6 +46,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
   const [query, setQuery] = React.useState(params.get('q') || '');
   const [items, setItems] = React.useState<DiscoverItem[]>([]);
   const [nextCursor, setNextCursor] = React.useState<string | null>(null);
+  const [total, setTotal] = React.useState<number | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [loadingMore, setLoadingMore] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -67,6 +68,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
       }
       setItems(res.items);
       setNextCursor(res.nextCursor);
+      setTotal(res.total);
     } catch (err: unknown) {
       if (err instanceof HttpError) setError(err.bodyText || `HTTP ${err.status}`);
       else setError(err instanceof Error ? err.message : String(err));
@@ -89,6 +91,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
       }
       setItems(prev => [...prev, ...res.items]);
       setNextCursor(res.nextCursor);
+      setTotal(res.total);
     } catch (err: unknown) {
       if (err instanceof HttpError) setError(err.bodyText || `HTTP ${err.status}`);
       else setError(err instanceof Error ? err.message : String(err));
@@ -250,7 +253,9 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
 
       {!busy && !error && (
         <div className="text-xs text-muted-foreground">
-          Showing {items.length} result{items.length === 1 ? '' : 's'}{nextCursor ? ' (more available)' : ''}.
+          {total !== null
+            ? `Showing ${items.length} of ${total} result${total === 1 ? '' : 's'}${nextCursor ? ' (more available)' : ''}.`
+            : `Showing ${items.length} result${items.length === 1 ? '' : 's'}${nextCursor ? ' (more available)' : ''}.`}
         </div>
       )}
 

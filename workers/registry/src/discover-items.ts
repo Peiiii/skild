@@ -57,6 +57,7 @@ export interface DiscoverItem {
 export interface DiscoverItemsPage {
   rows: DiscoverItemRow[];
   nextCursor: string | null;
+  total: number;
 }
 
 function getMinStars(env: Env): number {
@@ -295,12 +296,16 @@ export async function listDiscoverItems(
 
   const baseParams: Array<string | number> = [start7d, endDay, start30d, endDay];
 
-  const outerClauses = [...clauses];
-  const outerParams = [...params];
+  const filterClauses = [...clauses];
+  const filterParams = [...params];
 
   // Filter low-star linked items (registry items不受影响)
-  outerClauses.push("(type != 'linked' OR COALESCE(stars_total, 0) >= ?)");
-  outerParams.push(minStars);
+  filterClauses.push("(type != 'linked' OR COALESCE(stars_total, 0) >= ?)");
+  filterParams.push(minStars);
+
+  // For list query (with pagination cursor)
+  const outerClauses = [...filterClauses];
+  const outerParams = [...filterParams];
 
   if (cursor) {
     outerClauses.push(
@@ -338,5 +343,18 @@ export async function listDiscoverItems(
   const hasMore = rows.length > limit;
   const sliced = hasMore ? rows.slice(0, limit) : rows;
   const nextCursor = hasMore && sliced.length > 0 ? encodeCursor(sliced[sliced.length - 1], sort) : null;
-  return { rows: sliced, nextCursor };
+
+  // Total count (without cursor pagination)
+  let total = 0;
+  try {
+    let countSql = `SELECT COUNT(*) AS total FROM (${baseSql}) base`;
+    const countParams = [...baseParams, ...filterParams];
+    if (filterClauses.length > 0) countSql += ` WHERE ${filterClauses.join(" AND ")}`;
+    const countRes = await env.DB.prepare(countSql).bind(...countParams).first<{ total: number }>();
+    total = countRes?.total ?? 0;
+  } catch {
+    total = 0;
+  }
+
+  return { rows: sliced, nextCursor, total };
 }

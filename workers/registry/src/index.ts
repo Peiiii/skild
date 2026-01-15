@@ -553,6 +553,7 @@ app.get("/discover", async (c) => {
       ok: true,
       items: page.rows.map((r) => toDiscoverItem(r)),
       nextCursor: page.nextCursor,
+      total: page.total,
     });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);

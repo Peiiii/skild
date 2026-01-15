@@ -113,7 +113,7 @@ export interface DiscoverItem {
   downloads30d: number;
 }
 
-export type DiscoverListResponse = { ok: true; items: DiscoverItem[]; nextCursor: string | null } | ApiError;
+export type DiscoverListResponse = { ok: true; items: DiscoverItem[]; nextCursor: string | null; total: number } | ApiError;
 
 export interface DistTagRow {
   tag: string;
