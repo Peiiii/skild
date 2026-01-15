@@ -33,10 +33,22 @@ Skild 会自动安装包内所有捆绑的技能。
 
 ## 示例 Skillsets
 
-| Skillset | 描述 | 包含 |
-|----------|------|------|
-| `@skild/data-analyst` | 数据分析工具包 | csv, pandas, sql-helper |
-| `@skild/frontend-dev` | 前端开发工具包 | typescript, eslint, prettier |
+下面是我们精选的一些 Skillsets，你可以直接用 alias（短名）安装：
+
+| Alias（短名） | Registry Skillset | 描述 |
+|--------------|-------------------|------|
+| `superpowers` | `@peiiii/obra-superpowers-pack` | 规划、调试、TDD、代码评审、验收 |
+| `anthropics-skills` | `@peiiii/anthropics-official-pack` | `anthropics/skills` 官方全量技能合集 |
+| `claude-office` | `@peiiii/claude-office-pack` | PDF/Word/PPT/Excel + 内部沟通 |
+| `claude-design` | `@peiiii/claude-design-pack` | UI/UX、主题、品牌、生成艺术 |
+| `claude-dev` | `@peiiii/claude-dev-pack` | 开发/测试工具包（官方 + 社区） |
+| `claude-content` | `@peiiii/claude-content-pack` | 调研 + 写作 + 洞察 |
+
+通过 alias 安装：
+
+```bash
+skild install claude-dev
+```
 
 ## 创建你的 Skillset
 
@@ -49,8 +61,8 @@ version: 1.0.0
 description: 我的精选技能集合
 skillset: true
 dependencies:
-  - @anthropic/csv
-  - @skild/pandas
+  - anthropics/skills/skills/pdf
+  - lackeyjb/playwright-skill/skills/playwright-skill
   - ./utils/helper  # 本地子技能
 ---
 ```

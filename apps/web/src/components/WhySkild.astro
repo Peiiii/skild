@@ -1,0 +1,97 @@
+<section
+    id="why-skild"
+    class="max-w-6xl mx-auto px-6 py-32 border-t border-white/5"
+>
+    <div class="text-center mb-16 reveal">
+        <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-6">
+            Why <span class="text-gradient">skild</span>?
+        </h2>
+        <p class="text-xl text-white/50 max-w-2xl mx-auto">
+            Stop manually cloning, copying, and configuring. One command does it
+            all.
+        </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 reveal">
+        <!-- Before -->
+        <div
+            class="rounded-2xl border border-white/10 bg-white/[0.02] p-8 space-y-6"
+        >
+            <div class="flex items-center gap-3 mb-4">
+                <span class="text-2xl">😫</span>
+                <h3 class="text-xl font-bold text-white/60">Before skild</h3>
+            </div>
+            <div class="space-y-4 font-mono text-sm">
+                <div
+                    class="p-3 rounded-lg bg-black/40 border border-white/5 text-white/40"
+                >
+                    <span class="text-red-400/60">$</span> git clone https://github.com/.../skill
+                </div>
+                <div
+                    class="p-3 rounded-lg bg-black/40 border border-white/5 text-white/40"
+                >
+                    <span class="text-red-400/60">$</span> cp -r skill ~/.claude/skills/
+                </div>
+                <div
+                    class="p-3 rounded-lg bg-black/40 border border-white/5 text-white/40"
+                >
+                    <span class="text-red-400/60">$</span> # repeat for each skill...
+                </div>
+                <div
+                    class="p-3 rounded-lg bg-black/40 border border-white/5 text-white/40"
+                >
+                    <span class="text-red-400/60">$</span> # different path for Codex?
+                    🤯
+                </div>
+            </div>
+            <p class="text-sm text-white/30 italic">
+                Manual, error-prone, platform-specific
+            </p>
+        </div>
+
+        <!-- After -->
+        <div
+            class="rounded-2xl border border-indigo-500/30 bg-indigo-500/5 p-8 space-y-6 relative overflow-hidden"
+        >
+            <div
+                class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 blur-3xl"
+            >
+            </div>
+            <div class="relative">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-2xl">✨</span>
+                    <h3 class="text-xl font-bold text-indigo-300">
+                        With skild
+                    </h3>
+                </div>
+                <div class="space-y-4 font-mono text-sm">
+                    <div
+                        class="p-4 rounded-lg bg-black/60 border border-indigo-500/30 text-indigo-300 shadow-lg shadow-indigo-500/10"
+                    >
+                        <span class="text-emerald-400">$</span> skild install claude-office
+                    </div>
+                    <div
+                        class="p-3 rounded-lg bg-black/40 border border-emerald-500/20 text-emerald-400/80 flex items-center gap-2"
+                    >
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Installed a skillset to ~/.claude/skills
+                    </div>
+                </div>
+                <p class="text-sm text-indigo-300/60 mt-6">
+                    Works with Claude, Codex, Copilot, Antigravity — instantly.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>

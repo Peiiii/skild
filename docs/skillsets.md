@@ -33,10 +33,22 @@ Skild will automatically install all bundled skills in the pack.
 
 ## Example Skillsets
 
-| Skillset | Description | Includes |
-|----------|-------------|----------|
-| `@skild/data-analyst` | Data analysis toolkit | csv, pandas, sql-helper |
-| `@skild/frontend-dev` | Frontend development | typescript, eslint, prettier |
+These are curated packs you can install by alias (short name):
+
+| Alias | Registry Skillset | Description |
+|-------|-------------------|-------------|
+| `superpowers` | `@peiiii/obra-superpowers-pack` | Planning, debugging, TDD, code review, verification |
+| `anthropics-skills` | `@peiiii/anthropics-official-pack` | All official Claude skills from `anthropics/skills` |
+| `claude-office` | `@peiiii/claude-office-pack` | PDF/Word/PPT/Excel + internal comms |
+| `claude-design` | `@peiiii/claude-design-pack` | UI/UX, themes, brand, generative art |
+| `claude-dev` | `@peiiii/claude-dev-pack` | Dev/testing toolkit (official + community) |
+| `claude-content` | `@peiiii/claude-content-pack` | Research + writing + insights |
+
+Install by alias:
+
+```bash
+skild install claude-dev
+```
 
 ## Creating Your Own Skillset
 
@@ -49,8 +61,8 @@ version: 1.0.0
 description: My curated skill collection
 skillset: true
 dependencies:
-  - @anthropic/csv
-  - @skild/pandas
+  - anthropics/skills/skills/pdf
+  - lackeyjb/playwright-skill/skills/playwright-skill
   - ./utils/helper  # Local sub-skill
 ---
 ```

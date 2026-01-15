@@ -1,0 +1,166 @@
+<section
+    id="skillsets"
+    class="max-w-6xl mx-auto px-6 py-32 border-t border-white/5"
+>
+    <div class="text-center mb-16 reveal">
+        <div
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-6"
+        >
+            <span class="text-lg">🎁</span>
+            <span
+                class="text-sm font-bold tracking-wider uppercase text-purple-300"
+                >Unique Feature</span
+            >
+        </div>
+        <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-6">
+            <span class="text-gradient">Skillsets</span>: One Pack, Many Skills
+        </h2>
+        <p class="text-xl text-white/50 max-w-2xl mx-auto">
+            Install complete toolkits with a single command. No more managing
+            dozens of individual skills.
+        </p>
+    </div>
+
+    <div class="reveal">
+        <!-- Visual Demo -->
+        <div
+            class="rounded-3xl border border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 p-8 md:p-12"
+        >
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- Left: Command -->
+                <div class="space-y-6">
+                    <div class="font-mono">
+                        <div class="text-white/40 text-sm mb-2">
+                            # Install a curated skill pack
+                        </div>
+                        <div
+                            class="p-4 rounded-xl bg-black/60 border border-purple-500/30 text-lg"
+                        >
+                            <span class="text-purple-400">$</span>
+                            <span class="text-white"> skild install </span>
+                            <span class="text-emerald-400">claude-dev</span>
+                        </div>
+                    </div>
+                    <div class="text-white/50 text-sm leading-relaxed">
+                        Skillsets bundle related skills together. One command
+                        installs everything — dependencies are resolved
+                        automatically.
+                    </div>
+                    <a
+                        href="https://hub.skild.sh/skillsets"
+                        target="_blank"
+                        class="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors font-semibold"
+                    >
+                        Browse Skillsets
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Right: Result -->
+                <div class="space-y-3">
+                    <div
+                        class="text-white/40 text-xs font-medium uppercase tracking-wider mb-4"
+                    >
+                        Installed Skills:
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        {
+                            [
+                                "webapp-testing",
+                                "mcp-builder",
+                                "react-best-practices",
+                                "vercel-deploy-claimable",
+                                "playwright-skill",
+                                "ffuf-skill",
+                                "aws-cdk-development",
+                                "postgres",
+                            ].map((skill, i) => (
+                                <div
+                                    class="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/10 text-xs font-mono"
+                                    style={`animation-delay: ${i * 50}ms`}
+                                >
+                                    <svg
+                                        class="w-3 h-3 text-emerald-400 shrink-0"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M5 13l4 4L19 7"
+                                        />
+                                    </svg>
+                                    <span class="text-white/70 truncate">
+                                        {skill}
+                                    </span>
+                                </div>
+                            ))
+                        }
+                    </div>
+                    <div class="text-center text-white/30 text-xs mt-4">
+                        + more bundled skills
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Example Skillsets -->
+        <div class="grid md:grid-cols-3 gap-6 mt-12">
+            <div
+                class="rounded-xl border border-white/10 bg-white/[0.02] p-6 hover:border-purple-500/30 transition-colors"
+            >
+                <div class="text-2xl mb-3">🚀</div>
+                <h4 class="font-bold mb-2">superpowers</h4>
+                <p class="text-sm text-white/40">
+                    Planning, code review, debugging, verification
+                </p>
+            </div>
+            <div
+                class="rounded-xl border border-white/10 bg-white/[0.02] p-6 hover:border-purple-500/30 transition-colors"
+            >
+                <div class="text-2xl mb-3">🧑‍💻</div>
+                <h4 class="font-bold mb-2">claude-dev</h4>
+                <p class="text-sm text-white/40">Build, test, deploy, debug</p>
+            </div>
+            <div
+                class="rounded-xl border border-white/10 bg-white/[0.02] p-6 hover:border-purple-500/30 transition-colors"
+            >
+                <div class="text-2xl mb-3">📄</div>
+                <h4 class="font-bold mb-2">claude-office</h4>
+                <p class="text-sm text-white/40">PDF/Word/PPT/Excel + comms</p>
+            </div>
+            <div
+                class="rounded-xl border border-white/10 bg-white/[0.02] p-6 hover:border-purple-500/30 transition-colors"
+            >
+                <div class="text-2xl mb-3">🎨</div>
+                <h4 class="font-bold mb-2">claude-design</h4>
+                <p class="text-sm text-white/40">UI/UX, themes, brand, art</p>
+            </div>
+            <div
+                class="rounded-xl border border-white/10 bg-white/[0.02] p-6 hover:border-purple-500/30 transition-colors"
+            >
+                <div class="text-2xl mb-3">📝</div>
+                <h4 class="font-bold mb-2">claude-content</h4>
+                <p class="text-sm text-white/40">Research + writing + insights</p>
+            </div>
+            <div
+                class="rounded-xl border border-white/10 bg-white/[0.02] p-6 hover:border-purple-500/30 transition-colors"
+            >
+                <div class="text-2xl mb-3">✅</div>
+                <h4 class="font-bold mb-2">anthropics-skills</h4>
+                <p class="text-sm text-white/40">All official Claude skills</p>
+            </div>
+        </div>
+    </div>
+</section>
