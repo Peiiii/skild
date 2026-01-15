@@ -122,6 +122,13 @@ npx skild@latest --help
 
 ---
 
+## More Docs
+
+- Publishing Skills: https://github.com/Peiiii/skild/blob/main/docs/publishing-skills.md
+- Creating Skills: https://github.com/Peiiii/skild/blob/main/docs/creating-skills.md
+
+---
+
 ## Why This Matters
 
 Once skills become part of everyday work, “installation and lifecycle” becomes an engineering problem:

@@ -122,6 +122,13 @@ npx skild@latest --help
 
 ---
 
+## 更多资料
+
+- 发布 Skills 指南：https://github.com/Peiiii/skild/blob/main/docs/publishing-skills.md
+- 创建 Skills 指南：https://github.com/Peiiii/skild/blob/main/docs/creating-skills.md
+
+---
+
 ## 为什么重要
 
 当 skills 成为日常工作的一部分，“安装与生命周期管理”就是工程问题：
