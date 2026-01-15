@@ -11,6 +11,9 @@ import { issuePublishToken, listTokens, revokeToken } from "./tokens.js";
 import { buildInstallCommand, createLinkedItem, getLinkedItemById, getPublisherHandleById, listLinkedItems, parseLinkedItemUrl, toLinkedItem } from "./linked-items.js";
 import { listDiscoverItems, toDiscoverItem, upsertDiscoverItemForLinkedItem, upsertDiscoverItemForSkill } from "./discover-items.js";
 import { getDownloadStats, getLeaderboard, recordDownloadEvent } from "./stats.js";
+import { refreshRepoMetrics } from "./github-metrics.js";
+import { discoverGithubSkills } from "./github-discovery.js";
+import { requireAdmin } from "./admin.js";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -51,6 +54,16 @@ function isAllowedOrigin(origin: string | null | undefined): string | null {
   } catch {
     return null;
   }
+}
+
+async function listDiscoverRepos(env: Env, limit: number, offset: number): Promise<string[]> {
+  const rows = await env.DB.prepare(
+    "SELECT DISTINCT source_repo FROM discover_items WHERE source_repo IS NOT NULL ORDER BY source_repo LIMIT ?1 OFFSET ?2",
+  )
+    .bind(limit, offset)
+    .all();
+  const results = (rows.results as Array<{ source_repo: string | null }>).map((r) => r.source_repo).filter(Boolean) as string[];
+  return results;
 }
 
 function parseOptionalBoolean(input: string | null | undefined): boolean | null {
@@ -541,6 +554,42 @@ app.get("/discover", async (c) => {
       items: page.rows.map((r) => toDiscoverItem(r)),
       nextCursor: page.nextCursor,
     });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/admin/refresh-repo-metrics", async (c) => {
+  try {
+    requireAdmin(c);
+    const body = (await c.req.json<{ limit?: number; offset?: number }>().catch(() => ({}))) as {
+      limit?: number;
+      offset?: number;
+    };
+    const limit = Math.min(Math.max(body.limit ?? 50, 1), 500);
+    const offset = Math.max(body.offset ?? 0, 0);
+    const repos = await listDiscoverRepos(c.env, limit, offset);
+    const result = await refreshRepoMetrics(c.env, repos);
+    return c.json({ ok: true, repos: repos.length, ...result });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/admin/discover-github-skills", async (c) => {
+  try {
+    requireAdmin(c);
+    const body = (await c.req.json<{ q?: string; pages?: number; perPage?: number }>().catch(() => ({}))) as {
+      q?: string;
+      pages?: number;
+      perPage?: number;
+    };
+    const result = await discoverGithubSkills(c.env, {
+      q: body.q,
+      pages: body.pages,
+      perPage: body.perPage,
+    });
+    return c.json({ ok: true, ...result });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
   }

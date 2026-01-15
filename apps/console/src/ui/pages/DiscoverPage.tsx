@@ -48,7 +48,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
   const [loadingMore, setLoadingMore] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
-  const [currentSort, setCurrentSort] = React.useState(params.get('sort') || 'updated');
+  const [currentSort, setCurrentSort] = React.useState(params.get('sort') || 'downloads_7d');
 
   const skillsetOnly = props.mode === 'skillsets';
 
@@ -133,9 +133,9 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
   }
 
   const sortLabels: Record<string, string> = {
+    downloads_7d: 'Trending (7d)',
     updated: 'Recently Updated',
     new: 'Newest Arrived',
-    downloads_7d: 'Trending (7d)',
     downloads_30d: 'Popular (30d)',
   };
 
@@ -209,6 +209,10 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Sort by</DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onSortChange('downloads_7d')} className="gap-2">
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <span>Trending (7d)</span>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onSortChange('updated')} className="gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span>Recently Updated</span>
@@ -216,10 +220,6 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
             <DropdownMenuItem onClick={() => onSortChange('new')} className="gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span>Newest Arrived</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onSortChange('downloads_7d')} className="gap-2">
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              <span>Trending (7d)</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onSortChange('downloads_30d')} className="gap-2">
               <Download className="h-4 w-4 text-muted-foreground" />
@@ -269,21 +269,21 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
                         </Link>
                       ) : (
                         <div className="text-base font-bold truncate max-w-[200px]" title={alias ? `${displayTitle} (${item.title})` : item.title}>
-                            {displayTitle}
-                          </div>
+                          {displayTitle}
+                        </div>
                       )}
                       <Badge variant={isLinked ? 'emerald' : 'indigo'} className="text-[10px] h-4.5 px-1.5 shrink-0">
                         {isLinked ? 'Linked' : 'Registry'}
                       </Badge>
-                        {alias ? (
-                          <Badge variant="secondary" className="text-[10px] h-4.5 px-1.5 shrink-0 font-mono">
-                            alias:{alias}
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-[10px] h-4.5 px-1.5 shrink-0 text-muted-foreground">
-                            no alias
-                          </Badge>
-                        )}
+                      {alias ? (
+                        <Badge variant="secondary" className="text-[10px] h-4.5 px-1.5 shrink-0 font-mono">
+                          alias:{alias}
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-[10px] h-4.5 px-1.5 shrink-0 text-muted-foreground">
+                          no alias
+                        </Badge>
+                      )}
                       {!isLinked && isSkillsetFlag(item.skillset) && <SkillsetBadge className="scale-90 origin-left" />}
                     </div>
                   </div>

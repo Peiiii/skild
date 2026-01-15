@@ -2,7 +2,7 @@ import type { Env } from "./env.js";
 import type { LinkedItemRow } from "./linked-items.js";
 
 export type DiscoverItemType = "registry" | "linked";
-export type DiscoverSort = "updated" | "new" | "downloads_7d" | "downloads_30d";
+export type DiscoverSort = "updated" | "new" | "downloads_7d" | "downloads_30d" | "stars" | "stars_30d";
 
 export interface DiscoverItemRow {
   type: DiscoverItemType;
@@ -24,6 +24,8 @@ export interface DiscoverItemRow {
   downloads_total: number;
   downloads_7d: number;
   downloads_30d: number;
+  stars_total: number | null;
+  stars_30d: number | null;
 }
 
 export interface DiscoverItem {
@@ -48,11 +50,20 @@ export interface DiscoverItem {
   downloadsTotal: number;
   downloads7d: number;
   downloads30d: number;
+  starsTotal: number | null;
+  stars30d: number | null;
 }
 
 export interface DiscoverItemsPage {
   rows: DiscoverItemRow[];
   nextCursor: string | null;
+}
+
+function getMinStars(env: Env): number {
+  const raw = (env.DISCOVER_MIN_STARS || "").trim();
+  const n = Number.parseInt(raw, 10);
+  if (Number.isFinite(n) && n >= 0) return n;
+  return 50;
 }
 
 function parseTags(tagsJson: string): string[] {
@@ -71,6 +82,10 @@ function resolveSort(input: string | null | undefined): DiscoverSort {
       return "downloads_7d";
     case "downloads_30d":
       return "downloads_30d";
+    case "stars":
+      return "stars";
+    case "stars_30d":
+      return "stars_30d";
     case "new":
       return "new";
     case "updated":
@@ -85,6 +100,10 @@ function getSortValue(row: DiscoverItemRow, sort: DiscoverSort): string {
       return String(row.downloads_7d ?? 0);
     case "downloads_30d":
       return String(row.downloads_30d ?? 0);
+    case "stars":
+      return String(row.stars_total ?? 0);
+    case "stars_30d":
+      return String(row.stars_30d ?? 0);
     case "new":
       return row.created_at;
     case "updated":
@@ -121,7 +140,7 @@ function buildRegistryInstall(name: string): string {
   return `skild install ${name}`;
 }
 
-function buildLinkedInstall(input: { repo: string; path: string | null; ref: string | null }): string {
+export function buildLinkedInstall(input: { repo: string; path: string | null; ref: string | null }): string {
   const path = input.path ? `/${input.path}` : "";
   const ref = input.ref ? `#${input.ref}` : "";
   return `skild install "${input.repo}${path}${ref}"`;
@@ -153,6 +172,8 @@ export function toDiscoverItem(row: DiscoverItemRow): DiscoverItem {
     downloadsTotal: row.downloads_total ?? 0,
     downloads7d: row.downloads_7d ?? 0,
     downloads30d: row.downloads_30d ?? 0,
+    starsTotal: row.stars_total ?? null,
+    stars30d: row.stars_30d ?? null,
   };
 }
 
@@ -229,6 +250,7 @@ export async function listDiscoverItems(
   const sort = resolveSort(input.sort);
   const cursor = decodeCursor(input.cursor ?? null, sort);
   const skillsetFilter = input.skillset ?? null;
+  const minStars = getMinStars(env);
 
   const clauses: string[] = [];
   const params: Array<string | number> = [];
@@ -259,7 +281,8 @@ export async function listDiscoverItems(
     "SELECT d.*, COALESCE(s.alias, li.alias) AS alias, " +
     "COALESCE(dt.downloads, 0) AS downloads_total, " +
     "COALESCE(d7.downloads, 0) AS downloads_7d, " +
-    "COALESCE(d30.downloads, 0) AS downloads_30d " +
+    "COALESCE(d30.downloads, 0) AS downloads_30d, " +
+    "rm.stars_total AS stars_total, rm.stars_delta_30d AS stars_30d " +
     "FROM discover_items d " +
     "LEFT JOIN skills s ON s.name = d.source_id AND d.type = 'registry' " +
     "LEFT JOIN linked_items li ON li.id = d.source_id AND d.type = 'linked' " +
@@ -267,12 +290,17 @@ export async function listDiscoverItems(
     "LEFT JOIN (SELECT entity_type, entity_id, SUM(downloads) AS downloads FROM download_daily WHERE day >= ? AND day <= ? GROUP BY entity_type, entity_id) d7 " +
     "  ON d7.entity_type = d.type AND d7.entity_id = d.source_id " +
     "LEFT JOIN (SELECT entity_type, entity_id, SUM(downloads) AS downloads FROM download_daily WHERE day >= ? AND day <= ? GROUP BY entity_type, entity_id) d30 " +
-    "  ON d30.entity_type = d.type AND d30.entity_id = d.source_id";
+    "  ON d30.entity_type = d.type AND d30.entity_id = d.source_id " +
+    "LEFT JOIN repo_metrics rm ON rm.repo = d.source_repo";
 
   const baseParams: Array<string | number> = [start7d, endDay, start30d, endDay];
 
   const outerClauses = [...clauses];
   const outerParams = [...params];
+
+  // Filter low-star linked items (registry items不受影响)
+  outerClauses.push("(type != 'linked' OR COALESCE(stars_total, 0) >= ?)");
+  outerParams.push(minStars);
 
   if (cursor) {
     outerClauses.push(
@@ -295,6 +323,8 @@ export async function listDiscoverItems(
   let sortExpr = "discover_at";
   if (sort === "downloads_7d") sortExpr = "downloads_7d";
   else if (sort === "downloads_30d") sortExpr = "downloads_30d";
+  else if (sort === "stars") sortExpr = "COALESCE(stars_total, 0)";
+  else if (sort === "stars_30d") sortExpr = "COALESCE(stars_30d, 0)";
   else if (sort === "new") sortExpr = "created_at";
 
   let sql = `SELECT *, ${sortExpr} AS sort_value FROM (${baseSql}) base`;
