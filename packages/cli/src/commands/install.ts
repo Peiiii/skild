@@ -417,16 +417,18 @@ async function executeInstalls(ctx: InstallContext): Promise<void> {
     return;
   }
 
-  // Update spinner text
-  if (spinner) {
-    spinner.text = selectedSkills.length > 1
-      ? `Installing ${chalk.cyan(ctx.source)} — ${selectedSkills.length} skills...`
-      : `Installing ${chalk.cyan(ctx.source)}...`;
-  }
+  const totalSkills = selectedSkills.length;
+  const isMulti = totalSkills > 1;
+  let currentIdx = 0;
 
   for (const skill of selectedSkills) {
+    currentIdx += 1;
+    const skillName = skill.relPath === '.' ? ctx.source : skill.relPath;
+
     if (spinner) {
-      spinner.text = `Installing ${chalk.cyan(skill.relPath === '.' ? ctx.source : skill.relPath)}...`;
+      spinner.text = isMulti
+        ? `Installing ${chalk.cyan(skillName)} ${chalk.dim(`(${currentIdx}/${totalSkills})`)}...`
+        : `Installing ${chalk.cyan(skillName)}...`;
     }
 
     for (const platform of targets) {
@@ -498,71 +500,90 @@ function reportResults(ctx: InstallContext): void {
     return;
   }
 
-  // Console output
+  const platformsLabel = targets.length === PLATFORMS.length
+    ? 'all platforms'
+    : targets.length === 1
+      ? targets[0]
+      : `${targets.length} platforms`;
+
   if (errors.length === 0 && (results.length > 0 || skipped.length > 0)) {
     const displayName = results[0]?.canonicalName || results[0]?.name || ctx.source;
+    const skillCount = selectedSkills?.length ?? results.length;
 
-    if (skipped.length > 0) {
-      // Has some skips, show mixed or zero-installed summary
+    if (skipped.length > 0 && results.length > 0) {
       spinner?.succeed(
-        `Installed ${chalk.green(results.length)} and skipped ${chalk.dim(skipped.length)} (already installed) to ${chalk.dim(`${targets.length} platforms`)}`
+        `Installed ${chalk.green(results.length)} skill${results.length > 1 ? 's' : ''}, skipped ${chalk.dim(skipped.length)} → ${chalk.dim(platformsLabel)}`
+      );
+    } else if (skipped.length > 0) {
+      spinner?.succeed(
+        `Skipped ${chalk.dim(skipped.length)} (already installed) → ${chalk.dim(platformsLabel)}`
       );
     } else {
-      // Pure success (no skips)
       spinner?.succeed(
         isMultiSkill
-          ? `Installed ${chalk.green(String(selectedSkills?.length ?? results.length))}${chalk.dim(' skills')} to ${chalk.dim(`${targets.length} platforms`)}`
-          : targets.length > 1
-            ? `Installed ${chalk.green(displayName)} to ${chalk.dim(`${results.length} platforms`)}`
-            : `Installed ${chalk.green(displayName)} to ${chalk.dim(results[0]?.installDir || '')}`
+          ? `Installed ${chalk.green(skillCount)} skill${skillCount > 1 ? 's' : ''} → ${chalk.dim(platformsLabel)}`
+          : `Installed ${chalk.green(displayName)} → ${chalk.dim(results[0]?.installDir || platformsLabel)}`
       );
     }
   } else if (errors.length > 0) {
     const attempted = results.length + errors.length;
     spinner?.fail(
       isMultiSkill
-        ? `Install had failures (${errors.length}/${attempted} installs failed)`
-        : `Failed to install ${chalk.red(ctx.source)} to ${errors.length}/${targets.length} platforms`
+        ? `Install failed: ${chalk.red(errors.length)}/${attempted} errors`
+        : `Failed to install ${chalk.red(ctx.source)}`
     );
     process.exitCode = 1;
-    if (!isMultiSkill && targets.length === 1 && errors[0]) {
-      console.error(chalk.red(errors[0].error));
-    }
   }
 
-  // Show individual results for multi-skill installs
-  if (isMultiSkill || targets.length > 1) {
-    for (const r of results.slice(0, 60)) {
-      const displayName = r.canonicalName || r.name;
-      const suffix = r.hasSkillMd ? chalk.green('✓') : chalk.yellow('⚠');
-      console.log(`  ${suffix} ${chalk.cyan(displayName)} → ${chalk.dim(r.platform)}`);
+  if (isMultiSkill && results.length > 0) {
+    const groupedByPlatform = new Map<Platform, typeof results>();
+    for (const r of results) {
+      const list = groupedByPlatform.get(r.platform) || [];
+      list.push(r);
+      groupedByPlatform.set(r.platform, list);
     }
-    if (results.length > 60) console.log(chalk.dim(`  ... and ${results.length - 60} more`));
 
-    if (errors.length) {
-      console.log(chalk.yellow('\nFailures:'));
-      for (const e of errors) console.log(chalk.yellow(`  - ${e.platform}: ${e.error}`));
+    const uniqueSkillNames = [...new Set(results.map(r => r.canonicalName || r.name))];
+    if (uniqueSkillNames.length <= 20) {
+      console.log();
+      for (const name of uniqueSkillNames.slice(0, 20)) {
+        const record = results.find(r => (r.canonicalName || r.name) === name);
+        const icon = record?.hasSkillMd ? chalk.green('✓') : chalk.yellow('⚠');
+        console.log(`  ${icon} ${chalk.cyan(name)}`);
+      }
+    } else {
+      console.log(chalk.dim(`\n  ${uniqueSkillNames.length} skills installed`));
+      for (const name of uniqueSkillNames.slice(0, 8)) {
+        console.log(chalk.dim(`    • ${name}`));
+      }
+      console.log(chalk.dim(`    ... and ${uniqueSkillNames.length - 8} more`));
     }
-    process.exitCode = errors.length ? 1 : 0;
   } else if (!isMultiSkill && targets.length === 1 && results[0]) {
-    // Single skill details
     const record = results[0];
-    if (record.hasSkillMd) logger.installDetail('SKILL.md found ✓');
-    else logger.installDetail('Warning: No SKILL.md found', true);
-
+    if (!record.hasSkillMd) {
+      console.log(chalk.yellow(`  ⚠ No SKILL.md found`));
+    }
     if (record.skill?.validation && !record.skill.validation.ok) {
-      logger.installDetail(`Validation: ${chalk.yellow('failed')} (${record.skill.validation.issues.length} issues)`, true);
-    } else if (record.skill?.validation?.ok) {
-      logger.installDetail(`Validation: ${chalk.green('ok')}`);
+      console.log(chalk.yellow(`  ⚠ Validation failed (${record.skill.validation.issues.length} issues)`));
     }
   }
 
-  // Show skipped skills summary
+  if (errors.length > 0) {
+    console.log(chalk.red(`\n  Errors:`));
+    for (const e of errors.slice(0, 10)) {
+      const prefix = e.inputSource ? `${e.inputSource} → ${e.platform}` : e.platform;
+      console.log(chalk.red(`    ✗ ${prefix}: ${e.error}`));
+    }
+    if (errors.length > 10) {
+      console.log(chalk.dim(`    ... and ${errors.length - 10} more errors`));
+    }
+    process.exitCode = 1;
+  }
+
   if (skipped.length > 0) {
     const uniqueSkills = [...new Set(skipped.map(s => s.skillName))];
-    console.log(chalk.dim(`\nSkipped ${skipped.length} already installed (${uniqueSkills.length} skill${uniqueSkills.length > 1 ? 's' : ''}):`));
+    console.log(chalk.dim(`\n  Skipped ${uniqueSkills.length} already installed:`));
 
-    // Group by skill name
     const bySkill = new Map<string, Platform[]>();
     for (const s of skipped) {
       const platforms = bySkill.get(s.skillName) || [];
@@ -570,12 +591,13 @@ function reportResults(ctx: InstallContext): void {
       bySkill.set(s.skillName, platforms);
     }
 
-    for (const [skillName, platforms] of bySkill.entries()) {
-      const platformsStr = platforms.length === PLATFORMS.length ? 'all platforms' : platforms.join(', ');
-      console.log(chalk.dim(`  - ${skillName} (${platformsStr})`));
+    for (const [skillName] of [...bySkill.entries()].slice(0, 5)) {
+      console.log(chalk.dim(`    • ${skillName}`));
     }
-
-    console.log(chalk.dim(`\nTo reinstall, use: ${chalk.cyan('skild install <source> --force')}`));
+    if (bySkill.size > 5) {
+      console.log(chalk.dim(`    ... and ${bySkill.size - 5} more`));
+    }
+    console.log(chalk.dim(`\n  💡 Reinstall with: ${chalk.cyan(`skild install ${ctx.source} --force`)}`));
   }
 }
 

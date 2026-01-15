@@ -43,96 +43,65 @@ function formatDepName(dep: { name: string; canonicalName?: string }, nameToDisp
   return dep.canonicalName || nameToDisplay.get(dep.name) || dep.name;
 }
 
-function summarizeDeps(record: Listed['record']): string | null {
-  const deps = record?.installedDependencies || [];
-  if (deps.length === 0) return null;
-  const byType = deps.reduce(
-    (acc, d) => {
-      acc.total += 1;
-      if (d.sourceType === 'inline') acc.inline += 1;
-      else acc.external += 1;
-      acc.bySourceType[d.sourceType] = (acc.bySourceType[d.sourceType] || 0) + 1;
-      return acc;
-    },
-    { total: 0, inline: 0, external: 0, bySourceType: {} as Record<string, number> }
-  );
-
-  const parts: string[] = [];
-  if (byType.inline) parts.push(`${byType.inline} inline`);
-  const externalParts = Object.entries(byType.bySourceType)
-    .filter(([t]) => t !== 'inline')
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([t, c]) => `${c} ${t}`);
-  if (externalParts.length) parts.push(...externalParts);
-
-  return `deps: ${byType.total}${parts.length ? ` (${parts.join(', ')})` : ''}`;
-}
-
 function printSkillsetSection(skills: Listed[], nameToDisplay: Map<string, string>, options: Required<Pick<ListCommandOptions, 'paths' | 'verbose'>>): void {
-  console.log(chalk.bold(`  Skillsets (${skills.length})`));
+  console.log(chalk.bold(`  📦 Skillsets`) + chalk.dim(` (${skills.length})`));
   if (skills.length === 0) {
-    console.log(chalk.dim('    (none)'));
+    console.log(chalk.dim('    No skillsets'));
     return;
   }
 
   for (const s of skills) {
-    const label = `${chalk.cyan(getDisplayName(s))}${chalk.dim(' (skillset)')}${missingSkillMdLabel(s)}`;
-    console.log(`    ${statusIcon(s)} ${label}`);
-
-    const summary = summarizeDeps(s.record);
-    if (summary) console.log(chalk.dim(`      ${summary}`));
+    const depsCount = s.record?.installedDependencies?.length || 0;
+    const depsSuffix = depsCount > 0 ? chalk.dim(` → ${depsCount} deps`) : '';
+    console.log(`    ${statusIcon(s)} ${chalk.cyan(getDisplayName(s))}${depsSuffix}${missingSkillMdLabel(s)}`);
 
     if (options.verbose) {
       const deps = (s.record?.installedDependencies || []).slice().sort((a, b) => a.name.localeCompare(b.name));
-      if (deps.length) {
-        console.log(chalk.dim(`      includes (${deps.length}):`));
-        for (const dep of deps) {
-          const depName = formatDepName(dep, nameToDisplay);
-          console.log(chalk.dim(`        - ${depName} [${dep.sourceType}]`));
-        }
+      for (const dep of deps) {
+        const depName = formatDepName(dep, nameToDisplay);
+        console.log(chalk.dim(`        • ${depName}`));
       }
     }
 
-    if (options.paths || !s.hasSkillMd) console.log(chalk.dim(`      path: ${s.installDir}`));
+    if (options.paths || !s.hasSkillMd) console.log(chalk.dim(`      └─ ${s.installDir}`));
   }
 }
 
 function printSkillsSection(skills: Listed[], options: Required<Pick<ListCommandOptions, 'paths'>>): void {
-  console.log(chalk.bold(`  Skills (${skills.length})`));
+  console.log(chalk.bold(`  ⚡ Skills`) + chalk.dim(` (${skills.length})`));
   if (skills.length === 0) {
-    console.log(chalk.dim('    (none)'));
+    console.log(chalk.dim('    No skills'));
     return;
   }
   for (const s of skills) {
-    const label = `${chalk.cyan(getDisplayName(s))}${missingSkillMdLabel(s)}`;
-    console.log(`    ${statusIcon(s)} ${label}`);
-    if (options.paths || !s.hasSkillMd) console.log(chalk.dim(`      path: ${s.installDir}`));
+    console.log(`    ${statusIcon(s)} ${chalk.cyan(getDisplayName(s))}${missingSkillMdLabel(s)}`);
+    if (options.paths || !s.hasSkillMd) console.log(chalk.dim(`      └─ ${s.installDir}`));
   }
 }
 
 function printDependenciesSection(skills: Listed[], nameToDisplay: Map<string, string>, options: Required<Pick<ListCommandOptions, 'paths'>>): void {
-  console.log(chalk.bold(`  Dependencies (${skills.length})`));
+  console.log(chalk.bold(`  🔗 Dependencies`) + chalk.dim(` (${skills.length})`));
   if (skills.length === 0) {
-    console.log(chalk.dim('    (none)'));
+    console.log(chalk.dim('    No dependencies'));
     return;
   }
   for (const s of skills) {
     const dependedBy = (s.record?.dependedBy || [])
       .map(name => nameToDisplay.get(name) || name)
       .sort((a, b) => a.localeCompare(b));
-    const requiredBy = dependedBy.length ? chalk.dim(`  ← required by: ${dependedBy.join(', ')}`) : '';
-    const label = `${chalk.cyan(getDisplayName(s))}${missingSkillMdLabel(s)}${requiredBy}`;
-    console.log(`    ${statusIcon(s)} ${label}`);
-    if (options.paths || !s.hasSkillMd) console.log(chalk.dim(`      path: ${s.installDir}`));
+    const requiredBy = dependedBy.length ? chalk.dim(` ← ${dependedBy.join(', ')}`) : '';
+    console.log(`    ${statusIcon(s)} ${chalk.cyan(getDisplayName(s))}${requiredBy}${missingSkillMdLabel(s)}`);
+    if (options.paths || !s.hasSkillMd) console.log(chalk.dim(`      └─ ${s.installDir}`));
   }
 }
 
 function printPlatform(skills: Listed[], platform: string, scope: string, options: Required<Pick<ListCommandOptions, 'paths' | 'verbose'>>): void {
-  console.log(chalk.bold(`\n📦 Installed Skills — ${platform} (${scope})\n`));
+  const platformLabel = platform.charAt(0).toUpperCase() + platform.slice(1);
+  console.log(chalk.bold(`\n${platformLabel}`) + chalk.dim(` (${scope}, ${skills.length} total)`));
 
   if (skills.length === 0) {
     console.log(chalk.dim('  No skills installed.'));
-    console.log(chalk.dim(`  Use ${chalk.cyan('skild install <source>')} to install a skill.`));
+    console.log(chalk.dim(`  💡 Use ${chalk.cyan('skild install <source>')} to get started.`));
     return;
   }
 
@@ -146,11 +115,17 @@ function printPlatform(skills: Listed[], platform: string, scope: string, option
     .filter(s => !isSkillset(s) && !Boolean(s.record?.dependedBy?.length))
     .sort((a, b) => getDisplayName(a).localeCompare(getDisplayName(b)));
 
-  printSkillsetSection(skillsets, nameToDisplay, options);
-  console.log('');
-  printSkillsSection(regular, options);
-  console.log('');
-  printDependenciesSection(dependencies, nameToDisplay, options);
+  if (skillsets.length > 0) {
+    printSkillsetSection(skillsets, nameToDisplay, options);
+  }
+  if (regular.length > 0) {
+    console.log('');
+    printSkillsSection(regular, options);
+  }
+  if (dependencies.length > 0) {
+    console.log('');
+    printDependenciesSection(dependencies, nameToDisplay, options);
+  }
   console.log('');
 }
 
@@ -180,8 +155,8 @@ export async function list(options: ListCommandOptions = {}): Promise<void> {
   }
 
   if (allSkills.length === 0) {
-    console.log(chalk.dim('No skills installed.'));
-    console.log(chalk.dim(`Use ${chalk.cyan('skild install <source>')} to install a skill.`));
+    console.log(chalk.dim('\nNo skills installed.'));
+    console.log(chalk.dim(`💡 Use ${chalk.cyan('skild install <source>')} to get started.\n`));
     return;
   }
 
