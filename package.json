@@ -35,7 +35,7 @@
         "release:prepare": "pnpm changeset && pnpm release:version",
         "release:publish": "node scripts/release/publish.mjs",
         "release:dry": "pnpm release:check && (cd packages/core && npm publish --dry-run) && (cd packages/cli && npm publish --dry-run)",
-        "release": "pnpm release:publish",
+        "release": "pnpm release:prepare && pnpm release:publish",
         "deploy:console": "node scripts/deploy/console-pages.mjs",
         "deploy:workers": "node scripts/deploy/workers.mjs",
         "deploy:registry": "node scripts/deploy/workers.mjs --only registry",

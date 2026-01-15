@@ -1,5 +1,13 @@
 # skild
 
+## 0.4.5
+
+### Patch Changes
+
+- improve tui
+- Updated dependencies
+  - @skild/core@0.4.5
+
 ## 0.4.4
 
 ### Patch Changes
