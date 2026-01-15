@@ -1,5 +1,11 @@
 # @skild/core
 
+## 0.4.6
+
+### Patch Changes
+
+- improve tui
+
 ## 0.4.5
 
 ### Patch Changes
