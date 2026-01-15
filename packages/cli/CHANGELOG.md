@@ -1,5 +1,17 @@
 # skild
 
+## 0.5.0
+
+### Minor Changes
+
+- - add Cursor/Windsurf platform support (paths, discovery, CLI prompts) and update docs
+  ***
+
+### Patch Changes
+
+- Updated dependencies
+  - @skild/core@0.5.0
+
 ## 0.4.7
 
 ### Patch Changes
