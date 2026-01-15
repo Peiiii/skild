@@ -85,7 +85,7 @@ skild install @peiiii/hello-skill@1.0.0
 
 | Option | Description |
 |--------|-------------|
-| `-t, --target` | Platform: `claude`, `codex`, `copilot`, `antigravity`, `opencode` (interactive prompt defaults to all; non-interactive defaults to `claude`) |
+| `-t, --target` | Platform: `claude`, `codex`, `copilot`, `antigravity`, `opencode`, `cursor`, `windsurf` (interactive prompt defaults to all; non-interactive defaults to `claude`) |
 | `--all` | Install to all platforms |
 | `--recursive` | If source is a multi-skill directory/repo (no root `SKILL.md`), install all discovered skills |
 | `-y, --yes` | Skip confirmation prompts (assume yes) |
@@ -131,6 +131,8 @@ All commands accept `-t <platform>` and `--local` options.
 | `claude` | `~/.claude/skills` | `./.claude/skills` |
 | `codex` | `~/.codex/skills` | `./.codex/skills` |
 | `opencode` | `~/.config/opencode/skill` | `./.opencode/skill` |
+| `cursor` | `~/.cursor/skills` | `./.cursor/skills` |
+| `windsurf` | `~/.windsurf/skills` | `./.windsurf/skills` |
 | `copilot` | `~/.github/skills` | `./.github/skills` |
 | `antigravity` | `~/.gemini/antigravity/skills` | `./.agent/skills` |
 

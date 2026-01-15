@@ -77,6 +77,8 @@ export function discoverSkillDirsWithHeuristics(
     path.join('.claude', 'skills'),
     path.join('.codex', 'skills'),
     path.join('.opencode', 'skill'),
+    path.join('.cursor', 'skills'),
+    path.join('.windsurf', 'skills'),
     path.join('.github', 'skills'),
   ];
 

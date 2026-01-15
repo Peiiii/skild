@@ -39,6 +39,14 @@ export function getSkillsDir(platform: Platform, scope: InstallScope): string {
       return scope === 'project'
         ? path.join(getProjectDir(), '.opencode', 'skill')
         : path.join(getHomeDir(), '.config', 'opencode', 'skill');
+    case 'cursor':
+      return scope === 'project'
+        ? path.join(getProjectDir(), '.cursor', 'skills')
+        : path.join(getHomeDir(), '.cursor', 'skills');
+    case 'windsurf':
+      return scope === 'project'
+        ? path.join(getProjectDir(), '.windsurf', 'skills')
+        : path.join(getHomeDir(), '.windsurf', 'skills');
   }
 }
 

@@ -331,6 +331,8 @@ const PLATFORM_DISPLAY: Record<Platform, string> = {
     copilot: 'Copilot',
     antigravity: 'Antigravity',
     opencode: 'OpenCode',
+    cursor: 'Cursor',
+    windsurf: 'Windsurf',
 };
 
 function formatTreeNode(

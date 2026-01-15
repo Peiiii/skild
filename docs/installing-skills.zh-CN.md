@@ -60,6 +60,8 @@ Skild 支持多个 AI Agent 平台：
 | Claude | `-t claude`（默认） | `~/.claude/skills` |
 | Codex | `-t codex` | `~/.codex/skills` |
 | OpenCode | `-t opencode` | `~/.config/opencode/skill` |
+| Cursor | `-t cursor` | `~/.cursor/skills` |
+| Windsurf | `-t windsurf` | `~/.windsurf/skills` |
 | Copilot | `-t copilot` | `~/.github/skills` |
 | Antigravity | `-t antigravity` | `~/.gemini/antigravity/skills` |
 
@@ -93,6 +95,8 @@ skild install @publisher/skill --local
 - Claude: `./.claude/skills`
 - Codex: `./.codex/skills`
 - OpenCode: `./.opencode/skill`
+- Cursor: `./.cursor/skills`
+- Windsurf: `./.windsurf/skills`
 - Copilot: `./.github/skills`
 - Antigravity: `./.agent/skills`
 
@@ -148,7 +152,7 @@ skild validate skill-name
 
 | 选项 | 说明 |
 |------|------|
-| `-t, --target <platform>` | 目标平台：`claude`、`codex`、`copilot`、`antigravity`、`opencode` |
+| `-t, --target <platform>` | 目标平台：`claude`、`codex`、`copilot`、`antigravity`、`opencode`、`cursor`、`windsurf` |
 | `--all` | 一次性安装到所有平台 |
 | `--recursive` | 如果 source 是多 skill 目录/仓库，一键安装发现的所有 Skills |
 | `-y, --yes` | 跳过确认提示（默认同意） |

@@ -63,6 +63,8 @@ skild publish --dir ./my-skill
 | Claude | `-t claude` | `~/.claude/skills` |
 | Codex | `-t codex` | `~/.codex/skills` |
 | OpenCode | `-t opencode` | `~/.config/opencode/skill` |
+| Cursor | `-t cursor` | `~/.cursor/skills` |
+| Windsurf | `-t windsurf` | `~/.windsurf/skills` |
 | Copilot | `-t copilot` | `~/.github/skills` |
 | Antigravity | `-t antigravity` | `~/.gemini/antigravity/skills` |
 
