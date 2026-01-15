@@ -545,7 +545,8 @@ app.get("/discover", async (c) => {
   try {
     const q = (c.req.query("q") || "").trim();
     const limit = Number.parseInt(c.req.query("limit") || "20", 10) || 20;
-    const cursor = (c.req.query("cursor") || "").trim() || null;
+    const rawCursor = (c.req.query("cursor") || "").trim() || null;
+    const cursor = rawCursor;
     const sort = (c.req.query("sort") || "").trim() || null;
     const skillset = parseOptionalBoolean(c.req.query("skillset"));
     const page = await listDiscoverItems(c.env, { q, limit, cursor, sort, skillset });
@@ -553,6 +554,7 @@ app.get("/discover", async (c) => {
       ok: true,
       items: page.rows.map((r) => toDiscoverItem(r)),
       nextCursor: page.nextCursor,
+      cursor: rawCursor,
       total: page.total,
     });
   } catch (e) {

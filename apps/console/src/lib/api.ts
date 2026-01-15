@@ -290,13 +290,20 @@ export async function listDiscoverItems(
   sort = 'updated',
   options?: { skillset?: boolean }
 ): Promise<DiscoverListResponse> {
-  const url = newApiUrl('/discover');
-  if (query.trim()) url.searchParams.set('q', query.trim());
-  if (cursor) url.searchParams.set('cursor', encodeURIComponent(cursor));
-  url.searchParams.set('limit', String(limit));
-  url.searchParams.set('sort', sort);
-  if (options?.skillset !== undefined) url.searchParams.set('skillset', options.skillset ? '1' : '0');
-  return fetchJson<DiscoverListResponse>(url.toString(), {}, 10_000);
+  const base = getRegistryUrl();
+  const params = new URLSearchParams();
+  if (query.trim()) params.set('q', query.trim());
+  if (cursor) params.set('cursor', cursor);
+  params.set('limit', String(limit));
+  params.set('sort', sort);
+  if (options?.skillset !== undefined) params.set('skillset', options.skillset ? '1' : '0');
+
+  const url =
+    base.startsWith('http://') || base.startsWith('https://')
+      ? `${base}/discover?${params.toString()}`
+      : `${getRegistryUrl()}/discover?${params.toString()}`;
+
+  return fetchJson<DiscoverListResponse>(url, {}, 10_000);
 }
 
 export async function getSkillStats(scope: string, skill: string, window = '30d'): Promise<EntityStatsResponse> {
