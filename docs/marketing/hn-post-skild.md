@@ -1,33 +1,35 @@
-# Show HN: Skild – a unified package manager for agent skills & skillsets
+# Show HN: Skild – The npm for AI agent skills
 
 Hi HN,
 
-I built **Skild**, an open-source CLI + registry that makes agent skills easy to discover, install, and share across different AI agent platforms. It’s already live in production.
+I built **Skild**, an open-source CLI that simplifies how we manage, discover, and share skills for AI agents.
 
-**Why:** skills are becoming a primitive, but each platform has different install paths and conventions. Skills are scattered across GitHub repos, subfolders, curated lists, and registries. Installs are often manual and hard to reproduce.
+**The Problem:**
+AI agent "skills" (tools, knowledge bases, functions) are becoming essential primitives. However, every platform (Claude Desktop, Codex, Copilot, Antigravity, etc.) has its own directory structure, file conventions, and manual installation steps. I found myself manually copying MCP-like scripts and tools into various directories across different machines. It felt like the early days of manual library management before package managers became standard.
 
-**What Skild adds:**
-- One install workflow for GitHub, shorthand, registry, or local dirs
-- Install to one platform or **all** supported targets with a single command
-- **Skillsets**: curated packs of skills you can install and share as one unit
-- Alias installs for short names (e.g. `skild install superpowers`)
-- Multi-skill repos: discover + install skills under `skills/*/SKILL.md`
-- Non-interactive mode for CI (`--recursive`, `-y`)
+**The Solution:**
+Skild brings a unified package management workflow to agent skills. Like npm, but for the AI ecosystem.
 
-**Examples**
+**Key Features:**
+- **Unified Workflow**: Install from GitHub URLs, shorthands, the Skild registry, or local directories.
+- **Multi-platform**: Install to one specific agent or all of them (`--all`) with a single command.
+- **Skillsets**: Bundle related skills into a single "pack" (e.g., a "superpowers" pack for TDD, debugging, and code review).
+- **Discovery**: Built-in search and recursion to find skills within nested repo structures.
+
+**Quick Demo:**
+
 ```bash
 # GitHub URL or shorthand
 skild install https://github.com/anthropics/skills/tree/main/skills/pdf
 skild install anthropics/skills/skills/pdf
 
-# Install to one target or all supported targets
-skild install anthropics/skills/skills/pdf -t codex
-skild install anthropics/skills/skills/pdf --all
+# Install to all supported targets at once
+skild install pdf --all
 
-# Alias install (if published)
-skild install superpowers
+# Install a curated pack (Skillset)
+skild install superpowers  # Installs 14+ skills for development
 
-# Multi-skill repo discovery
+# Multi-skill repo discovery (recursively find SKILL.md)
 skild install https://github.com/anthropics/skills --recursive
 
 # Search, list, validate
@@ -35,24 +37,19 @@ skild search pdf
 skild list
 skild validate ./path/to/skill
 
-# Update or uninstall
-skild update pdf
-skild uninstall pdf
-
 # Create & publish a skill
 skild init my-skill
-cd my-skill
-skild login
-skild publish --name my-skill 
-skild install @yourhandle/my-skill
+skild publish --alias my-cool-tool
 ```
 
-Links:
+**Links:**
 - Website: https://skild.sh
-- Hub (search/browse): https://hub.skild.sh
-- GitHub: https://github.com/Peiiii/skild
+- Hub (Web UI): https://hub.skild.sh
+- GitHub: https://github.com/Peiiii/skild (MIT License)
 
-I’d love feedback on:
-- the “skillset” concept (packs of skills)
-- the ideal install/update workflow
-- missing primitives (versioning, pinning, lockfiles, discovery UX)
+**Seeking Feedback on:**
+- Does the "Skillset" (curated packs) concept resonate with your agent workflows?
+- What primitives are we missing? (e.g., version pinning, lockfiles, or better discovery UX)
+- How do you personally manage your agent's tools today?
+
+I’ll be here to answer any questions!
