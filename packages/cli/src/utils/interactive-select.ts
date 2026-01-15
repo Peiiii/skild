@@ -1,44 +1,54 @@
+/**
+ * Interactive tree-based selection UI (changeset-style).
+ * 
+ * Features:
+ * - Tree structure with collapsible parent nodes
+ * - Space to toggle selection (parent toggles all children)
+ * - Arrow keys for navigation
+ * - Visual hints for actions
+ */
 import readline from 'readline';
 import chalk from 'chalk';
 import type { Platform } from '@skild/core';
 import { PLATFORMS } from '@skild/core';
 
-// Platform display names
-const PLATFORM_DISPLAY: Record<Platform, { name: string }> = {
-    claude: { name: 'Claude' },
-    codex: { name: 'Codex' },
-    copilot: { name: 'Copilot' },
-    antigravity: { name: 'Antigravity' },
-};
+// ============================================================================
+// Types
+// ============================================================================
 
 export type SkillChoice = {
     relPath: string;
     suggestedSource: string;
     materializedDir?: string;
-    /** Platforms where this skill is already installed */
     installedPlatforms?: Platform[];
 };
 
-// --- Tree Node Structure ---
 type TreeNode = {
     id: string;
     name: string;
     depth: number;
     children: TreeNode[];
-    leafIndices: number[]; // Indices of skills under this node
+    leafIndices: number[];
     isLeaf: boolean;
 };
 
+type SelectionState = 'all' | 'none' | 'partial';
+
+interface TreeSelectOptions<T> {
+    title: string;
+    subtitle: string;
+    buildTree: (items: T[]) => TreeNode;
+    formatNode: (node: TreeNode, selection: SelectionInfo, isCursor: boolean) => string;
+    defaultAll: boolean;
+    defaultSelected?: Set<number>;
+}
+
+// ============================================================================
+// Tree Building
+// ============================================================================
+
 function buildSkillTree(skills: SkillChoice[]): TreeNode {
-    // Create "All Skills" as the root visible node
-    const allNode: TreeNode = {
-        id: 'all',
-        name: 'All Skills',
-        depth: 1,
-        children: [],
-        leafIndices: [],
-        isLeaf: false
-    };
+    const allNode = createTreeNode('all', 'All Skills', 1, false);
 
     for (let i = 0; i < skills.length; i++) {
         const relPath = skills[i]!.relPath;
@@ -53,14 +63,7 @@ function buildSkillTree(skills: SkillChoice[]): TreeNode {
             let child = current.children.find(c => c.name === part);
 
             if (!child) {
-                child = {
-                    id: nodeId,
-                    name: part,
-                    depth: d + 2, // +2 because allNode is depth 1
-                    children: [],
-                    leafIndices: [],
-                    isLeaf: d === parts.length - 1,
-                };
+                child = createTreeNode(nodeId, part, d + 2, d === parts.length - 1);
                 current.children.push(child);
             }
             child.leafIndices.push(i);
@@ -68,19 +71,40 @@ function buildSkillTree(skills: SkillChoice[]): TreeNode {
         }
     }
 
-    // Collapse single-child intermediate nodes: if All Skills has only one child
-    // and that child is not a leaf, promote its children directly under All Skills
+    // Collapse single-child intermediate nodes
+    collapseIntermediateNodes(allNode);
+
+    return wrapWithRoot(allNode);
+}
+
+function buildPlatformTree(items: { platform: Platform }[]): TreeNode {
+    const allNode = createTreeNode('all', 'All Platforms', 1, false);
+
+    for (let i = 0; i < items.length; i++) {
+        const platform = items[i]!.platform;
+        allNode.children.push(createTreeNode(platform, platform, 2, true, [i]));
+        allNode.leafIndices.push(i);
+    }
+
+    return wrapWithRoot(allNode);
+}
+
+function createTreeNode(id: string, name: string, depth: number, isLeaf: boolean, leafIndices: number[] = []): TreeNode {
+    return { id, name, depth, children: [], leafIndices, isLeaf };
+}
+
+function wrapWithRoot(allNode: TreeNode): TreeNode {
+    return { id: '', name: '.', depth: 0, children: [allNode], leafIndices: [...allNode.leafIndices], isLeaf: false };
+}
+
+function collapseIntermediateNodes(allNode: TreeNode): void {
     while (allNode.children.length === 1 && !allNode.children[0]!.isLeaf && allNode.children[0]!.children.length > 0) {
         const singleChild = allNode.children[0]!;
-        // Promote children, adjusting their depth
         for (const grandchild of singleChild.children) {
             adjustDepth(grandchild, -1);
         }
         allNode.children = singleChild.children;
     }
-
-    const root: TreeNode = { id: '', name: '.', depth: 0, children: [allNode], leafIndices: allNode.leafIndices.slice(), isLeaf: false };
-    return root;
 }
 
 function adjustDepth(node: TreeNode, delta: number): void {
@@ -94,54 +118,105 @@ function flattenTree(root: TreeNode): TreeNode[] {
     const result: TreeNode[] = [];
 
     function walk(node: TreeNode) {
-        // Don't include root itself
-        if (node.id !== '') {
-            result.push(node);
-        }
-        for (const child of node.children) {
-            walk(child);
-        }
+        if (node.id !== '') result.push(node);
+        for (const child of node.children) walk(child);
     }
 
-    for (const child of root.children) {
-        walk(child);
-    }
-
+    for (const child of root.children) walk(child);
     return result;
 }
 
-function getNodeState(node: TreeNode, selected: Set<number>): 'all' | 'none' | 'partial' {
-    const total = node.leafIndices.length;
-    if (total === 0) return 'none';
-    let count = 0;
-    for (const idx of node.leafIndices) {
-        if (selected.has(idx)) count++;
-    }
-    if (count === 0) return 'none';
-    if (count === total) return 'all';
-    return 'partial';
+interface SelectionInfo {
+    state: SelectionState;
+    selectedCount: number;
 }
 
-// --- Changeset-style Interactive Tree Selector ---
+function getNodeSelection(node: TreeNode, selected: Set<number>): SelectionInfo {
+    const total = node.leafIndices.length;
+    if (total === 0) return { state: 'none', selectedCount: 0 };
+
+    let selectedCount = 0;
+    for (const idx of node.leafIndices) {
+        if (selected.has(idx)) selectedCount++;
+    }
+
+    let state: SelectionState = 'none';
+    if (selectedCount === total) state = 'all';
+    else if (selectedCount > 0) state = 'partial';
+
+    return { state, selectedCount };
+}
+
+// ============================================================================
+// Terminal Rendering
+// ============================================================================
+
+interface TerminalRenderer {
+    renderContent: () => string[];
+    getLineCount: () => number;
+}
+
+function createRenderer(
+    title: string,
+    subtitle: string,
+    flatNodes: TreeNode[],
+    selected: Set<number>,
+    getCursor: () => number,
+    formatNode: (node: TreeNode, selection: SelectionInfo, isCursor: boolean) => string
+): TerminalRenderer {
+    function renderContent(): string[] {
+        const lines: string[] = [];
+        lines.push(chalk.bold.cyan(title));
+        lines.push(chalk.dim(subtitle));
+        lines.push(''); // blank line
+
+        const cursor = getCursor();
+        for (let i = 0; i < flatNodes.length; i++) {
+            const node = flatNodes[i]!;
+            const selection = getNodeSelection(node, selected);
+            lines.push(formatNode(node, selection, i === cursor));
+        }
+
+        lines.push(''); // trailing blank
+        return lines;
+    }
+
+    function getLineCount(): number {
+        // title + subtitle + blank + nodes + blank
+        return 4 + flatNodes.length;
+    }
+
+    return { renderContent, getLineCount };
+}
+
+function writeToTerminal(stdout: NodeJS.WriteStream, lines: string[]): void {
+    for (const line of lines) {
+        stdout.write(line + '\n');
+    }
+}
+
+function clearAndRerender(stdout: NodeJS.WriteStream, lineCount: number, lines: string[]): void {
+    stdout.write('\x1B[?25l'); // Hide cursor
+    stdout.write(`\x1B[${lineCount}A`); // Move up
+    stdout.write('\x1B[0J'); // Clear to end
+    writeToTerminal(stdout, lines);
+}
+
+// ============================================================================
+// Interactive Selection Core
+// ============================================================================
+
 async function interactiveTreeSelect<T>(
     items: T[],
-    options: {
-        title: string;
-        subtitle: string;
-        buildTree: (items: T[]) => TreeNode;
-        formatNode: (node: TreeNode, state: 'all' | 'none' | 'partial', isCursor: boolean) => string;
-        defaultAll: boolean;
-        /** Custom initial selection (overrides defaultAll if provided) */
-        defaultSelected?: Set<number>;
-    }
+    options: TreeSelectOptions<T>
 ): Promise<number[] | null> {
     const { title, subtitle, buildTree, formatNode, defaultAll, defaultSelected } = options;
 
     const root = buildTree(items);
     const flatNodes = flattenTree(root);
-
     if (flatNodes.length === 0) return null;
 
+    // Initialize selection
     const selected = new Set<number>();
     if (defaultSelected) {
         for (const idx of defaultSelected) selected.add(idx);
@@ -150,127 +225,94 @@ async function interactiveTreeSelect<T>(
     }
 
     let cursor = 0;
-
-    // Setup raw mode
     const stdin = process.stdin;
     const stdout = process.stdout;
 
+    // Non-interactive fallback
     if (!stdin.isTTY || !stdout.isTTY) {
-        // Non-interactive fallback: select all
         return defaultAll ? Array.from(selected) : null;
     }
 
+    // Setup raw mode
     const wasRaw = Boolean((stdin as any).isRaw);
     stdin.setRawMode(true);
     stdin.resume();
     readline.emitKeypressEvents(stdin);
 
-    function render() {
-        // Clear previous render
-        stdout.write('\x1B[?25l'); // Hide cursor
+    // Create renderer
+    const renderer = createRenderer(title, subtitle, flatNodes, selected, () => cursor, formatNode);
 
-        // Move up and clear if not first render
-        const totalLines = flatNodes.length + 4;
-        stdout.write(`\x1B[${totalLines}A`);
-
-        stdout.write('\x1B[0J'); // Clear from cursor to end of screen
-
-        stdout.write(`\n${chalk.bold.cyan(title)}\n`);
-        stdout.write(`${chalk.dim(subtitle)}\n\n`);
-
-        for (let i = 0; i < flatNodes.length; i++) {
-            const node = flatNodes[i]!;
-            const state = getNodeState(node, selected);
-            const isCursor = i === cursor;
-            stdout.write(formatNode(node, state, isCursor) + '\n');
-        }
-
-        stdout.write('\n');
-    }
-
-    function initialRender() {
-        stdout.write(`\n${chalk.bold.cyan(title)}\n`);
-        stdout.write(`${chalk.dim(subtitle)}\n\n`);
-
-        for (let i = 0; i < flatNodes.length; i++) {
-            const node = flatNodes[i]!;
-            const state = getNodeState(node, selected);
-            const isCursor = i === cursor;
-            stdout.write(formatNode(node, state, isCursor) + '\n');
-        }
-
-        stdout.write('\n');
-    }
-
-    initialRender();
+    // Initial render
+    writeToTerminal(stdout, renderer.renderContent());
 
     return new Promise<number[] | null>((resolve) => {
-        function cleanup() {
+        function cleanup(clear = false) {
+            if (clear) {
+                const lineCount = renderer.getLineCount();
+                stdout.write(`\x1B[${lineCount}A`); // Move up
+                stdout.write('\x1B[0J'); // Clear to end
+            }
             stdin.setRawMode(wasRaw);
             stdin.pause();
             stdin.removeListener('keypress', onKeypress);
             stdout.write('\x1B[?25h'); // Show cursor
         }
 
+        function rerender() {
+            clearAndRerender(stdout, renderer.getLineCount(), renderer.renderContent());
+        }
+
+        function toggleNode(node: TreeNode) {
+            const { state } = getNodeSelection(node, selected);
+            if (state === 'all') {
+                for (const idx of node.leafIndices) selected.delete(idx);
+            } else {
+                for (const idx of node.leafIndices) selected.add(idx);
+            }
+        }
+
+        function toggleAll() {
+            if (selected.size === items.length) {
+                selected.clear();
+            } else {
+                for (let i = 0; i < items.length; i++) selected.add(i);
+            }
+        }
+
         function onKeypress(_str: string | undefined, key: readline.Key) {
             if (key.ctrl && key.name === 'c') {
-                cleanup();
+                cleanup(true); // Clear on exit
                 resolve(null);
                 return;
             }
 
             if (key.name === 'return' || key.name === 'enter') {
-                cleanup();
-                const result = Array.from(selected);
-                if (result.length === 0) {
-                    resolve(null);
-                } else {
-                    resolve(result);
-                }
+                cleanup(true); // Clear on confirm
+                resolve(selected.size > 0 ? Array.from(selected) : null);
                 return;
             }
 
             if (key.name === 'up') {
                 cursor = (cursor - 1 + flatNodes.length) % flatNodes.length;
-                render();
+                rerender();
                 return;
             }
 
             if (key.name === 'down') {
                 cursor = (cursor + 1) % flatNodes.length;
-                render();
+                rerender();
                 return;
             }
 
             if (key.name === 'space') {
-                // Toggle current node (and all its children)
-                const node = flatNodes[cursor]!;
-                const state = getNodeState(node, selected);
-
-                if (state === 'all') {
-                    // Deselect all leaves under this node
-                    for (const idx of node.leafIndices) {
-                        selected.delete(idx);
-                    }
-                } else {
-                    // Select all leaves under this node
-                    for (const idx of node.leafIndices) {
-                        selected.add(idx);
-                    }
-                }
-                render();
+                toggleNode(flatNodes[cursor]!);
+                rerender();
                 return;
             }
 
-            // 'a' for select all
             if (key.name === 'a') {
-                const allSelected = selected.size === items.length;
-                if (allSelected) {
-                    selected.clear();
-                } else {
-                    for (let i = 0; i < items.length; i++) selected.add(i);
-                }
-                render();
+                toggleAll();
+                rerender();
                 return;
             }
         }
@@ -279,25 +321,72 @@ async function interactiveTreeSelect<T>(
     });
 }
 
-// --- Skill Selection ---
+// ============================================================================
+// Node Formatters
+// ============================================================================
+
+const PLATFORM_DISPLAY: Record<Platform, string> = {
+    claude: 'Claude',
+    codex: 'Codex',
+    copilot: 'Copilot',
+    antigravity: 'Antigravity',
+};
+
+function formatTreeNode(
+    node: TreeNode,
+    selection: SelectionInfo,
+    isCursor: boolean,
+    options: { suffix?: string } = {}
+): string {
+    const { state, selectedCount } = selection;
+    const totalCount = node.leafIndices.length;
+
+    const indent = '  '.repeat(node.depth - 1);
+    const checkbox = state === 'all' ? chalk.green('●')
+        : state === 'partial' ? chalk.yellow('◐')
+            : chalk.dim('○');
+    const name = isCursor ? chalk.cyan.underline(node.name) : node.name;
+    const cursorMark = isCursor ? chalk.cyan('› ') : '  ';
+
+    // Formatted count: e.g. (16/16) or (1/16)
+    let count = '';
+    if (totalCount > 1) {
+        count = chalk.dim(` (${selectedCount}/${totalCount})`);
+    }
+
+    const suffix = options.suffix || '';
+
+    // Action hint
+    let hint = '';
+    if (isCursor && totalCount > 0) {
+        hint = state === 'all'
+            ? chalk.dim(' ← Space to deselect')
+            : chalk.dim(' ← Space to select');
+    }
+
+    return `${cursorMark}${indent}${checkbox} ${name}${count}${suffix}${hint}`;
+}
+
+// ============================================================================
+// Public API
+// ============================================================================
+
 export async function promptSkillsInteractive(
     skills: SkillChoice[],
     options: { defaultAll?: boolean; targetPlatforms?: Platform[] } = {}
 ): Promise<SkillChoice[] | null> {
     if (skills.length === 0) return null;
 
-    // Determine which skills are already installed on target platforms
     const targetPlatforms = options.targetPlatforms || [];
     const hasInstalledCheck = targetPlatforms.length > 0;
 
-    // Calculate default selection: skip already-installed if we have platform info
+    // Calculate default selection
     const defaultSelected = new Set<number>();
     for (let i = 0; i < skills.length; i++) {
         const skill = skills[i]!;
         const installedOnTargets = skill.installedPlatforms?.filter(p => targetPlatforms.includes(p)) || [];
         const isFullyInstalled = hasInstalledCheck && installedOnTargets.length === targetPlatforms.length;
 
-        // By default: don't select fully-installed skills, select others
         if (options.defaultAll !== false && !isFullyInstalled) {
             defaultSelected.add(i);
         }
@@ -307,129 +396,64 @@ export async function promptSkillsInteractive(
         title: 'Select skills to install',
         subtitle: '↑↓ navigate • Space toggle • Enter confirm',
         buildTree: buildSkillTree,
-        formatNode: (node, state, isCursor) => {
-            const indent = '  '.repeat(node.depth - 1);
-            const checkbox = state === 'all' ? chalk.green('●')
-                : state === 'partial' ? chalk.yellow('◐')
-                    : chalk.dim('○');
-
-            // Check if this is a leaf node representing a single skill
-            let installedTag = '';
+        formatNode: (node, selection, isCursor) => {
+            // Check installed status for leaf nodes
+            let suffix = '';
             if (node.isLeaf && node.leafIndices.length === 1) {
                 const skill = skills[node.leafIndices[0]!];
                 if (skill?.installedPlatforms?.length) {
                     if (skill.installedPlatforms.length === targetPlatforms.length && targetPlatforms.length > 0) {
-                        installedTag = chalk.dim(' [installed]');
+                        suffix = chalk.dim(' [installed]');
                     } else if (skill.installedPlatforms.length > 0) {
-                        installedTag = chalk.dim(` [installed on ${skill.installedPlatforms.length}]`);
+                        suffix = chalk.dim(` [installed on ${skill.installedPlatforms.length}]`);
                     }
                 }
             }
 
-            const name = isCursor
-                ? chalk.cyan.underline(node.name)
-                : node.name;
-            const cursor = isCursor ? chalk.cyan('› ') : '  ';
-            const count = node.leafIndices.length > 1 ? chalk.dim(` (${node.leafIndices.length})`) : '';
+            const formatted = formatTreeNode(node, selection, isCursor, { suffix });
 
-            // Show action hint when cursor is on this row
-            let hint = '';
-            if (isCursor && node.leafIndices.length > 0) {
-                if (installedTag && state !== 'all') {
-                    hint = chalk.dim(' ← Space to reinstall');
-                } else {
-                    hint = state === 'all'
-                        ? chalk.dim(' ← Space to deselect')
-                        : chalk.dim(' ← Space to select');
-                }
+            // Override hint for installed items
+            if (isCursor && suffix && selection.state !== 'all') {
+                return formatted.replace('← Space to select', '← Space to reinstall');
             }
-
-            return `${cursor}${indent}${checkbox} ${name}${count}${installedTag}${hint}`;
+            return formatted;
         },
-        defaultAll: false, // We handle default selection manually
+        defaultAll: false,
         defaultSelected,
     });
 
-    if (!selectedIndices || selectedIndices.length === 0) {
-        return null;
-    }
+    if (!selectedIndices) return null;
 
-    console.log(chalk.green(`\n✓ ${selectedIndices.length} skill${selectedIndices.length > 1 ? 's' : ''} selected\n`));
-    return selectedIndices.map(i => skills[i]!);
+    const selectedSkills = selectedIndices.map(i => skills[i]!);
+    const names = selectedSkills.map(s => s.relPath === '.' ? s.suggestedSource : s.relPath);
+    console.log(chalk.green(`\n✓ Selected ${selectedSkills.length} skill${selectedSkills.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`));
+    return selectedSkills;
 }
 
-// --- Platform Selection (simpler, flat list) ---
 export async function promptPlatformsInteractive(
     options: { defaultAll?: boolean } = {}
 ): Promise<Platform[] | null> {
-    // For platforms, use a simple flat tree
     const platformItems = PLATFORMS.map(p => ({ platform: p }));
 
     const selectedIndices = await interactiveTreeSelect(platformItems, {
         title: 'Select target platforms',
         subtitle: '↑↓ navigate • Space toggle • Enter confirm',
-        buildTree: (items) => {
-            // Create "All Platforms" as a parent node
-            const allNode: TreeNode = {
-                id: 'all',
-                name: 'All Platforms',
-                depth: 1,
-                children: [],
-                leafIndices: [],
-                isLeaf: false
-            };
+        buildTree: buildPlatformTree,
+        formatNode: (node, selection, isCursor) => {
+            const displayName = node.name === 'All Platforms'
+                ? node.name
+                : PLATFORM_DISPLAY[node.name as Platform] || node.name;
 
-            for (let i = 0; i < items.length; i++) {
-                const p = items[i]!.platform;
-                allNode.children.push({
-                    id: p,
-                    name: p,
-                    depth: 2,
-                    children: [],
-                    leafIndices: [i],
-                    isLeaf: true,
-                });
-                allNode.leafIndices.push(i);
-            }
-
-            const root: TreeNode = { id: '', name: '.', depth: 0, children: [allNode], leafIndices: allNode.leafIndices.slice(), isLeaf: false };
-            return root;
-        },
-        formatNode: (node, state, isCursor) => {
-            const indent = '  '.repeat(node.depth - 1);
-            const checkbox = state === 'all' ? chalk.green('●')
-                : state === 'partial' ? chalk.yellow('◐')
-                    : chalk.dim('○');
-
-            let displayName = node.name;
-            if (node.name !== 'All Platforms') {
-                const platform = node.name as Platform;
-                const display = PLATFORM_DISPLAY[platform];
-                if (display) displayName = display.name;
-            }
-
-            const name = isCursor ? chalk.cyan.underline(displayName) : displayName;
-            const cursor = isCursor ? chalk.cyan('› ') : '  ';
-            const count = node.leafIndices.length > 1 ? chalk.dim(` (${node.leafIndices.length})`) : '';
-
-            // Show action hint when cursor is on this row
-            let hint = '';
-            if (isCursor && node.leafIndices.length > 0) {
-                hint = state === 'all'
-                    ? chalk.dim(' ← Space to deselect')
-                    : chalk.dim(' ← Space to select');
-            }
-
-            return `${cursor}${indent}${checkbox} ${name}${count}${hint}`;
+            const modifiedNode = { ...node, name: displayName };
+            return formatTreeNode(modifiedNode, selection, isCursor);
         },
         defaultAll: options.defaultAll !== false,
     });
 
-    if (!selectedIndices || selectedIndices.length === 0) {
-        return null;
-    }
+    if (!selectedIndices) return null;
 
     const selected = selectedIndices.map(i => PLATFORMS[i]!);
-    console.log(chalk.green(`\n✓ Installing to ${selected.length} platform${selected.length > 1 ? 's' : ''}\n`));
+    const names = selected.map(p => PLATFORM_DISPLAY[p] || p);
+    console.log(chalk.green(`\n✓ Installing to ${selected.length} platform${selected.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`));
     return selected;
 }
