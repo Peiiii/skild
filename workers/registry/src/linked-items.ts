@@ -204,7 +204,7 @@ function buildDegitPath(input: { repo: string; path: string | null; ref: string 
 
 export function buildInstallCommand(source: { provider: LinkedItemSourceProvider; repo: string; path: string | null; ref: string | null; url: string | null }): string {
   if (source.provider !== "github") throw new Error("Unsupported provider.");
-  return `skild install ${buildDegitPath({ repo: source.repo, path: source.path, ref: source.ref })}`;
+  return `skild install "${buildDegitPath({ repo: source.repo, path: source.path, ref: source.ref })}"`;
 }
 
 export function normalizeLinkedSource(input: {
