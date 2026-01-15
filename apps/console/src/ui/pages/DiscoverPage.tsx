@@ -68,7 +68,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
       }
       setItems(res.items);
       setNextCursor(res.nextCursor);
-      setTotal(res.total);
+      setTotal(typeof res.total === 'number' ? res.total : null);
     } catch (err: unknown) {
       if (err instanceof HttpError) setError(err.bodyText || `HTTP ${err.status}`);
       else setError(err instanceof Error ? err.message : String(err));
@@ -91,7 +91,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
       }
       setItems(prev => [...prev, ...res.items]);
       setNextCursor(res.nextCursor);
-      setTotal(res.total);
+      setTotal(typeof res.total === 'number' ? res.total : null);
     } catch (err: unknown) {
       if (err instanceof HttpError) setError(err.bodyText || `HTTP ${err.status}`);
       else setError(err instanceof Error ? err.message : String(err));
@@ -253,7 +253,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
 
       {!busy && !error && (
         <div className="text-xs text-muted-foreground">
-          {total !== null
+          {total != null && total >= 0
             ? `Showing ${items.length} of ${total} result${total === 1 ? '' : 's'}${nextCursor ? ' (more available)' : ''}.`
             : `Showing ${items.length} result${items.length === 1 ? '' : 's'}${nextCursor ? ' (more available)' : ''}.`}
         </div>
