@@ -1,5 +1,11 @@
 # @skild/core
 
+## 0.4.7
+
+### Patch Changes
+
+- support opencode
+
 ## 0.4.6
 
 ### Patch Changes
