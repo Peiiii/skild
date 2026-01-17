@@ -7,6 +7,7 @@ import {
   installRegistrySkill,
   installSkill,
   isValidAlias,
+  listSkills,
   loadRegistryAuth,
   materializeSourceToTemp,
   resolveRegistryAlias,
@@ -14,6 +15,7 @@ import {
   stripSourceRef,
   SkildError,
   type InstallRecord,
+  type InstallScope,
   type Platform,
   PLATFORMS
 } from '@skild/core';
@@ -98,6 +100,15 @@ function looksLikeAlias(input: string): boolean {
 
 function printJson(value: unknown): void {
   process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+}
+
+function getInstalledPlatforms(scope: InstallScope): Platform[] {
+  return PLATFORMS.filter(platform => listSkills({ platform, scope }).length > 0);
+}
+
+function getPlatformPromptList(scope: InstallScope): Platform[] {
+  const installed = getInstalledPlatforms(scope);
+  return installed.length > 0 ? installed : [...PLATFORMS];
 }
 
 function asDiscoveredSkills(
@@ -310,7 +321,10 @@ async function promptSelections(ctx: InstallContext): Promise<boolean> {
   if (isSingleSkill) {
     if (ctx.needsPlatformPrompt) {
       if (ctx.spinner) ctx.spinner.stop();
-      const selectedPlatforms = await promptPlatformsInteractive({ defaultAll: true });
+      const selectedPlatforms = await promptPlatformsInteractive({
+        defaultAll: true,
+        platforms: getPlatformPromptList(ctx.scope),
+      });
       if (!selectedPlatforms) {
         console.log(chalk.red('No platforms selected.'));
         process.exitCode = 1;
@@ -389,7 +403,10 @@ async function promptSelections(ctx: InstallContext): Promise<boolean> {
 
     // Step 2: Select platforms
     if (ctx.needsPlatformPrompt) {
-      const selectedPlatforms = await promptPlatformsInteractive({ defaultAll: true });
+      const selectedPlatforms = await promptPlatformsInteractive({
+        defaultAll: true,
+        platforms: getPlatformPromptList(ctx.scope),
+      });
       if (!selectedPlatforms) {
         console.log(chalk.red('No platforms selected.'));
         process.exitCode = 1;

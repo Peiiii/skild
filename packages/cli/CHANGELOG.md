@@ -1,5 +1,11 @@
 # skild
 
+## 0.5.3
+
+### Patch Changes
+
+- filter interactive platform selection to show only locally installed platforms when available
+
 ## 0.5.2
 
 ### Patch Changes

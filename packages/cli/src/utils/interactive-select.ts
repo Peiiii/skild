@@ -434,9 +434,10 @@ export async function promptSkillsInteractive(
 }
 
 export async function promptPlatformsInteractive(
-    options: { defaultAll?: boolean } = {}
+    options: { defaultAll?: boolean; platforms?: Platform[] } = {}
 ): Promise<Platform[] | null> {
-    const platformItems = PLATFORMS.map(p => ({ platform: p }));
+    const platforms = options.platforms && options.platforms.length > 0 ? options.platforms : PLATFORMS;
+    const platformItems = platforms.map(p => ({ platform: p }));
 
     const selectedIndices = await interactiveTreeSelect(platformItems, {
         title: 'Select target platforms',
@@ -455,7 +456,7 @@ export async function promptPlatformsInteractive(
 
     if (!selectedIndices) return null;
 
-    const selected = selectedIndices.map(i => PLATFORMS[i]!);
+    const selected = selectedIndices.map(i => platforms[i]!);
     const names = selected.map(p => PLATFORM_DISPLAY[p] || p);
     console.log(chalk.green(`\n✓ Installing to ${selected.length} platform${selected.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`));
     return selected;
