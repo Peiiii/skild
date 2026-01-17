@@ -154,12 +154,26 @@ export async function resolveRegistryAlias(
     throw new SkildError('REGISTRY_RESOLVE_FAILED', `Failed to resolve alias "${a}" (${res.status}). ${text}`.trim());
   }
   const json = (await res.json()) as { ok: boolean; type?: string; spec?: string };
-  if (!json?.ok || !json.type || typeof json.spec !== 'string' || !json.spec.trim()) {
+  const normalizedSpec = normalizeResolvedSpec(json?.spec);
+  if (!json?.ok || !json.type || !normalizedSpec) {
     throw new SkildError('REGISTRY_RESOLVE_FAILED', `Invalid registry response for alias "${a}".`);
   }
-  if (json.type === 'registry') return { type: 'registry', spec: json.spec.trim() };
-  if (json.type === 'linked') return { type: 'linked', spec: json.spec.trim() };
+  if (json.type === 'registry') return { type: 'registry', spec: normalizedSpec };
+  if (json.type === 'linked') return { type: 'linked', spec: normalizedSpec };
   throw new SkildError('REGISTRY_RESOLVE_FAILED', `Unsupported alias target type "${json.type}".`);
+}
+
+function normalizeResolvedSpec(spec?: string): string {
+  if (typeof spec !== 'string') return '';
+  let normalized = spec.trim();
+  while (
+    normalized.length >= 2 &&
+    ((normalized.startsWith('"') && normalized.endsWith('"')) ||
+      (normalized.startsWith("'") && normalized.endsWith("'")))
+  ) {
+    normalized = normalized.slice(1, -1).trim();
+  }
+  return normalized;
 }
 
 export async function downloadAndExtractTarball(resolved: RegistryResolvedVersion, tempRoot: string, stagingDir: string): Promise<void> {

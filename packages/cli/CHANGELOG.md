@@ -1,5 +1,13 @@
 # skild
 
+## 0.5.2
+
+### Patch Changes
+
+- normalize registry alias specs by stripping accidental wrapping quotes
+- Updated dependencies
+  - @skild/core@0.5.2
+
 ## 0.5.1
 
 ### Patch Changes
