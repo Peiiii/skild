@@ -17,6 +17,7 @@ import {
     ArrowRight,
     Filter
 } from 'lucide-react';
+import { PageHero } from '@/components/ui/page-hero';
 
 export function LeaderboardPage(): JSX.Element {
     const [items, setItems] = React.useState<LeaderboardItem[]>([]);
@@ -60,75 +61,68 @@ export function LeaderboardPage(): JSX.Element {
     }
 
     return (
-        <div className="space-y-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-indigo-400 font-bold tracking-wider uppercase text-xs">
-                        <Trophy className="h-4 w-4" />
-                        <span>Top Skills</span>
+        <div className="space-y-12">
+            <PageHero
+                title="Leaderboard"
+                description="Most installed skills across the Skild network. Equip your agents with what's trending."
+                actions={
+                    <div className="flex flex-wrap items-center gap-3 bg-brand-forest/[0.03] p-1.5 rounded-full border border-brand-forest/5">
+                        <div className="flex items-center gap-1 bg-white/50 rounded-full p-1 shadow-sm">
+                            <Button
+                                variant={type === 'all' ? 'secondary' : 'ghost'}
+                                size="sm"
+                                className="h-8 text-[11px] px-4 font-bold rounded-full"
+                                onClick={() => setType('all')}
+                            >
+                                All
+                            </Button>
+                            <Button
+                                variant={type === 'registry' ? 'secondary' : 'ghost'}
+                                size="sm"
+                                className="h-8 text-[11px] px-4 font-bold rounded-full"
+                                onClick={() => setType('registry')}
+                            >
+                                Registry
+                            </Button>
+                            <Button
+                                variant={type === 'linked' ? 'secondary' : 'ghost'}
+                                size="sm"
+                                className="h-8 text-[11px] px-4 font-bold rounded-full"
+                                onClick={() => setType('linked')}
+                            >
+                                Linked
+                            </Button>
+                        </div>
+                        <div className="w-px h-4 bg-brand-forest/10 mx-1" />
+                        <div className="flex items-center gap-1 bg-white/50 rounded-full p-1 shadow-sm">
+                            <Button
+                                variant={period === '7d' ? 'secondary' : 'ghost'}
+                                size="sm"
+                                className="h-8 text-[11px] px-4 font-bold rounded-full"
+                                onClick={() => setPeriod('7d')}
+                            >
+                                7 Days
+                            </Button>
+                            <Button
+                                variant={period === '30d' ? 'secondary' : 'ghost'}
+                                size="sm"
+                                className="h-8 text-[11px] px-4 font-bold rounded-full"
+                                onClick={() => setPeriod('30d')}
+                            >
+                                30 Days
+                            </Button>
+                            <Button
+                                variant={period === '90d' ? 'secondary' : 'ghost'}
+                                size="sm"
+                                className="h-8 text-[11px] px-4 font-bold rounded-full"
+                                onClick={() => setPeriod('90d')}
+                            >
+                                90 Days
+                            </Button>
+                        </div>
                     </div>
-                    <h1 className="text-3xl font-black tracking-tight">Leaderboard</h1>
-                    <p className="text-muted-foreground max-w-xl">
-                        Most installed skills across the Skild network. Equip your agents with what's trending.
-                    </p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2 bg-secondary/20 p-1.5 rounded-xl border border-border/40">
-                    <div className="flex items-center gap-1 bg-background/50 rounded-lg p-1">
-                        <Button
-                            variant={type === 'all' ? 'secondary' : 'ghost'}
-                            size="sm"
-                            className="h-8 text-xs px-3 font-bold"
-                            onClick={() => setType('all')}
-                        >
-                            All
-                        </Button>
-                        <Button
-                            variant={type === 'registry' ? 'secondary' : 'ghost'}
-                            size="sm"
-                            className="h-8 text-xs px-3 font-bold"
-                            onClick={() => setType('registry')}
-                        >
-                            Registry
-                        </Button>
-                        <Button
-                            variant={type === 'linked' ? 'secondary' : 'ghost'}
-                            size="sm"
-                            className="h-8 text-xs px-3 font-bold"
-                            onClick={() => setType('linked')}
-                        >
-                            Linked
-                        </Button>
-                    </div>
-                    <div className="w-px h-4 bg-border/40 mx-1" />
-                    <div className="flex items-center gap-1 bg-background/50 rounded-lg p-1">
-                        <Button
-                            variant={period === '7d' ? 'secondary' : 'ghost'}
-                            size="sm"
-                            className="h-8 text-xs px-3 font-bold"
-                            onClick={() => setPeriod('7d')}
-                        >
-                            7 Days
-                        </Button>
-                        <Button
-                            variant={period === '30d' ? 'secondary' : 'ghost'}
-                            size="sm"
-                            className="h-8 text-xs px-3 font-bold"
-                            onClick={() => setPeriod('30d')}
-                        >
-                            30 Days
-                        </Button>
-                        <Button
-                            variant={period === '90d' ? 'secondary' : 'ghost'}
-                            size="sm"
-                            className="h-8 text-xs px-3 font-bold"
-                            onClick={() => setPeriod('90d')}
-                        >
-                            90 Days
-                        </Button>
-                    </div>
-                </div>
-            </div>
+                }
+            />
 
             {error && (
                 <Alert variant="destructive">
@@ -144,14 +138,14 @@ export function LeaderboardPage(): JSX.Element {
                     ))}
                 </div>
             ) : (
-                <div className="border rounded-2xl overflow-hidden border-border/40 bg-card/30 backdrop-blur-sm">
+                <div className="border border-brand-forest/5 rounded-[32px] overflow-hidden bg-white shadow-xl shadow-brand-forest/[0.02]">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-secondary/30 text-[10px] font-bold uppercase tracking-widest text-muted-foreground border-b border-border/40">
-                                <th className="px-6 py-4 w-16 text-center">#</th>
-                                <th className="px-6 py-4">Skill</th>
-                                <th className="px-6 py-4 text-center">Installs</th>
-                                <th className="px-6 py-4 text-right">Action</th>
+                            <tr className="bg-brand-forest/[0.03] text-[9px] font-bold uppercase tracking-[0.2em] text-brand-forest/30 border-b border-brand-forest/5">
+                                <th className="px-8 py-5 w-20 text-center">Rank</th>
+                                <th className="px-6 py-5">Skill</th>
+                                <th className="px-6 py-5 text-center">Installs</th>
+                                <th className="px-8 py-5 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -161,25 +155,25 @@ export function LeaderboardPage(): JSX.Element {
                                 const href = isLinked ? `/linked/${encodeURIComponent(item.sourceId)}` : `/skills/${item.sourceId.replace('/', '%2F')}`; // Simplified, router handles it
 
                                 return (
-                                    <tr key={id} className="group border-b border-border/20 last:border-0 hover:bg-secondary/20 transition-colors">
-                                        <td className="px-6 py-4 text-center font-black text-muted-foreground group-hover:text-indigo-400 transition-colors">
+                                    <tr key={id} className="group border-b border-brand-forest/5 last:border-0 hover:bg-brand-forest/[0.01] transition-all">
+                                        <td className="px-8 py-6 text-center font-serif font-bold text-brand-forest/20 group-hover:text-brand-forest transition-colors text-lg">
                                             {idx + 1}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-brand-forest/5 border border-brand-forest/5 flex items-center justify-center transition-transform group-hover:scale-105">
                                                     {isLinked ? (
-                                                        <Github className="h-5 w-5 text-emerald-400" />
+                                                        <Github className="h-6 w-6 text-brand-eco" />
                                                     ) : (
-                                                        <Package className="h-5 w-5 text-indigo-400" />
+                                                        <Package className="h-6 w-6 text-brand-forest" />
                                                     )}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <Link to={isLinked ? `/linked/${encodeURIComponent(item.sourceId)}` : `/skills/${item.sourceId.split('/')[0]}/${item.sourceId.split('/')[1]}`} className="font-bold hover:text-indigo-400 transition-colors block truncate">
+                                                    <Link to={isLinked ? `/linked/${encodeURIComponent(item.sourceId)}` : `/skills/${item.sourceId.split('/')[0]}/${item.sourceId.split('/')[1]}`} className="font-serif text-lg font-bold text-brand-forest hover:text-brand-eco transition-colors block truncate">
                                                         {item.title}
                                                     </Link>
-                                                    <div className="flex items-center gap-2 mt-0.5">
-                                                        <Badge variant={isLinked ? 'emerald' : 'indigo'} className="px-1 text-[9px] h-3.5 leading-none uppercase tracking-tighter">
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <Badge variant={isLinked ? 'eco' : 'forest'} className="px-1.5 text-[8px] h-3.5 leading-none uppercase tracking-widest font-bold">
                                                             {isLinked ? 'Linked' : 'Registry'}
                                                         </Badge>
                                                     </div>
@@ -188,24 +182,24 @@ export function LeaderboardPage(): JSX.Element {
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <div className="inline-flex flex-col items-center">
-                                                <span className="text-xl font-black text-foreground/90">{item.downloads}</span>
-                                                <TrendingUp className="h-3 w-3 text-emerald-500 opacity-50" />
+                                                <span className="text-2xl font-serif font-bold text-brand-forest leading-none">{item.downloads}</span>
+                                                <TrendingUp className="h-3 w-3 text-brand-eco opacity-40 mt-1" />
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <div className="hidden md:block">
-                                                    <code className="text-[10px] text-muted-foreground mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <td className="px-8 py-4 text-right">
+                                            <div className="flex items-center justify-end gap-3">
+                                                <div className="hidden lg:block">
+                                                    <code className="text-[10px] text-brand-forest/20 font-mono mr-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         {item.install}
                                                     </code>
                                                 </div>
                                                 <Button
                                                     size="sm"
                                                     variant="secondary"
-                                                    className="h-8 gap-2 font-bold text-xs"
+                                                    className="h-9 gap-2 px-4 shadow-sm"
                                                     onClick={() => void copyInstall(item)}
                                                 >
-                                                    {copiedId === id ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                                                    {copiedId === id ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                                                     <span className="hidden sm:inline">{copiedId === id ? 'Copied' : 'Copy'}</span>
                                                 </Button>
                                             </div>
@@ -216,9 +210,11 @@ export function LeaderboardPage(): JSX.Element {
                         </tbody>
                     </table>
                     {items.length === 0 && !busy && (
-                        <div className="py-20 text-center space-y-3">
-                            <TrendingUp className="h-12 w-12 text-muted-foreground/20 mx-auto" />
-                            <p className="text-muted-foreground font-medium">No stats available for this period.</p>
+                        <div className="py-24 text-center space-y-4">
+                            <div className="w-16 h-16 bg-brand-forest/5 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <TrendingUp className="h-8 w-8 text-brand-forest/20" />
+                            </div>
+                            <p className="text-brand-forest/40 font-serif italic text-lg">No stats available for this period.</p>
                         </div>
                     )}
                 </div>

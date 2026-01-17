@@ -1,27 +1,27 @@
 @import "tailwindcss";
-@config "../tailwind.config.ts";
+
+@theme {
+  --color-brand-forest: #2D4A22;
+  --color-brand-eco: #58A858;
+  --color-bg-cream: #FBFBF8;
+  --color-text-main: #12120F;
+
+  --font-serif: "Lora", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-background: var(--color-bg-cream);
+  --color-foreground: var(--color-text-main);
+  --color-primary: var(--color-brand-forest);
+  --color-secondary: var(--color-brand-eco);
+  --color-border: color-mix(in srgb, var(--color-brand-forest), transparent 94%);
+  --color-muted: color-mix(in srgb, var(--color-brand-forest), transparent 97%);
+  --color-muted-foreground: color-mix(in srgb, var(--color-brand-forest), transparent 50%);
+  --color-accent: var(--color-brand-eco);
+}
 
 @layer base {
   :root {
-    --background: 0 0% 3%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 239 84% 67%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 55%;
-    --accent: 239 84% 67%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 62% 55%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 14%;
-    --input: 0 0% 14%;
-    --ring: 239 84% 67%;
     --radius: 0.625rem;
   }
 }
@@ -32,6 +32,6 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased font-sans;
   }
 }

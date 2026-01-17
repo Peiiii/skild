@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { MailWarning, Key, Package, BookOpen, UserCircle } from 'lucide-react';
+import { PageHero } from '@/components/ui/page-hero';
 
 export function MePage(): JSX.Element {
   const auth = useAuth();
@@ -13,7 +14,7 @@ export function MePage(): JSX.Element {
   if (!publisher) return <div className="text-sm text-muted-foreground">No session.</div>;
 
   return (
-    <div className="grid gap-6">
+    <div className="space-y-8">
       {/* Temporarily hidden as email verification is not yet supported
       {!publisher.emailVerified && (
         <Alert variant="destructive" className="bg-destructive/5 border-destructive/20">
@@ -30,27 +31,26 @@ export function MePage(): JSX.Element {
       )}
       */}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Dashboard</CardTitle>
-          <CardDescription>
-            Signed in as <span className="font-mono">@{publisher.handle}</span> ({publisher.email})
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-4">
-          <Button asChild className="gap-2">
+      <PageHero
+        title="Dashboard"
+        description={`Welcome back, @${publisher.handle}`}
+      />
+
+      <Card className="p-8">
+        <CardContent className="flex flex-wrap gap-4 pt-0">
+          <Button asChild className="gap-2 px-6 h-12 rounded-full">
             <Link to="/me/tokens">
               <Key className="w-4 h-4" />
               Manage tokens
             </Link>
           </Button>
-          <Button asChild variant="secondary" className="gap-2">
+          <Button asChild variant="secondary" className="gap-2 px-6 h-12 rounded-full">
             <Link to="/me/skills">
               <Package className="w-4 h-4" />
               My skills
             </Link>
           </Button>
-          <Button asChild variant="outline" className="gap-2">
+          <Button asChild variant="outline" className="gap-2 px-6 h-12 rounded-full border-brand-forest/10 hover:bg-brand-forest/5 hover:text-brand-forest">
             <Link to="/publish">
               <BookOpen className="w-4 h-4" />
               Publish guide

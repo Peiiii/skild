@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { listLinkedItems } from '@/lib/api';
 import type { LinkedItemWithInstall } from '@/lib/api-types';
@@ -6,20 +6,14 @@ import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
 import { useAuth } from '@/features/auth/auth-store';
 import { normalizeAlias, preferredInstallCommand, preferredDisplayName } from '@/lib/install';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import {
-  Search,
-  Github,
-  Tag,
-  User,
-  Clock,
-  Check,
-  Copy,
-} from 'lucide-react';
+import { PageHero } from '@/components/ui/page-hero';
+import { SearchBar } from '@/components/ui/search-bar';
+import { CodeBlock } from '@/components/ui/code-block';
+import { Github, Tag, User, Clock, Package } from 'lucide-react';
 
 export function LinkedItemsPage(): JSX.Element {
   const auth = useAuth();
@@ -98,149 +92,142 @@ export function LinkedItemsPage(): JSX.Element {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <CardTitle>Skills from GitHub</CardTitle>
-            <CardDescription>Browse and index skills directly from GitHub repositories.</CardDescription>
-          </div>
-          <Button asChild variant="secondary">
+    <div className="space-y-8">
+      <PageHero
+        title="Skills from GitHub"
+        description="Browse and index skills directly from GitHub repositories."
+        actions={
+          <Button asChild variant="secondary" className="h-12 px-8 shadow-lg">
             <Link to={authed ? '/linked/new' : `/login?next=${encodeURIComponent('/linked/new')}`}>
-              {authed ? '+ Submit' : 'Login to submit'}
+              {authed ? '+ Submit Skill' : 'Login to submit'}
             </Link>
           </Button>
+        }
+      />
+
+      <SearchBar
+        value={queryInput}
+        onChange={setQueryInput}
+        onSubmit={onSearch}
+        placeholder="Search items submitted from GitHub..."
+        className="mb-12"
+      />
+
+      {error && (
+        <Alert variant="destructive" className="rounded-[24px] border-destructive/20 bg-destructive/5">
+          <AlertTitle>Failed to load items</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      {busy ? (
+        <div className="grid gap-6">
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <div key={`skeleton-${idx}`} className="rounded-[32px] border border-brand-forest/5 p-8 animate-pulse bg-white">
+              <div className="h-6 w-48 rounded-full bg-brand-forest/5" />
+              <div className="mt-4 h-4 w-3/4 rounded-full bg-brand-forest/5" />
+              <div className="mt-6 h-12 w-full rounded-[16px] bg-brand-forest/5" />
+            </div>
+          ))}
         </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <form className="relative flex gap-2" onSubmit={onSearch}>
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              value={queryInput}
-              onChange={e => setQueryInput(e.currentTarget.value)}
-              placeholder="Search items submitted from GitHub..."
-              className="pl-9 bg-secondary/30 border-border/40"
-            />
+      ) : items.length === 0 ? (
+        <div className="py-24 text-center space-y-4 bg-white/50 backdrop-blur-sm rounded-[32px] border border-brand-forest/5">
+          <div className="w-16 h-16 bg-brand-forest/5 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Github className="h-8 w-8 text-brand-forest/20" />
           </div>
-          <Button type="submit" variant="secondary">Search</Button>
-        </form>
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertTitle>Failed to load items</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {busy ? (
-          <div className="grid gap-4">
-            {Array.from({ length: 3 }).map((_, idx) => (
-              <div key={`skeleton-${idx}`} className="rounded-md border border-border/60 p-4 animate-pulse">
-                <div className="h-4 w-40 rounded bg-muted" />
-                <div className="mt-3 h-3 w-3/4 rounded bg-muted" />
-                <div className="mt-4 h-8 w-full rounded bg-muted" />
-              </div>
-            ))}
-          </div>
-        ) : items.length === 0 ? (
-          <div className="text-sm text-muted-foreground">
+          <p className="text-brand-forest/40 font-serif italic text-xl">
             {query ? `No results for "${query}".` : 'No skills yet. Be the first to contribute!'}
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {items.map(item => {
-              const alias = normalizeAlias(item.alias);
-              const title = preferredDisplayName({ title: item.title, alias });
-              const installCmd = preferredInstallCommand({ install: item.install, alias });
-              return (
-              <div key={item.id} className="group relative rounded-xl border border-border/40 bg-card p-6 transition-all hover:border-border/80 hover:bg-muted/5">
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1 space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Link to={`/linked/${encodeURIComponent(item.id)}`} className="text-lg font-bold hover:text-primary transition-colors">
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-6">
+          {items.map(item => {
+            const alias = normalizeAlias(item.alias);
+            const title = preferredDisplayName({ title: item.title, alias });
+            const installCmd = preferredInstallCommand({ install: item.install, alias });
+            return (
+              <Card key={item.id} className="group p-8 hover:border-brand-forest/20 transition-all hover:shadow-2xl hover:shadow-brand-forest/5">
+                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-8">
+                  <div className="min-w-0 flex-1 space-y-4">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Link to={`/linked/${encodeURIComponent(item.id)}`} className="text-2xl font-serif font-bold text-brand-forest hover:text-brand-eco transition-colors">
                         {title}
                       </Link>
-                      <Badge variant="emerald">Linked</Badge>
+                      <Badge variant="eco">Linked</Badge>
                       {alias ? (
-                        <Badge variant="secondary" className="h-5 text-[10px] font-mono">alias:{alias}</Badge>
+                        <Badge variant="forest" className="font-mono lowercase tracking-normal bg-brand-forest/5 border-none text-[10px]">{alias}</Badge>
                       ) : (
-                        <Badge variant="outline" className="h-5 text-[10px] text-muted-foreground">no alias</Badge>
+                        <Badge variant="outline" className="opacity-30 border-brand-forest/20 text-[10px]">no alias</Badge>
                       )}
                     </div>
 
-                    {/* Repository Source */}
-                    <div className="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
-                      <Github className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2 text-sm font-medium text-brand-forest/60">
+                      <div className="w-6 h-6 rounded-full bg-brand-forest/5 flex items-center justify-center">
+                        <Github className="h-3.5 w-3.5 text-brand-forest" />
+                      </div>
                       <a
                         href={`https://github.com/${item.source.repo}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="hover:underline hover:text-primary transition-colors"
+                        className="hover:text-brand-forest transition-colors flex items-center gap-1"
                       >
-                        {item.source.repo}{item.source.path ? ` / ${item.source.path}` : ''}
+                        {item.source.repo}{item.source.path ? <><span className="opacity-30">/</span>{item.source.path}</> : ''}
                       </a>
                     </div>
 
-                    <div className="text-sm text-muted-foreground leading-relaxed mt-1">
-                      {item.description || <span className="italic opacity-60">No description provided</span>}
-                    </div>
+                    <p className="text-base text-brand-forest/70 leading-relaxed italic">
+                      {item.description || "No description provided"}
+                    </p>
 
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2 text-[11px] text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2">
                       {item.submittedBy && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-brand-forest/40">
                           <User className="h-3 w-3" />
-                          <span>Submitted by:</span>
-                          <span className="text-foreground/80 font-medium">@{item.submittedBy.handle}</span>
+                          <span>By <span className="text-brand-forest">@{item.submittedBy.handle}</span></span>
                         </div>
                       )}
                       {item.tags.length > 0 && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-brand-forest/40">
                           <Tag className="h-3 w-3" />
-                          <span className="text-foreground/80">{item.tags.join(', ')}</span>
+                          <div className="flex gap-1.5 font-mono text-[9px] lowercase tracking-normal">
+                             {item.tags.map(tag => (
+                               <span key={tag} className="bg-brand-forest/5 px-2 py-0.5 rounded-full">{tag}</span>
+                             ))}
+                          </div>
                         </div>
                       )}
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-brand-forest/40">
                         <Clock className="h-3 w-3" />
                         <span>{formatRelativeTime(item.createdAt)}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-3 min-w-[180px]">
-                    <div className="space-y-1.5">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Install</div>
-                      <div className="relative">
-                        <div className="rounded-lg bg-black/40 border border-border/40 p-3 font-mono text-[11px] break-all pr-9 min-h-[40px] flex items-center">
-                          {installCmd}
-                        </div>
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-                          onClick={() => void copyInstall(item.id, installCmd)}
-                        >
-                          {copiedId === item.id ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
-                        </Button>
-                      </div>
+                  <div className="lg:w-80 flex-shrink-0">
+                    <div className="space-y-2">
+                       <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-forest/30 ml-1">
+                         <Package className="w-3 h-3" />
+                         Install
+                       </div>
+                       <CodeBlock copyValue={installCmd} className="shadow-none" innerClassName="p-4 bg-brand-forest/5 border-none text-brand-forest rounded-[20px]">
+                         {installCmd}
+                       </CodeBlock>
                     </div>
                   </div>
                 </div>
-              </div>
+              </Card>
             );
-            })}
-          </div>
+          })}
+        </div>
         )}
 
-        {nextCursor && !busy && (
-          <div className="flex justify-center">
-            <Button type="button" variant="secondary" onClick={loadMore} disabled={loadingMore}>
-              {loadingMore ? 'Loading…' : 'Load more'}
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      {nextCursor && !busy && (
+        <div className="flex justify-center pt-8">
+          <Button type="button" variant="secondary" onClick={loadMore} disabled={loadingMore} className="h-12 px-12 rounded-full font-bold uppercase tracking-widest text-xs">
+            {loadingMore ? 'Loading…' : 'Load more items'}
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }

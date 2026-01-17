@@ -49,68 +49,88 @@ export function SignupPage(): JSX.Element {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create publisher</CardTitle>
-        <CardDescription>Register a handle to own the scope: <span className="font-mono">@handle/*</span></CardDescription>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTitle>Signup failed</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {success && (
-          <Alert className="mb-4">
-            <AlertTitle>Signup successful</AlertTitle>
-            <AlertDescription>
-              You now own <span className="font-mono">@{success.handle}/*</span>.
-              <div className="mt-2 text-sm">
-                {success.requiredForPublish ? 'Email verification is required for publishing.' : 'Email verification is recommended.'}{' '}
-                {success.verificationMode === 'log' ? (
-                  <span>Dev mode: email sending is disabled. Check the registry dev logs for the verification link.</span>
-                ) : success.verificationSent ? (
-                  <span>We sent you a verification email.</span>
-                ) : (
-                  <span>We could not send the verification email.</span>
-                )}{' '}
-                You can resend it in <a className="underline" href="/verify-email/request">Verify Email</a>.
-              </div>
-              <div className="mt-2 text-sm">
-                Next: go to <a className="underline" href="/me">Dashboard</a> (you should be logged in automatically).
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
-        <form className="grid gap-4" onSubmit={onSubmit}>
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" value={email} onChange={e => setEmail(e.currentTarget.value)} autoComplete="email" required />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="handle">Handle</Label>
-            <Input
-              id="handle"
-              value={handle}
-              onChange={e => setHandle(e.currentTarget.value)}
-              autoComplete="username"
-              placeholder="acme"
-              required
-            />
-            <div className="text-xs text-muted-foreground">Lowercase letters/digits/dashes. Example: <span className="font-mono">acme</span></div>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" value={password} onChange={e => setPassword(e.currentTarget.value)} autoComplete="new-password" required />
-          </div>
-          <div className="flex items-center justify-end">
-            <Button type="submit" disabled={busy}>
-              {busy ? 'Creating…' : 'Create account'}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+    <div className="flex justify-center items-center h-full max-w-lg mx-auto py-12">
+      <Card className="w-full rounded-[32px] border-brand-forest/5 shadow-2xl shadow-brand-forest/[0.04] p-8">
+        <CardHeader className="pb-8">
+          <CardTitle className="text-4xl font-serif">Create publisher</CardTitle>
+          <CardDescription className="text-brand-forest/60 font-medium">
+            Register a handle to own the scope: <span className="text-brand-forest font-bold font-mono">@handle/*</span>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertTitle>Signup failed</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          {success && (
+            <Alert className="mb-6 border-brand-eco/20 bg-brand-eco/[0.03]">
+              <AlertTitle className="text-brand-eco font-bold">Signup successful</AlertTitle>
+              <AlertDescription className="text-brand-forest/80">
+                You now own <span className="font-mono font-bold text-brand-forest">@{success.handle}/*</span>.
+                <div className="mt-2 text-sm">
+                  {success.requiredForPublish ? 'Email verification is required for publishing.' : 'Email verification is recommended.'}{' '}
+                  {success.verificationMode === 'log' ? (
+                    <span className="italic">Dev mode: email sending is disabled. Check the registry dev logs for the verification link.</span>
+                  ) : success.verificationSent ? (
+                    <span>We sent you a verification email.</span>
+                  ) : (
+                    <span className="text-destructive">We could not send the verification email.</span>
+                  )}{' '}
+                  You can resend it in <a className="text-brand-forest font-bold underline" href="/verify-email/request">Verify Email</a>.
+                </div>
+                <div className="mt-3 text-sm">
+                  Next: go to <a className="text-brand-forest font-bold underline" href="/me">Dashboard</a>.
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+          <form className="grid gap-6" onSubmit={onSubmit}>
+            <div className="grid gap-2">
+              <Label htmlFor="email" className="text-[10px] font-bold uppercase tracking-widest text-brand-forest/40">Email</Label>
+              <Input
+                id="email"
+                value={email}
+                onChange={e => setEmail(e.currentTarget.value)}
+                autoComplete="email"
+                required
+                className="h-11 rounded-full border-brand-forest/10 focus:ring-brand-forest/5"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="handle" className="text-[10px] font-bold uppercase tracking-widest text-brand-forest/40">Handle</Label>
+              <Input
+                id="handle"
+                value={handle}
+                onChange={e => setHandle(e.currentTarget.value)}
+                autoComplete="username"
+                placeholder="acme"
+                required
+                className="h-11 rounded-full border-brand-forest/10 focus:ring-brand-forest/5"
+              />
+              <div className="text-[10px] text-brand-forest/30 font-medium">Lowercase letters/digits/dashes. Example: <span className="font-mono">acme</span></div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="password" className="text-[10px] font-bold uppercase tracking-widest text-brand-forest/40">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.currentTarget.value)}
+                autoComplete="new-password"
+                required
+                className="h-11 rounded-full border-brand-forest/10 focus:ring-brand-forest/5"
+              />
+            </div>
+            <div className="flex items-center justify-end pt-4">
+              <Button type="submit" disabled={busy} className="px-8 shadow-lg shadow-brand-forest/10">
+                {busy ? 'Creating…' : 'Create account'}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

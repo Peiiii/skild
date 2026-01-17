@@ -36,6 +36,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { PageHero } from '@/components/ui/page-hero';
+import { SearchBar } from '@/components/ui/search-bar';
+import { CodeBlock } from '@/components/ui/code-block';
 
 export type DiscoverMode = 'skills' | 'skillsets';
 
@@ -165,38 +168,38 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
 
   return (
     <div className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-        <p className="text-muted-foreground">{subtitle}</p>
-      </div>
+      <PageHero
+        title={title}
+        description={subtitle}
+      />
 
       {/* Skillsets Intro Card */}
       {skillsetOnly && (
-        <div className="relative overflow-hidden rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent p-6">
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-indigo-500/10 blur-3xl" />
-          <div className="relative grid gap-6 md:grid-cols-2 items-center">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">🎁</span>
-                <h2 className="text-lg font-bold">What is a Skillset?</h2>
+        <div className="relative overflow-hidden rounded-[32px] border border-brand-forest/10 bg-white p-8 shadow-xl shadow-brand-forest/[0.02]">
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand-eco/10 blur-3xl" />
+          <div className="relative grid gap-8 md:grid-cols-2 items-center">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">🎁</span>
+                <h2 className="text-xl font-serif font-bold text-brand-forest">What is a Skillset?</h2>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                A <strong className="text-foreground">Skillset</strong> is a curated bundle of related skills.
+              <p className="text-sm text-brand-forest/60 leading-relaxed font-medium">
+                A <strong className="text-brand-forest">Skillset</strong> is a curated bundle of related skills.
                 Instead of installing skills one by one, you get a complete toolkit with a single command.
-                Perfect for <span className="text-indigo-400">data analysts</span>, <span className="text-purple-400">developers</span>, or anyone who needs a ready-to-use workflow.
+                Perfect for <span className="text-brand-forest italic">data analysts</span>, <span className="text-brand-eco italic">developers</span>, or anyone who needs a ready-to-use workflow.
               </p>
               <div className="flex flex-wrap items-center gap-4">
                 <a
                   href="https://github.com/Peiiii/skild/blob/main/docs/skillsets.md"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-brand-forest hover:text-brand-eco transition-colors"
                 >
                   Learn more →
                 </a>
                 <Button
                   variant="ghost"
-                  className="h-8 px-3 text-xs font-bold bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 rounded-full border border-indigo-500/30 gap-1.5 transition-all"
+                  className="h-9 px-4 text-xs font-bold bg-brand-forest/5 hover:bg-brand-forest/10 text-brand-forest rounded-full border border-brand-forest/10 gap-1.5 transition-all"
                   onClick={() => navigate('/linked/new?from=skillset')}
                 >
                   <span>✨</span>
@@ -204,59 +207,55 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
                 </Button>
               </div>
             </div>
-            <div className="rounded-xl bg-black/40 border border-border/40 p-4 font-mono text-xs">
-              <div className="text-muted-foreground mb-2"># Install a data analyst pack</div>
-              <div className="text-indigo-300">skild install @scope/data-analyst-pack</div>
-              <div className="mt-3 text-muted-foreground"># All bundled skills are installed</div>
-              <div className="text-emerald-400">✓ csv, pandas, sql-helper...</div>
+            <div className="rounded-2xl bg-brand-forest text-white p-6 font-mono text-xs shadow-2xl shadow-brand-forest/20">
+              <div className="text-white/40 mb-2"># Install a data analyst pack</div>
+              <div className="text-brand-eco font-bold">skild install @scope/data-analyst-pack</div>
+              <div className="mt-4 text-white/40"># All bundled skills are installed</div>
+              <div className="text-brand-eco">✓ csv, pandas, sql-helper...</div>
             </div>
           </div>
         </div>
       )}
 
-      <form className="relative flex gap-2" onSubmit={onSubmit}>
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={queryInput}
-            onChange={e => setQueryInput(e.currentTarget.value)}
-            placeholder={skillsetOnly ? 'Search skillsets by name…' : 'Search skills by name, repository, or author…'}
-            className="pl-9 bg-secondary/30 border-border/40 focus:bg-secondary/50 transition-colors"
-          />
-        </div>
-        <Button type="submit" disabled={busy} className="px-6 font-semibold">
-          {busy ? 'Searching…' : 'Search'}
-        </Button>
+      <div className="flex flex-col md:flex-row items-center gap-4">
+        <SearchBar
+          value={queryInput}
+          onChange={setQueryInput}
+          onSubmit={onSubmit}
+          placeholder={skillsetOnly ? 'Search skillsets by name…' : 'Search skills by name, repository, or author…'}
+        />
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2 border-border/40 bg-secondary/20">
-              <ArrowUpDown className="h-3.5 w-3.5" />
-              <span className="text-xs">{sortLabels[currentSort] || 'Sort'}</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Sort by</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onSortChange('downloads_7d')} className="gap-2">
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              <span>Trending (7d)</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onSortChange('updated')} className="gap-2">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span>Recently Updated</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onSortChange('new')} className="gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span>Newest Arrived</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onSortChange('downloads_30d')} className="gap-2">
-              <Download className="h-4 w-4 text-muted-foreground" />
-              <span>Popular (30d)</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </form>
+        <div className="flex-shrink-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2 border-brand-forest/10 bg-brand-forest/5 hover:bg-brand-forest/10 rounded-full h-14 px-8 shadow-sm transition-all hover:shadow-lg">
+                <ArrowUpDown className="h-4 w-4" />
+                <span className="text-xs font-bold uppercase tracking-widest">{sortLabels[currentSort] || 'Sort'}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onSortChange('downloads_7d')} className="gap-2">
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <span>Trending (7d)</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSortChange('updated')} className="gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <span>Recently Updated</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSortChange('new')} className="gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <span>Newest Arrived</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSortChange('downloads_30d')} className="gap-2">
+                <Download className="h-4 w-4 text-muted-foreground" />
+                <span>Popular (30d)</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
 
       {error && (
         <Alert variant="destructive">
@@ -266,10 +265,10 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
       )}
 
       {!busy && !error && (
-        <div className="text-xs text-muted-foreground">
+        <div className="text-[10px] uppercase tracking-widest font-bold text-brand-forest/30 px-2">
           {total != null && total >= 0
-            ? `Showing ${items.length} of ${total} result${total === 1 ? '' : 's'}${nextCursor ? ' (more available)' : ''}.`
-            : `Showing ${items.length} result${items.length === 1 ? '' : 's'}${nextCursor ? ' (more available)' : ''}.`}
+            ? `${total} result${total === 1 ? '' : 's'} discovered`
+            : `${items.length} result${items.length === 1 ? '' : 's'} found`}
         </div>
       )}
 
@@ -290,9 +289,9 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
             <div
               key={id}
               className={cn(
-                "group relative flex flex-col rounded-xl border border-border/40 bg-card p-5 transition-all duration-300",
-                "hover:border-indigo-500/40 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1",
-                !isLinked && isSkillsetFlag(item.skillset) && "after:absolute after:inset-0 after:border after:border-border/40 after:rounded-xl after:-translate-x-1 after:translate-y-1 after:-z-10 before:absolute before:inset-0 before:border before:border-border/20 before:rounded-xl before:-translate-x-2 before:translate-y-2 before:-z-20"
+                "group relative flex flex-col rounded-[24px] border border-brand-forest/5 bg-white p-6 transition-all duration-300",
+                "hover:border-brand-forest/20 hover:shadow-2xl hover:shadow-brand-forest/[0.04] hover:-translate-y-1",
+                !isLinked && isSkillsetFlag(item.skillset) && "after:absolute after:inset-0 after:border after:border-brand-forest/10 after:rounded-[24px] after:-translate-x-1.5 after:translate-y-1.5 after:-z-10 before:absolute before:inset-0 before:border before:border-brand-forest/5 before:rounded-[24px] before:-translate-x-3 before:translate-y-3 before:-z-20"
               )}
             >
               <div className="flex flex-col h-full gap-4">
@@ -301,7 +300,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
                     <div className="flex flex-wrap items-center gap-2 min-w-0">
                       {href ? (
                         <Link
-                          className="text-base font-bold hover:text-primary transition-colors truncate max-w-[200px]"
+                          className="text-base font-serif font-bold text-brand-forest hover:text-brand-eco transition-colors truncate max-w-[200px]"
                           to={href}
                           title={alias ? `${displayTitle} (${item.title})` : item.title}
                         >
@@ -312,15 +311,15 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
                           {displayTitle}
                         </div>
                       )}
-                      <Badge variant={isLinked ? 'emerald' : 'indigo'} className="text-[10px] h-4.5 px-1.5 shrink-0">
+                      <Badge variant={isLinked ? 'eco' : 'forest'} className="text-[10px] h-4.5 px-2 shrink-0">
                         {isLinked ? 'Linked' : 'Registry'}
                       </Badge>
                       {alias ? (
-                        <Badge variant="secondary" className="text-[10px] h-4.5 px-1.5 shrink-0 font-mono">
+                        <Badge variant="secondary" className="text-[10px] h-4.5 px-2 shrink-0 font-mono lower">
                           alias:{alias}
                         </Badge>
                       ) : (
-                        <Badge variant="outline" className="text-[10px] h-4.5 px-1.5 shrink-0 text-muted-foreground">
+                        <Badge variant="outline" className="text-[10px] h-4.5 px-2 shrink-0 border-brand-forest/10 text-brand-forest/30">
                           no alias
                         </Badge>
                       )}
@@ -328,7 +327,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
+                  <div className="flex items-center gap-1.5 text-xs text-brand-forest/60 font-medium">
                     {isLinked && item.source ? (
                       <div className="flex items-center gap-1 min-w-0 overflow-hidden">
                         <Github className="h-3 w-3 shrink-0" />
@@ -337,39 +336,39 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
                     ) : !isLinked ? (
                       <div className="flex items-center gap-1 min-w-0 overflow-hidden">
                         <Package className="h-3 w-3 shrink-0" />
-                        <code className="text-[10px] bg-muted/50 px-1 rounded truncate max-w-full">{item.sourceId}</code>
+                        <code className="text-[10px] bg-brand-forest/5 text-brand-forest/80 px-1.5 py-0.5 rounded truncate max-w-full font-mono">{item.sourceId}</code>
                       </div>
                     ) : null}
                   </div>
 
-                  <div className="text-xs text-muted-foreground leading-relaxed line-clamp-2 h-8">
-                    {item.description || <span className="italic opacity-60">No description provided</span>}
+                  <div className="text-xs text-brand-forest/50 leading-relaxed line-clamp-2 h-8 font-medium">
+                    {item.description || <span className="italic opacity-40">No description provided</span>}
                   </div>
                 </div>
 
-                <div className="space-y-4 pt-3 border-t border-border/20">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 px-0.5">
+                <div className="space-y-4 pt-4 border-t border-brand-forest/5">
+                  <div className="flex flex-col gap-2.5">
+                    <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.15em] text-brand-forest/30 px-0.5">
                       <span>Install Command</span>
-                      {copiedId === id && <span className="text-emerald-500 animate-in fade-in slide-in-from-right-1">Copied!</span>}
+                      {copiedId === id && <span className="text-brand-eco animate-in fade-in slide-in-from-right-1">Copied!</span>}
                     </div>
                     <div className="relative group/install">
-                      <div className="rounded-lg bg-black/40 border border-border/40 p-2.5 font-mono text-[10px] leading-tight break-all text-foreground/80 pr-9 min-h-[38px] flex items-center transition-colors group-hover/install:border-indigo-500/30">
+                      <div className="rounded-xl bg-brand-forest/[0.03] border border-brand-forest/5 p-3 font-mono text-[10px] leading-tight break-all text-brand-forest/80 pr-10 min-h-[42px] flex items-center transition-colors group-hover/install:border-brand-forest/10">
                         {installCmd}
                       </div>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 hover:bg-white/10"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          void copyInstall(item);
-                        }}
-                      >
-                        {copiedId === id ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5 opacity-40 group-hover/install:opacity-100 transition-opacity" />}
-                      </Button>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-brand-forest/5 text-brand-forest/40"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            void copyInstall(item);
+                          }}
+                        >
+                          {copiedId === id ? <Check className="h-3.5 w-3.5 text-brand-eco" /> : <Copy className="h-3.5 w-3.5 opacity-40 group-hover/install:opacity-100 transition-opacity" />}
+                        </Button>
                     </div>
                   </div>
 
@@ -395,10 +394,10 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
                         href={item.source.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-[10px] font-bold text-muted-foreground hover:text-indigo-400 transition-colors flex items-center gap-1"
+                        className="text-[10px] font-bold text-brand-forest/40 hover:text-brand-eco transition-colors flex items-center gap-1"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        Repo <ExternalLink className="h-2.5 w-2.5" />
+                        Source <ExternalLink className="h-2.5 w-2.5" />
                       </a>
                     )}
                   </div>

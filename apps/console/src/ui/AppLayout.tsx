@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/features/auth/auth-store';
@@ -25,6 +25,7 @@ import {
   Github,
   Rocket
 } from 'lucide-react';
+import { DesignGrid } from '@/components/ui/design-grid';
 
 function TopNavLink({ to, children, icon: Icon }: { to: string; children: React.ReactNode; icon?: React.ElementType }): JSX.Element {
   return (
@@ -32,8 +33,8 @@ function TopNavLink({ to, children, icon: Icon }: { to: string; children: React.
       to={to}
       className={({ isActive }) =>
         cn(
-          'flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-all',
-          isActive && 'text-foreground'
+          'flex items-center gap-1.5 text-sm font-medium text-brand-forest/60 hover:text-brand-forest transition-all active:scale-95',
+          isActive && 'text-brand-forest opacity-100 font-bold'
         )
       }
     >
@@ -49,14 +50,17 @@ export function AppLayout(): JSX.Element {
   const authed = auth.status === 'authed' && publisher !== null;
 
   return (
-    <div className="min-h-dvh bg-background flex flex-col">
-      <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
+    <div className="min-h-dvh bg-background flex flex-col relative overflow-hidden">
+      <DesignGrid />
+      <header className="border-b border-brand-forest/5 backdrop-blur-md sticky top-0 z-50 bg-background/80">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
           {/* Logo / Brand */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <img src="/logo.svg" alt="Skild Logo" className="w-8 h-8 transition-transform group-hover:scale-110" />
-            <span className="text-lg font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
-              Skild Hub
+          <Link to="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+            <div className="w-8 h-8 bg-brand-forest rounded-lg flex items-center justify-center shadow-lg shadow-brand-forest/10">
+              <img src="/favicon.svg" alt="Skild Logo" className="w-5 h-5 invert" />
+            </div>
+            <span className="text-xl font-serif font-bold tracking-tight text-brand-forest">
+              skild <span className="text-brand-eco italic">hub</span>
             </span>
           </Link>
 
@@ -126,7 +130,7 @@ export function AppLayout(): JSX.Element {
                 </>
               )}
               <a
-                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+                className="flex items-center gap-1.5 text-sm text-brand-forest/60 hover:text-brand-forest transition-colors group"
                 href="https://skild.sh"
                 target="_blank"
                 rel="noreferrer"
@@ -141,21 +145,23 @@ export function AppLayout(): JSX.Element {
       <main className="mx-auto max-w-7xl px-4 py-10 flex-1 w-full">
         <Outlet />
       </main>
-      <footer className="mx-auto max-w-7xl px-4 pb-12 border-t border-border/10 pt-8 w-full mt-auto">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col gap-2 items-center md:items-start">
-            <div className="flex items-center gap-2 grayscale hover:grayscale-0 transition-all opacity-50 hover:opacity-100">
-              <img src="/logo.svg" alt="Skild Logo" className="w-5 h-5" />
-              <span className="font-bold text-sm tracking-tight">Skild Hub</span>
+      <footer className="mx-auto max-w-7xl px-4 pb-12 border-t border-brand-forest/5 pt-12 w-full mt-auto">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex flex-col gap-3 items-center md:items-start text-center md:text-left">
+            <div className="flex items-center gap-2.5 transition-all opacity-60 hover:opacity-100">
+              <div className="w-6 h-6 bg-brand-forest rounded-md flex items-center justify-center">
+                <img src="/favicon.svg" alt="Skild Logo" className="w-3.5 h-3.5 invert" />
+              </div>
+              <span className="font-serif font-bold text-sm tracking-tight text-brand-forest">skild hub</span>
             </div>
-            <div className="text-[10px] text-muted-foreground font-mono">
+            <div className="text-[10px] text-brand-forest/30 font-mono tracking-wider">
               © {new Date().getFullYear()} Skild Protocol · registry.skild.sh
             </div>
           </div>
-          <div className="flex items-center gap-6 text-xs text-muted-foreground font-medium">
-            <a href="https://skild.sh" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">skild.sh</a>
-            <a href="https://github.com/Peiiii/skild" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">GitHub</a>
-            <a href="https://agentskills.io" target="_blank" rel="noreferrer" className="hover:text-foreground transition-colors">Spec</a>
+          <div className="flex items-center gap-8 text-xs text-brand-forest/40 font-medium">
+            <a href="https://skild.sh" target="_blank" rel="noreferrer" className="hover:text-brand-forest transition-colors">skild.sh</a>
+            <a href="https://github.com/Peiiii/skild" target="_blank" rel="noreferrer" className="hover:text-brand-forest transition-colors">GitHub</a>
+            <a href="https://agentskills.io" target="_blank" rel="noreferrer" className="hover:text-brand-forest transition-colors">Spec</a>
           </div>
         </div>
       </footer>

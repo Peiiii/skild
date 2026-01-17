@@ -155,50 +155,50 @@ export function SkillDetailPage(): JSX.Element {
     <div className="space-y-12">
       {/* Hero Section */}
       <div className={cn(
-        "relative -mx-6 -mt-8 px-6 py-16 overflow-hidden border-b border-border/40",
-        data.skillset ? "bg-gradient-to-br from-indigo-950/40 via-purple-950/20 to-transparent" : "bg-muted/10"
+        "relative -mx-6 -mt-8 px-6 py-20 overflow-hidden border-b border-brand-forest/5 bg-white",
+        data.skillset ? "bg-gradient-to-br from-brand-forest/[0.03] via-transparent to-transparent" : "bg-white"
       )}>
         {/* Decorative elements for Skillsets */}
         {data.skillset && (
           <>
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/3" />
-            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-purple-500/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4" />
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-eco/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/3" />
+            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-brand-forest/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4" />
           </>
         )}
 
-        <div className="relative z-10 max-w-5xl mx-auto space-y-6">
-          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground/80">
-            <Link className="hover:text-foreground transition-colors" to="/skills">
+        <div className="relative z-10 max-w-5xl mx-auto space-y-8">
+          <div className="flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-brand-forest/40">
+            <Link className="hover:text-brand-forest transition-colors" to="/skills">
               Skills
             </Link>
             <span className="opacity-30">/</span>
-            <span className="text-foreground/60">{scope}</span>
+            <span className="text-brand-forest/60 italic lowercase font-serif">{scope}</span>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center gap-4">
+              <h1 className="text-4xl md:text-6xl font-serif font-bold tracking-tight text-brand-forest">
                 {alias ?? data.name}
               </h1>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="h-6 border-indigo-500/30 bg-indigo-500/5 text-indigo-400">Registry</Badge>
+                <Badge variant="forest" className="h-6 px-3 text-[10px] font-bold tracking-widest uppercase">Registry</Badge>
                 {data.skillset && <SkillsetBadge className="h-6" />}
                 {alias ? (
-                  <Badge variant="secondary" className="h-6 text-[10px] font-mono">alias:{alias}</Badge>
+                  <Badge variant="secondary" className="h-6 px-2 text-[10px] font-mono">alias:{alias}</Badge>
                 ) : (
-                  <Badge variant="outline" className="h-6 text-[10px] text-muted-foreground">no alias</Badge>
+                  <Badge variant="outline" className="h-6 px-2 text-[10px] text-brand-forest/40">no alias</Badge>
                 )}
                 {canManage && (
-                  <Button asChild size="sm" variant="outline" className="h-6 px-2 text-xs border-border/40">
+                  <Button asChild size="sm" variant="outline" className="h-7 px-3 text-xs border-brand-forest/10 hover:bg-brand-forest/5 hover:text-brand-forest">
                     <Link to={`/skills/${encodeURIComponent(scope)}/${encodeURIComponent(skill)}/manage`}>Manage</Link>
                   </Button>
                 )}
               </div>
             </div>
             {alias && (
-              <div className="text-xs text-muted-foreground font-mono">{data.name}</div>
+              <div className="text-xs text-brand-forest/30 font-mono tracking-widest uppercase">{data.name}</div>
             )}
-            <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed font-medium">
+            <p className="text-xl text-brand-forest/60 max-w-2xl leading-relaxed font-medium italic">
               {data.description || 'Elevate your agents with specialized capabilities.'}
             </p>
           </div>
@@ -209,28 +209,27 @@ export function SkillDetailPage(): JSX.Element {
         {/* Main Column */}
         <div className="md:col-span-8 space-y-10">
           {/* Install Command */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground/70 flex items-center gap-2">
-                <Download className="h-3.5 w-3.5" />
+          <div className="space-y-5">
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-forest/40 flex items-center gap-2">
+                <Download className="h-3 w-3" />
                 Quick Installation
               </h2>
             </div>
             <div className="group relative">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl blur opacity-10 group-hover:opacity-20 transition duration-500" />
-              <div className="relative rounded-xl bg-black border border-white/5 p-5 font-mono text-sm leading-relaxed text-foreground pr-14 shadow-2xl overflow-hidden">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500/50" />
-                <span className="text-indigo-400 select-none mr-3">$</span>
+              <div className="relative rounded-[24px] bg-brand-forest border border-brand-forest/5 p-8 font-mono text-sm leading-relaxed text-white pr-20 shadow-2xl shadow-brand-forest/20 overflow-hidden">
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-brand-eco" />
+                <span className="text-brand-eco select-none mr-3 opacity-60">$</span>
                 {install}
               </div>
               <Button
                 type="button"
                 size="icon"
                 variant="ghost"
-                className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 hover:bg-white/5 active:scale-95 transition-all text-muted-foreground hover:text-foreground"
+                className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 bg-white/5 hover:bg-white/10 active:scale-95 transition-all text-white/40 hover:text-white"
                 onClick={copyInstall}
               >
-                {copied ? <Check className="h-5 w-5 text-emerald-500" /> : <Copy className="h-5 w-5" />}
+                {copied ? <Check className="h-5 w-5 text-brand-eco" /> : <Copy className="h-5 w-5" />}
               </Button>
             </div>
           </div>
@@ -239,8 +238,8 @@ export function SkillDetailPage(): JSX.Element {
           {data.skillset && (
             <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <Layers className="h-5 w-5 text-indigo-400" />
-                <h2 className="text-xl font-bold tracking-tight">Included in this Skillset</h2>
+                <Layers className="h-5 w-5 text-brand-forest" />
+                <h2 className="text-2xl font-serif font-bold tracking-tight text-brand-forest">Included in this Skillset</h2>
               </div>
 
               {data.dependencies.length > 0 ? (
@@ -263,17 +262,17 @@ export function SkillDetailPage(): JSX.Element {
                     const href = route ? `/skills/${encodeURIComponent(route.scope)}/${encodeURIComponent(route.skill)}` : null;
 
                     return (
-                      <div key={dep} className="group/dep relative rounded-lg border border-border/40 bg-muted/5 p-3.5 hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all hover:shadow-lg hover:shadow-indigo-500/5 overflow-hidden min-h-[85px] flex flex-col justify-between">
+                      <div key={dep} className="group/dep relative rounded-[20px] border border-brand-forest/5 bg-white p-5 hover:border-brand-forest/20 hover:shadow-xl hover:shadow-brand-forest/[0.04] transition-all flex flex-col justify-between min-h-[100px]">
                         <div className="flex flex-col gap-1.5 min-w-0">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               {isInline ? (
-                                <Badge variant="secondary" className="h-4.5 text-[8px] uppercase tracking-wider bg-purple-500/10 text-purple-400 border-none px-1.5">Bundled</Badge>
+                                <Badge variant="forest" className="h-4.5 text-[8px] uppercase tracking-widest bg-brand-forest/5 text-brand-forest border-none px-2 font-bold">Bundled</Badge>
                               ) : (
-                                <Badge variant="secondary" className="h-4.5 text-[8px] uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border-none px-1.5">Registry</Badge>
+                                <Badge variant="eco" className="h-4.5 text-[8px] uppercase tracking-widest bg-brand-eco/10 text-brand-eco border-none px-2 font-bold">Registry</Badge>
                               )}
                               {context && context !== 'Bundled' && (
-                                <span className="text-[9px] text-muted-foreground font-mono truncate max-w-[100px]" title={context}>{context}</span>
+                                <span className="text-[9px] text-brand-forest/40 font-mono truncate max-w-[100px] uppercase tracking-wider" title={context}>{context}</span>
                               )}
                             </div>
                             <button
@@ -292,14 +291,14 @@ export function SkillDetailPage(): JSX.Element {
                           <div className="min-w-0">
                             {href ? (
                               <Link
-                                className="font-mono text-[13px] font-bold text-foreground/80 group-hover/dep:text-indigo-400 transition-colors flex items-center gap-1.5"
+                                className="font-serif text-base font-bold text-brand-forest group-hover/dep:text-brand-eco transition-colors flex items-center gap-1.5"
                                 to={href as string}
                               >
                                 <span className="truncate">{name}</span>
                                 <ExternalLink className="h-3 w-3 shrink-0 opacity-0 group-hover/dep:opacity-100 transition-opacity" />
                               </Link>
                             ) : (
-                              <code className="font-mono text-[13px] text-foreground/70 truncate block">
+                              <code className="font-mono text-xs text-brand-forest/70 truncate block">
                                 {name}
                               </code>
                             )}
@@ -307,8 +306,8 @@ export function SkillDetailPage(): JSX.Element {
                         </div>
 
                         {/* Full Path Reveal */}
-                        <div className="mt-2 pt-2 border-t border-border/10">
-                          <p className="font-mono text-[9px] text-muted-foreground/60 truncate group-hover/dep:text-muted-foreground group-hover/dep:break-all group-hover/dep:whitespace-normal transition-colors">
+                        <div className="mt-3 pt-3 border-t border-brand-forest/5">
+                          <p className="font-mono text-[9px] text-brand-forest/30 truncate group-hover/dep:text-brand-forest/50 group-hover/dep:break-all group-hover/dep:whitespace-normal transition-colors">
                             {trimmed}
                           </p>
                         </div>
@@ -328,32 +327,32 @@ export function SkillDetailPage(): JSX.Element {
         {/* Sidebar */}
         <div className="md:col-span-4 space-y-6">
           {/* Stats */}
-          <div className="rounded-xl border border-border/40 bg-card p-6 space-y-5 shadow-sm">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/70 flex items-center gap-2">
-              <TrendingUp className="h-3.5 w-3.5" />
+          <div className="rounded-[24px] border border-brand-forest/5 bg-white p-8 space-y-6 shadow-xl shadow-brand-forest/[0.02]">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-forest/30 flex items-center gap-2">
+              <TrendingUp className="h-3 w-3" />
               Insights
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6">
               <div>
-                <div className="text-2xl font-black">{stats?.total ?? 0}</div>
-                <div className="text-[10px] text-muted-foreground uppercase font-bold">Installs</div>
+                <div className="text-3xl font-serif font-bold text-brand-forest leading-none">{stats?.total ?? 0}</div>
+                <div className="text-[9px] text-brand-forest/40 uppercase font-bold tracking-widest mt-2">Installs</div>
               </div>
               <div>
-                <div className="text-2xl font-black text-emerald-400">+{stats?.trend.slice(-1)[0]?.downloads ?? 0}</div>
-                <div className="text-[10px] text-muted-foreground uppercase font-bold">24h</div>
+                <div className="text-3xl font-serif font-bold text-brand-eco leading-none">+{stats?.trend.slice(-1)[0]?.downloads ?? 0}</div>
+                <div className="text-[9px] text-brand-forest/40 uppercase font-bold tracking-widest mt-2">24h</div>
               </div>
             </div>
 
             {stats && stats.trend.length > 0 && (
-              <div className="pt-4 border-t border-border/20">
-                <div className="flex items-end gap-[2px] h-10 w-full group/graph">
+              <div className="pt-6 border-t border-brand-forest/5">
+                <div className="flex items-end gap-[3px] h-12 w-full group/graph">
                   {stats.trend.slice(-30).map((t, idx) => {
                     const max = Math.max(...stats.trend.slice(-30).map(d => d.downloads), 1);
                     const height = (t.downloads / max) * 100;
                     return (
                       <div
                         key={t.day}
-                        className="flex-1 bg-indigo-500/20 rounded-t-[1px] group-hover/graph:bg-indigo-500/10 hover:!bg-indigo-400 transition-all duration-300"
+                        className="flex-1 bg-brand-forest/10 rounded-t-[2px] group-hover/graph:bg-brand-forest/5 hover:!bg-brand-eco transition-all duration-300"
                         style={{ height: `${Math.max(height, 8)}%` }}
                         title={`${t.day}: ${t.downloads}`}
                       />
@@ -365,28 +364,28 @@ export function SkillDetailPage(): JSX.Element {
           </div>
 
           {/* Metadata */}
-          <div className="rounded-xl border border-border/40 bg-card p-6 space-y-6 shadow-sm">
+          <div className="rounded-[24px] border border-brand-forest/5 bg-white p-8 space-y-8 shadow-xl shadow-brand-forest/[0.02]">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Hash className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Latest Version</span>
+                <Hash className="h-3 w-3 text-brand-forest/30" />
+                <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-brand-forest/30">Latest Version</span>
               </div>
               <div className="flex items-center justify-between">
-                <code className="text-lg font-black text-indigo-400">{latest || '0.0.0'}</code>
-                <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">Stable</span>
+                <code className="text-2xl font-serif font-bold text-brand-forest leading-none">{latest || '0.0.0'}</code>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-brand-eco bg-brand-eco/10 px-2 py-0.5 rounded-full">Stable</span>
               </div>
             </div>
 
-            <div className="space-y-4 pt-6 border-t border-border/20">
+            <div className="space-y-5 pt-8 border-t border-brand-forest/5">
               <div className="flex items-center gap-2">
-                <Layers className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Version History</span>
+                <Layers className="h-3 w-3 text-brand-forest/30" />
+                <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-brand-forest/30">Version History</span>
               </div>
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {data.versions.slice(0, 5).map(v => (
                   <li key={v.version} className="flex justify-between items-center text-xs group/ver">
-                    <span className="font-bold text-foreground/80 group-hover/ver:text-indigo-400 transition-colors">{v.version}</span>
-                    <span className="text-[9px] font-mono text-muted-foreground">
+                    <span className="font-bold text-brand-forest group-hover/ver:text-brand-eco transition-colors">{v.version}</span>
+                    <span className="text-[9px] font-mono text-brand-forest/30 uppercase tracking-tighter">
                       {formatRelativeTime(v.published_at)}
                     </span>
                   </li>

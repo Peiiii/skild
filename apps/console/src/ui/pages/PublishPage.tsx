@@ -1,50 +1,63 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import * as React from 'react';
 import { UserPlus, LogIn, FolderOpen, Rocket, Download, ChevronDown } from 'lucide-react';
-import React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CodeBlock } from '@/components/ui/code-block';
+import { Badge } from '@/components/ui/badge';
 
 export function PublishPage(): JSX.Element {
   const [showAdvanced, setShowAdvanced] = React.useState(false);
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Publish your Skill</CardTitle>
-        <CardDescription>Share your Skill with the community in just a few steps.</CardDescription>
+      <CardHeader className="pb-8">
+        <CardTitle className="text-4xl font-serif">Publish your Skill</CardTitle>
+        <CardDescription className="text-lg text-brand-forest/60 font-medium italic">Share your Skill with the community in just a few steps.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-8 text-sm">
         {/* Step 1: Signup */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 font-bold text-base">
-            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 text-xs font-bold">1</div>
-            <UserPlus className="w-4 h-4 text-indigo-400" />
-            Sign up (first time only)
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-full bg-brand-forest text-white flex items-center justify-center font-serif font-bold shadow-lg shadow-brand-forest/10">1</div>
+            <div className="flex items-center gap-2 font-serif font-bold text-xl text-brand-forest">
+              <UserPlus className="w-5 h-5" />
+              Sign up (first time only)
+            </div>
           </div>
-          <pre className="rounded-xl border border-border/40 bg-black/40 p-4 text-xs font-mono text-foreground/90 overflow-auto">skild signup</pre>
-          <p className="text-xs text-muted-foreground pl-1">Follow the prompts to enter your email, handle, and password.</p>
+          <CodeBlock copyValue="skild signup">
+            skild signup
+          </CodeBlock>
+          <p className="text-sm text-brand-forest/60 font-medium px-1">Follow the prompts to enter your email, handle, and password.</p>
         </div>
 
         {/* Step 2: Login */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 font-bold text-base">
-            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-xs font-bold">2</div>
-            <LogIn className="w-4 h-4 text-purple-400" />
-            Login
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-full bg-brand-forest text-white flex items-center justify-center font-serif font-bold shadow-lg shadow-brand-forest/10">2</div>
+            <div className="flex items-center gap-2 font-serif font-bold text-xl text-brand-forest">
+              <LogIn className="w-5 h-5" />
+              Login
+            </div>
           </div>
-          <pre className="rounded-xl border border-border/40 bg-black/40 p-4 text-xs font-mono text-foreground/90 overflow-auto">skild login</pre>
-          <p className="text-xs text-muted-foreground pl-1">Enter your credentials when prompted.</p>
+          <CodeBlock copyValue="skild login">
+            skild login
+          </CodeBlock>
+          <p className="text-sm text-brand-forest/60 font-medium px-1">Enter your credentials when prompted.</p>
         </div>
 
         {/* Step 3: Prepare */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 font-bold text-base">
-            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold">3</div>
-            <FolderOpen className="w-4 h-4 text-amber-400" />
-            Prepare your Skill
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-full bg-brand-forest text-white flex items-center justify-center font-serif font-bold shadow-lg shadow-brand-forest/10">3</div>
+            <div className="flex items-center gap-2 font-serif font-bold text-xl text-brand-forest">
+              <FolderOpen className="w-5 h-5" />
+              Prepare your Skill
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground pl-1">
-            Make sure your Skill directory contains a <code className="font-mono bg-muted px-1 py-0.5 rounded text-foreground/80">SKILL.md</code> file with frontmatter:
+          <p className="text-sm text-brand-forest/60 font-medium px-1">
+            Make sure your Skill directory contains a <code className="bg-brand-forest/5 px-2 py-0.5 rounded-full text-brand-forest font-bold font-mono">SKILL.md</code> file with frontmatter:
           </p>
-          <pre className="rounded-xl border border-border/40 bg-black/40 p-4 text-xs font-mono text-foreground/90 overflow-auto whitespace-pre-wrap">{`---
+          <CodeBlock>
+            {`---
 name: my-skill
 version: 1.0.0
 description: What your skill does
@@ -52,34 +65,43 @@ description: What your skill does
 
 # My Skill
 
-Instructions for the AI agent...`}</pre>
-          <p className="text-xs text-muted-foreground pl-1">
-            <span className="text-foreground/70">Tip:</span> Use <code className="font-mono bg-muted px-1 py-0.5 rounded text-foreground/80">skild init my-skill</code> to quickly create a template.
+Instructions for the AI agent...`}
+          </CodeBlock>
+          <p className="text-sm text-brand-forest/60 font-medium px-1">
+            <span className="text-brand-forest font-bold">Tip:</span> Use <code className="bg-brand-forest/5 px-2 py-0.5 rounded-full text-brand-forest font-bold font-mono">skild init my-skill</code> to quickly create a template.
           </p>
         </div>
 
         {/* Step 4: Publish */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 font-bold text-base">
-            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold">4</div>
-            <Rocket className="w-4 h-4 text-emerald-400" />
-            Publish
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-full bg-brand-forest text-white flex items-center justify-center font-serif font-bold shadow-lg shadow-brand-forest/10">4</div>
+            <div className="flex items-center gap-2 font-serif font-bold text-xl text-brand-forest">
+              <Rocket className="w-5 h-5" />
+              Publish
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground pl-1">Navigate to your Skill directory and run:</p>
-          <pre className="rounded-xl border border-border/40 bg-black/40 p-4 text-xs font-mono text-foreground/90 overflow-auto">skild publish</pre>
-          <p className="text-xs text-muted-foreground pl-1">
-            That's it! 🎉 The CLI reads your <code className="font-mono bg-muted px-1 py-0.5 rounded text-foreground/80">SKILL.md</code> and publishes to <code className="font-mono bg-muted px-1 py-0.5 rounded text-foreground/80">@yourhandle/my-skill</code>.
+          <p className="text-sm text-brand-forest/60 font-medium px-1">Navigate to your Skill directory and run:</p>
+          <CodeBlock copyValue="skild publish">
+            skild publish
+          </CodeBlock>
+          <p className="text-sm text-brand-forest/60 font-medium px-1">
+            That's it! 🎉 The CLI reads your <code className="bg-brand-forest/5 px-2 py-0.5 rounded-full text-brand-forest font-bold font-mono">SKILL.md</code> and publishes to <code className="bg-brand-forest/5 px-2 py-0.5 rounded-full text-brand-forest font-bold font-mono">@yourhandle/my-skill</code>.
           </p>
         </div>
 
         {/* Step 5: Install */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 font-bold text-base">
-            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-bold">5</div>
-            <Download className="w-4 h-4 text-cyan-400" />
-            Test your published Skill
+        <div className="space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-full bg-brand-forest text-white flex items-center justify-center font-serif font-bold shadow-lg shadow-brand-forest/10">5</div>
+            <div className="flex items-center gap-2 font-serif font-bold text-xl text-brand-forest">
+              <Download className="w-5 h-5" />
+              Test your published Skill
+            </div>
           </div>
-          <pre className="rounded-xl border border-border/40 bg-black/40 p-4 text-xs font-mono text-foreground/90 overflow-auto">skild install @yourhandle/my-skill</pre>
+          <CodeBlock copyValue="skild install @yourhandle/my-skill">
+            skild install @yourhandle/my-skill
+          </CodeBlock>
         </div>
 
         {/* Advanced Options */}
