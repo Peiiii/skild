@@ -96,13 +96,25 @@ importers:
       commander:
         specifier: ^12.1.0
         version: 12.1.0
+      mdast-util-to-string:
+        specifier: ^4.0.0
+        version: 4.0.0
       ora:
         specifier: ^8.0.1
         version: 8.2.0
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
       tar:
         specifier: ^7.4.3
         version: 7.5.2
+      unified:
+        specifier: ^11.0.4
+        version: 11.0.5
     devDependencies:
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
       '@types/node':
         specifier: ^20.10.0
         version: 20.19.27
