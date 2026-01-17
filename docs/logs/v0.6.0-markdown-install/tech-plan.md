@@ -9,7 +9,7 @@
 4. 解析后对树做单子节点压缩，保留必要语义层级。
 
 ## 结构设计
-- 新增 `install-markdown.ts`：包含 Markdown 解析、递归、去重、缓存、进度回调。
+- 新增 `markdown-discovery.ts`：包含 Markdown 解析、递归、去重、缓存、进度回调。
 - 交互 UI 复用现有树选择，新增 `promptSkillsTreeInteractive` 接收预构建树。
 - install pipeline 在 remote source 发现阶段优先尝试 Markdown 解析，成功则直接进入选择/安装。
 

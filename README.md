@@ -139,6 +139,7 @@ Ready to share? See **[Publishing Skills](./docs/publishing-skills.md)** for the
 | `skild whoami` | Show current identity |
 | `skild logout` | Remove credentials |
 | `skild publish` | Publish a Skill to the registry |
+| `skild extract-github-skills <source>` | Extract GitHub Skills into a local catalog |
 
 Run `skild <command> --help` for full options.
 

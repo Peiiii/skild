@@ -107,6 +107,7 @@ skild validate .           # 校验结构
 | `skild logout` | 清除本地登录信息 |
 | `skild search <query>` | 在 registry 搜索 Skills |
 | `skild publish` | 发布 Skill 目录到 registry |
+| `skild extract-github-skills <source>` | 从 GitHub 导出 Skills 目录树 |
 
 提示：可以用 `skild <命令> --help` 查看完整参数。
 

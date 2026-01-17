@@ -4,6 +4,7 @@ node_modules/
 .npmrc
 
 .codex/skills
+skild-github-skills
 
 # Local skild state
 .skild/

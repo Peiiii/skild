@@ -53,6 +53,31 @@ skild install ./my-skill --force
 
 ---
 
+### skild extract-github-skills
+
+Extract GitHub skills into a local catalog directory (full contents per skill).
+
+```bash
+skild extract-github-skills <source> [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--out <dir>` | Output directory (default: `./skild-github-skills`) |
+| `-f, --force` | Overwrite existing output directory |
+| `--depth <n>` | Max markdown recursion depth (default: 0) |
+| `--scan-depth <n>` | Max directory depth to scan for `SKILL.md` (default: 6) |
+| `--max-skills <n>` | Max discovered skills to export (default: 200) |
+| `--json` | Output JSON |
+
+**Examples:**
+```bash
+skild extract-github-skills https://github.com/ComposioHQ/awesome-claude-skills
+```
+
+---
+
 ### skild uninstall
 
 Remove an installed Skill. Alias: `skild rm`

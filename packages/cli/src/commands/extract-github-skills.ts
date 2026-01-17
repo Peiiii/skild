@@ -111,7 +111,7 @@ export async function extractGithubSkills(source: string, options: ExtractGithub
       cleanup = materialized.cleanup;
       const discovered = discoverSkillDirsWithHeuristics(materialized.dir, { maxDepth: maxSkillDepth, maxSkills });
       if (discovered.length === 0) {
-        throw new SkildError('SKILL_MD_NOT_FOUND', `No SKILL.md found in source "${resolvedSource}".`);
+        throw new SkildError('SKILL_NOT_FOUND', `No SKILL.md found in source "${resolvedSource}".`);
       }
       skills = discovered.map(d => {
         const metadata = readSkillMetadata(d.absDir);
@@ -127,7 +127,7 @@ export async function extractGithubSkills(source: string, options: ExtractGithub
     }
 
     if (skills.length > maxSkills) {
-      throw new SkildError('TOO_MANY_SKILLS', `Found more than ${maxSkills} skills. Increase --max-skills to proceed.`);
+      throw new SkildError('INVALID_SOURCE', `Found more than ${maxSkills} skills. Increase --max-skills to proceed.`);
     }
 
     const exportPaths = buildExportPathMap(tree, skills);
@@ -214,7 +214,7 @@ function prepareOutputDir(outDir: string, force: boolean): void {
     const entries = fs.readdirSync(outDir);
     if (entries.length > 0) {
       if (!force) {
-        throw new SkildError('OUTPUT_DIR_EXISTS', `Output directory is not empty: ${outDir}. Use --force to overwrite.`);
+        throw new Error(`Output directory is not empty: ${outDir}. Use --force to overwrite.`);
       }
       fs.rmSync(outDir, { recursive: true, force: true });
     }
@@ -237,7 +237,7 @@ async function resolveSkillDirectory(skill: DiscoveredSkillInstall, repoCache: M
   const relPath = parsed.path ? parsed.path.replace(/^\/+/, '') : '';
   const resolved = relPath ? path.join(cached.dir, relPath) : cached.dir;
   if (!fs.existsSync(resolved)) {
-    throw new SkildError('SKILL_MD_NOT_FOUND', `Skill path missing in repo: ${skill.suggestedSource}`);
+    throw new SkildError('SKILL_NOT_FOUND', `Skill path missing in repo: ${skill.suggestedSource}`);
   }
   return resolved;
 }

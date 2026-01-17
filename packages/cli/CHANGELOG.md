@@ -1,5 +1,18 @@
 # skild
 
+## 0.7.0
+
+### Minor Changes
+
+- c528ff7: - decouple markdown recursion depth from skill directory scan depth via --scan-depth
+  - expand multi-skill repo links into a path-based tree and collapse single-child levels
+  - extract skill metadata for markdown discovery and show descriptions in the selection tree
+
+### Patch Changes
+
+- Updated dependencies [c528ff7]
+  - @skild/core@0.7.0
+
 ## 0.6.1
 
 ### Patch Changes

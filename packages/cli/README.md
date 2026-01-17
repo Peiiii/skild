@@ -32,6 +32,9 @@ skild uninstall pdf -t codex --local
 
 # Create a new Skill
 skild init my-skill
+
+# Extract GitHub skills
+skild extract-github-skills https://github.com/ComposioHQ/awesome-claude-skills
 ```
 
 Full user guide (CLI + registry + console):

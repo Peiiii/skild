@@ -12,7 +12,7 @@
 ## 变更点
 - `packages/cli/src/index.ts`：新增 `--scan-depth`，更新 `--depth` 描述。
 - `packages/cli/src/commands/install.ts`：上下文拆分文档深度与扫描深度。
-- `packages/cli/src/commands/install-markdown.ts`：拆分深度并应用到技能扫描。
+- `packages/cli/src/commands/markdown-discovery.ts`：拆分深度并应用到技能扫描。
 - `docs/*` 与 `skills/skild/commands.md`：更新参数说明。
 - changeset + changelog。
 
