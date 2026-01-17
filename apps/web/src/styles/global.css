@@ -1,18 +1,36 @@
 @import "tailwindcss";
 
+html {
+  scroll-behavior: smooth;
+}
+
+@theme {
+  --color-brand-forest: #2D5A27;
+  --color-brand-eco: #4CAF50;
+  --color-bg-cream: #F9F9F2;
+  --color-text-main: #1A1A1A;
+
+  --font-serif: "Lora", serif;
+  --font-sans: "Inter", sans-serif;
+}
+
 @layer base {
+  body {
+    @apply bg-bg-cream text-text-main font-sans;
+  }
+
   ::selection {
-    @apply bg-indigo-500/30 text-white;
+    @apply bg-brand-eco/30 text-brand-forest;
   }
 }
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-forest to-brand-eco;
   }
 
   .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+    @apply bg-white/40 backdrop-blur-xl border border-white/20;
   }
 
   .reveal {
@@ -28,8 +46,15 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .animate-float {
