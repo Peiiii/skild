@@ -21,6 +21,15 @@ export type SkillChoice = {
     suggestedSource: string;
     materializedDir?: string;
     installedPlatforms?: Platform[];
+    displayName?: string;
+    description?: string;
+};
+
+export type SkillTreeNode = {
+    id: string;
+    label: string;
+    children?: SkillTreeNode[];
+    skillIndex?: number;
 };
 
 type TreeNode = {
@@ -84,6 +93,40 @@ function buildPlatformTree(items: { platform: Platform }[]): TreeNode {
         const platform = items[i]!.platform;
         allNode.children.push(createTreeNode(platform, platform, 2, true, [i]));
         allNode.leafIndices.push(i);
+    }
+
+    return wrapWithRoot(allNode);
+}
+
+function buildTreeFromSkillNodes(nodes: SkillTreeNode[], totalSkills: number): TreeNode {
+    const allNode = createTreeNode('all', 'All Skills', 1, false);
+
+    const attach = (node: SkillTreeNode, depth: number): TreeNode => {
+        const treeNode = createTreeNode(
+            node.id,
+            node.label,
+            depth,
+            Boolean(node.skillIndex != null && (!node.children || node.children.length === 0)),
+            node.skillIndex != null ? [node.skillIndex] : []
+        );
+        if (node.children?.length) {
+            for (const child of node.children) {
+                const childNode = attach(child, depth + 1);
+                treeNode.children.push(childNode);
+                treeNode.leafIndices.push(...childNode.leafIndices);
+            }
+        }
+        return treeNode;
+    };
+
+    for (const node of nodes) {
+        const childNode = attach(node, 2);
+        allNode.children.push(childNode);
+        allNode.leafIndices.push(...childNode.leafIndices);
+    }
+
+    if (allNode.leafIndices.length === 0 && totalSkills > 0) {
+        for (let i = 0; i < totalSkills; i++) allNode.leafIndices.push(i);
     }
 
     return wrapWithRoot(allNode);
@@ -370,6 +413,21 @@ function formatTreeNode(
     return `${cursorMark}${indent}${checkbox} ${name}${count}${suffix}${hint}`;
 }
 
+function truncateDescription(value: string, maxLen: number): string {
+    const trimmed = value.trim();
+    if (trimmed.length <= maxLen) return trimmed;
+    return `${trimmed.slice(0, maxLen - 3).trimEnd()}...`;
+}
+
+function getSkillDescriptionSuffix(skills: SkillChoice[], node: TreeNode, isCursor: boolean): string {
+    if (!isCursor || !node.isLeaf || node.leafIndices.length !== 1) return '';
+    const skill = skills[node.leafIndices[0]!];
+    if (!skill?.description) return '';
+    const description = truncateDescription(skill.description, 72);
+    if (!description) return '';
+    return chalk.dim(` - ${description}`);
+}
+
 // ============================================================================
 // Public API
 // ============================================================================
@@ -401,22 +459,23 @@ export async function promptSkillsInteractive(
         buildTree: buildSkillTree,
         formatNode: (node, selection, isCursor) => {
             // Check installed status for leaf nodes
-            let suffix = '';
+            let installedSuffix = '';
             if (node.isLeaf && node.leafIndices.length === 1) {
                 const skill = skills[node.leafIndices[0]!];
                 if (skill?.installedPlatforms?.length) {
                     if (skill.installedPlatforms.length === targetPlatforms.length && targetPlatforms.length > 0) {
-                        suffix = chalk.dim(' [installed]');
+                        installedSuffix = chalk.dim(' [installed]');
                     } else if (skill.installedPlatforms.length > 0) {
-                        suffix = chalk.dim(` [installed on ${skill.installedPlatforms.length}]`);
+                        installedSuffix = chalk.dim(` [installed on ${skill.installedPlatforms.length}]`);
                     }
                 }
             }
 
-            const formatted = formatTreeNode(node, selection, isCursor, { suffix });
+            const descriptionSuffix = getSkillDescriptionSuffix(skills, node, isCursor);
+            const formatted = formatTreeNode(node, selection, isCursor, { suffix: `${installedSuffix}${descriptionSuffix}` });
 
             // Override hint for installed items
-            if (isCursor && suffix && selection.state !== 'all') {
+            if (isCursor && installedSuffix && selection.state !== 'all') {
                 return formatted.replace('← Space to select', '← Space to reinstall');
             }
             return formatted;
@@ -429,6 +488,30 @@ export async function promptSkillsInteractive(
 
     const selectedSkills = selectedIndices.map(i => skills[i]!);
     const names = selectedSkills.map(s => s.relPath === '.' ? s.suggestedSource : s.relPath);
+    console.log(chalk.green(`\n✓ Selected ${selectedSkills.length} skill${selectedSkills.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`));
+    return selectedSkills;
+}
+
+export async function promptSkillsTreeInteractive(
+    skills: SkillChoice[],
+    tree: SkillTreeNode[],
+    options: { defaultAll?: boolean } = {}
+): Promise<SkillChoice[] | null> {
+    const selectedIndices = await interactiveTreeSelect(skills, {
+        title: 'Select skills from markdown',
+        subtitle: '↑↓ navigate • Space toggle • Enter confirm',
+        buildTree: () => buildTreeFromSkillNodes(tree, skills.length),
+        formatNode: (node, selection, isCursor) => {
+            const descriptionSuffix = getSkillDescriptionSuffix(skills, node, isCursor);
+            return formatTreeNode(node, selection, isCursor, { suffix: descriptionSuffix });
+        },
+        defaultAll: options.defaultAll !== false,
+    });
+
+    if (!selectedIndices) return null;
+
+    const selectedSkills = selectedIndices.map(i => skills[i]!);
+    const names = selectedSkills.map(s => s.displayName || s.relPath || s.suggestedSource);
     console.log(chalk.green(`\n✓ Selected ${selectedSkills.length} skill${selectedSkills.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`));
     return selectedSkills;
 }

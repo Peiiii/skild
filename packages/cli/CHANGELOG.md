@@ -1,5 +1,17 @@
 # skild
 
+## 0.6.1
+
+### Patch Changes
+
+- allow depth 0 and default depth to 0 for install discovery
+
+## 0.6.0
+
+### Minor Changes
+
+- add markdown-based recursive skill discovery for GitHub sources
+
 ## 0.5.3
 
 ### Patch Changes

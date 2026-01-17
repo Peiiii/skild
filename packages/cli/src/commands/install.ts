@@ -20,8 +20,16 @@ import {
   PLATFORMS
 } from '@skild/core';
 import { createSpinner, logger } from '../utils/logger.js';
-import { promptSkillsInteractive, promptPlatformsInteractive, type SkillChoice } from '../utils/interactive-select.js';
-import { discoverSkillDirsWithHeuristics, parsePositiveInt, type DiscoveredSkillDir } from './install-discovery.js';
+import { promptSkillsInteractive, promptPlatformsInteractive, promptSkillsTreeInteractive } from '../utils/interactive-select.js';
+import {
+  discoverSkillDirsWithHeuristics,
+  parseNonNegativeInt,
+  parsePositiveInt,
+  readSkillMetadata,
+  type DiscoveredSkillDir
+} from './install-discovery.js';
+import { discoverMarkdownSkillsFromSource, type MarkdownTreeNode } from './install-markdown.js';
+import type { DiscoveredSkillInstall } from './install-types.js';
 
 // ============================================================================
 // Types
@@ -33,18 +41,13 @@ export interface InstallCommandOptions {
   recursive?: boolean;
   yes?: boolean;
   depth?: number | string;
+  scanDepth?: number | string;
   maxSkills?: number | string;
   local?: boolean;
   force?: boolean;
   registry?: string;
   json?: boolean;
 }
-
-type DiscoveredSkillInstall = {
-  relPath: string;
-  suggestedSource: string;
-  materializedDir?: string;
-};
 
 /** Unified context object for the install pipeline. */
 interface InstallContext {
@@ -58,7 +61,8 @@ interface InstallContext {
   jsonOnly: boolean;
   interactive: boolean;
   yes: boolean;
-  maxDepth: number;
+  markdownDepth: number;
+  scanDepth: number;
   maxSkills: number;
 
   // Mutable state
@@ -73,6 +77,7 @@ interface InstallContext {
   isSingleSkill: boolean;
   materializedDir: string | null;
   cleanupMaterialized: (() => void) | null;
+  markdownTree: MarkdownTreeNode[] | null;
 
   // Execution results
   results: InstallRecord[];
@@ -102,6 +107,18 @@ function printJson(value: unknown): void {
   process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
 }
 
+function appendCleanup(
+  current: (() => void) | null,
+  next: (() => void) | null
+): (() => void) | null {
+  if (!next) return current;
+  if (!current) return next;
+  return () => {
+    current();
+    next();
+  };
+}
+
 function getInstalledPlatforms(scope: InstallScope): Platform[] {
   return PLATFORMS.filter(platform => listSkills({ platform, scope }).length > 0);
 }
@@ -114,13 +131,20 @@ function getPlatformPromptList(scope: InstallScope): Platform[] {
 function asDiscoveredSkills(
   discovered: DiscoveredSkillDir[],
   toSuggestedSource: (dir: DiscoveredSkillDir) => string,
-  toMaterializedDir?: (dir: DiscoveredSkillDir) => string | undefined
+  toMaterializedDir?: (dir: DiscoveredSkillDir) => string | undefined,
+  toMetadataDir?: (dir: DiscoveredSkillDir) => string | undefined
 ): DiscoveredSkillInstall[] {
-  return discovered.map(d => ({
-    relPath: d.relPath,
-    suggestedSource: toSuggestedSource(d),
-    materializedDir: toMaterializedDir ? toMaterializedDir(d) : undefined,
-  }));
+  return discovered.map(d => {
+    const metadataDir = toMetadataDir ? toMetadataDir(d) : undefined;
+    const metadata = metadataDir ? readSkillMetadata(metadataDir) : null;
+    return {
+      relPath: d.relPath,
+      suggestedSource: toSuggestedSource(d),
+      materializedDir: toMaterializedDir ? toMaterializedDir(d) : undefined,
+      displayName: metadata?.name,
+      description: metadata?.description,
+    };
+  });
 }
 
 // ============================================================================
@@ -160,7 +184,8 @@ function createContext(source: string, options: InstallCommandOptions): InstallC
     jsonOnly,
     interactive,
     yes,
-    maxDepth: parsePositiveInt(options.depth, 6),
+    markdownDepth: parseNonNegativeInt(options.depth, 0),
+    scanDepth: parseNonNegativeInt(options.scanDepth, 6),
     maxSkills: parsePositiveInt(options.maxSkills, 200),
     resolvedSource: source.trim(),
     targets,
@@ -171,6 +196,7 @@ function createContext(source: string, options: InstallCommandOptions): InstallC
     isSingleSkill: false,
     materializedDir: null,
     cleanupMaterialized: null,
+    markdownTree: null,
     results: [],
     errors: [],
     skipped: [],
@@ -220,7 +246,7 @@ async function resolveSource(ctx: InstallContext): Promise<boolean> {
 // ============================================================================
 
 async function discoverSkills(ctx: InstallContext): Promise<boolean> {
-  const { resolvedSource, maxDepth, maxSkills, jsonOnly } = ctx;
+  const { resolvedSource, markdownDepth, scanDepth, maxSkills, jsonOnly } = ctx;
 
   // Update spinner text
   if (ctx.spinner) {
@@ -242,13 +268,19 @@ async function discoverSkills(ctx: InstallContext): Promise<boolean> {
     if (isLocal) {
       const hasSkillMd = fs.existsSync(path.join(maybeLocalRoot, 'SKILL.md'));
       if (hasSkillMd) {
+        const metadata = readSkillMetadata(maybeLocalRoot);
         ctx.isSingleSkill = true;
-        ctx.selectedSkills = [{ relPath: maybeLocalRoot, suggestedSource: resolvedSource }];
+        ctx.selectedSkills = [{
+          relPath: maybeLocalRoot,
+          suggestedSource: resolvedSource,
+          displayName: metadata?.name,
+          description: metadata?.description,
+        }];
         return true;
       }
 
       // Discover skills in directory
-      const discovered = discoverSkillDirsWithHeuristics(maybeLocalRoot, { maxDepth, maxSkills });
+      const discovered = discoverSkillDirsWithHeuristics(maybeLocalRoot, { maxDepth: scanDepth, maxSkills });
       if (discovered.length === 0) {
         const message = `No SKILL.md found at ${maybeLocalRoot} (or within subdirectories).`;
         if (jsonOnly) {
@@ -261,24 +293,59 @@ async function discoverSkills(ctx: InstallContext): Promise<boolean> {
         return false;
       }
 
-      ctx.discoveredSkills = asDiscoveredSkills(discovered, d => path.join(maybeLocalRoot, d.relPath));
+      ctx.discoveredSkills = asDiscoveredSkills(
+        discovered,
+        d => path.join(maybeLocalRoot, d.relPath),
+        undefined,
+        d => d.absDir
+      );
       return true;
     }
 
-    // Case 3: Remote source - materialize first
+    // Case 3: Remote source - markdown discovery first
+    const markdownResult = await discoverMarkdownSkillsFromSource({
+      source: resolvedSource,
+      maxDocDepth: markdownDepth,
+      maxSkillDepth: scanDepth,
+      maxSkills,
+      onProgress: update => {
+        if (ctx.spinner) {
+          const current = update.current ? ` · ${update.current}` : '';
+          const capped = update.linkLimitReached ? ' · link cap reached' : '';
+          ctx.spinner.text = `Parsing markdown (${update.docsScanned} docs, ${update.linksChecked} links, ${update.skillsFound} skills)${current}${capped}`;
+        }
+      },
+    });
+    if (markdownResult && markdownResult.skills.length > 0) {
+      ctx.discoveredSkills = markdownResult.skills;
+      ctx.markdownTree = markdownResult.tree;
+      ctx.isSingleSkill = markdownResult.skills.length === 1;
+      ctx.selectedSkills = ctx.isSingleSkill ? [markdownResult.skills[0]!] : null;
+      ctx.cleanupMaterialized = appendCleanup(ctx.cleanupMaterialized, markdownResult.cleanup);
+      return true;
+    }
+
+    // Case 4: Remote source - materialize first
     const materialized = await materializeSourceToTemp(resolvedSource);
     ctx.materializedDir = materialized.dir;
-    ctx.cleanupMaterialized = materialized.cleanup;
+    ctx.cleanupMaterialized = appendCleanup(ctx.cleanupMaterialized, materialized.cleanup);
 
     const hasSkillMd = fs.existsSync(path.join(ctx.materializedDir, 'SKILL.md'));
     if (hasSkillMd) {
+      const metadata = readSkillMetadata(ctx.materializedDir);
       ctx.isSingleSkill = true;
-      ctx.selectedSkills = [{ relPath: '.', suggestedSource: resolvedSource, materializedDir: ctx.materializedDir }];
+      ctx.selectedSkills = [{
+        relPath: '.',
+        suggestedSource: resolvedSource,
+        materializedDir: ctx.materializedDir,
+        displayName: metadata?.name,
+        description: metadata?.description,
+      }];
       return true;
     }
 
     // Discover skills in materialized directory
-    const discovered = discoverSkillDirsWithHeuristics(ctx.materializedDir, { maxDepth, maxSkills });
+    const discovered = discoverSkillDirsWithHeuristics(ctx.materializedDir, { maxDepth: scanDepth, maxSkills });
     if (discovered.length === 0) {
       const message = `No SKILL.md found in source "${resolvedSource}".`;
       if (jsonOnly) {
@@ -294,6 +361,7 @@ async function discoverSkills(ctx: InstallContext): Promise<boolean> {
     ctx.discoveredSkills = asDiscoveredSkills(
       discovered,
       d => deriveChildSource(resolvedSource, d.relPath),
+      d => d.absDir,
       d => d.absDir
     );
     return true;
@@ -393,7 +461,9 @@ async function promptSelections(ctx: InstallContext): Promise<boolean> {
     }
 
     // Step 1: Select skills
-    const selected = await promptSkillsInteractive(discoveredSkills, { defaultAll: true });
+    const selected = ctx.markdownTree
+      ? await promptSkillsTreeInteractive(discoveredSkills, ctx.markdownTree, { defaultAll: true })
+      : await promptSkillsInteractive(discoveredSkills, { defaultAll: true });
     if (!selected) {
       console.log(chalk.red('No skills selected.'));
       process.exitCode = 1;

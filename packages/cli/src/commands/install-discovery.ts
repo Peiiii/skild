@@ -1,9 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { parseSkillFrontmatter, readSkillMd } from '@skild/core';
 
 export type DiscoveredSkillDir = {
   relPath: string;
   absDir: string;
+};
+
+export type SkillMetadata = {
+  name?: string;
+  description?: string;
 };
 
 export function parsePositiveInt(input: unknown, fallback: number): number {
@@ -11,6 +17,28 @@ export function parsePositiveInt(input: unknown, fallback: number): number {
   const n = typeof input === 'number' ? input : Number(String(input).trim());
   if (!Number.isFinite(n) || n <= 0) return fallback;
   return Math.floor(n);
+}
+
+export function parseNonNegativeInt(input: unknown, fallback: number): number {
+  if (input == null) return fallback;
+  const n = typeof input === 'number' ? input : Number(String(input).trim());
+  if (!Number.isFinite(n) || n < 0) return fallback;
+  return Math.floor(n);
+}
+
+export function extractSkillMetadata(skillMdContent: string): SkillMetadata | null {
+  const frontmatter = parseSkillFrontmatter(skillMdContent);
+  if (!frontmatter) return null;
+  const name = typeof frontmatter.name === 'string' ? frontmatter.name.trim() : undefined;
+  const description = typeof frontmatter.description === 'string' ? frontmatter.description.trim() : undefined;
+  if (!name && !description) return null;
+  return { name, description };
+}
+
+export function readSkillMetadata(skillDir: string): SkillMetadata | null {
+  const content = readSkillMd(skillDir);
+  if (!content) return null;
+  return extractSkillMetadata(content);
 }
 
 function normalizeRelPath(relPath: string): string {
