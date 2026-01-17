@@ -144,7 +144,7 @@ export function MySkillsPage(): JSX.Element {
                           <Link to={`/linked/${encodeURIComponent(item.id)}`} className="font-medium hover:underline">
                             {displayName}
                           </Link>
-                          <Badge variant="emerald" className="h-5 text-[10px]">Linked</Badge>
+                          <Badge variant="eco" className="h-5 text-[10px]">Linked</Badge>
                           {alias ? (
                             <Badge variant="secondary" className="h-5 text-[10px] font-mono">alias:{alias}</Badge>
                           ) : (

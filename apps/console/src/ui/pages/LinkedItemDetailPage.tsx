@@ -149,7 +149,7 @@ export function LinkedItemDetailPage(): JSX.Element {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="emerald" className="h-6">Linked Item</Badge>
+              <Badge variant="eco" className="h-6">Linked Item</Badge>
               {alias ? (
                 <Badge variant="secondary" className="h-6 text-[10px] font-mono">alias:{alias}</Badge>
               ) : (
