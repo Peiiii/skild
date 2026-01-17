@@ -156,7 +156,8 @@ skild validate skill-name
 | `--all` | Install to all platforms |
 | `--recursive` | If source is multi-skill, install all discovered Skills |
 | `-y, --yes` | Skip confirmation prompts (assume yes) |
-| `--depth <n>` | Max directory depth to scan for `SKILL.md` (default: 6) |
+| `--depth <n>` | Max markdown recursion depth (default: 0) |
+| `--scan-depth <n>` | Max directory depth to scan for `SKILL.md` (default: 6) |
 | `--max-skills <n>` | Safety limit for discovered Skills to install (default: 200) |
 | `--local` | Install to project directory instead of global |
 | `--force` | Overwrite existing installation |

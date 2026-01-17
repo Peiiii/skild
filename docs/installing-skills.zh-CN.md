@@ -156,7 +156,8 @@ skild validate skill-name
 | `--all` | 一次性安装到所有平台 |
 | `--recursive` | 如果 source 是多 skill 目录/仓库，一键安装发现的所有 Skills |
 | `-y, --yes` | 跳过确认提示（默认同意） |
-| `--depth <n>` | 扫描 `SKILL.md` 的最大目录深度（默认：6） |
+| `--depth <n>` | Markdown 递归深度上限（默认：0） |
+| `--scan-depth <n>` | 扫描 `SKILL.md` 的最大目录深度（默认：6） |
 | `--max-skills <n>` | 发现技能数量的安全上限（默认：200） |
 | `--local` | 安装到项目目录而非全局 |
 | `--force` | 覆盖已有安装 |

@@ -28,7 +28,8 @@ skild install <source> [options]
 | `--all` | Install to all platforms |
 | `--recursive` | If source is a multi-skill directory/repo (no root `SKILL.md`), install all discovered skills |
 | `-y, --yes` | Skip confirmation prompts (assume yes) |
-| `--depth <n>` | Max directory depth to scan for `SKILL.md` (default: 6) |
+| `--depth <n>` | Max markdown recursion depth (default: 0) |
+| `--scan-depth <n>` | Max directory depth to scan for `SKILL.md` (default: 6) |
 | `--max-skills <n>` | Safety limit for discovered skills to install (default: 200) |
 | `-l, --local` | Install to project directory (not global) |
 | `-f, --force` | Overwrite existing installation |
