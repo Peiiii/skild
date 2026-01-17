@@ -57,6 +57,12 @@ export function toDegitPath(url: string): string {
   return url;
 }
 
+export function stripSourceRef(source: string): string {
+  const hashIndex = source.indexOf('#');
+  if (hashIndex === -1) return source;
+  return source.slice(0, hashIndex);
+}
+
 function normalizeRelPath(relPath: string): string {
   return relPath.split(path.sep).join('/').replace(/^\/+/, '').replace(/\/+$/, '');
 }

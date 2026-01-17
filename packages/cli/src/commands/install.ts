@@ -11,6 +11,7 @@ import {
   materializeSourceToTemp,
   resolveRegistryAlias,
   resolveRegistryUrl,
+  stripSourceRef,
   SkildError,
   type InstallRecord,
   type Platform,
@@ -187,7 +188,8 @@ async function resolveSource(ctx: InstallContext): Promise<boolean> {
       const registryUrl = resolveRegistryUrl(ctx.registryUrl);
       const resolved = await resolveRegistryAlias(registryUrl, ctx.resolvedSource);
       if (!ctx.jsonOnly) {
-        logger.info(`Resolved ${chalk.cyan(ctx.resolvedSource)} → ${chalk.cyan(resolved.spec)} (${resolved.type})`);
+        const displaySpec = stripSourceRef(resolved.spec);
+        logger.info(`Resolved ${chalk.cyan(ctx.resolvedSource)} → ${chalk.cyan(displaySpec)} (${resolved.type})`);
       }
       ctx.resolvedSource = resolved.spec;
     }

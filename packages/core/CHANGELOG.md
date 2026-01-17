@@ -1,5 +1,12 @@
 # @skild/core
 
+## 0.5.1
+
+### Patch Changes
+
+- fallback to default branch when ref is missing during remote materialization
+- hide branch/commit refs in alias resolution output
+
 ## 0.5.0
 
 ### Minor Changes

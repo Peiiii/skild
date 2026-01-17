@@ -24,7 +24,7 @@ export { initSkill } from './init.js';
 export { fetchWithTimeout } from './http.js';
 export { assertValidAlias, isValidAlias, normalizeAlias } from './alias.js';
 export { materializeSourceToDir, materializeSourceToTemp } from './materialize.js';
-export { deriveChildSource, toDegitPath } from './source.js';
+export { deriveChildSource, stripSourceRef, toDegitPath } from './source.js';
 export {
   DEFAULT_REGISTRY_URL,
   canonicalNameToInstallDirName,

@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import degit from 'degit';
 import type { SourceType } from './types.js';
-import { classifySource, extractSkillName, resolveLocalPath, toDegitPath } from './source.js';
+import { classifySource, extractSkillName, resolveLocalPath, stripSourceRef, toDegitPath } from './source.js';
 import { copyDir, createTempDir, isDirEmpty, isDirectory, removeDir } from './fs.js';
 import { SkildError } from './errors.js';
 
@@ -16,6 +16,27 @@ function ensureInstallableDir(sourcePath: string): void {
 async function cloneRemote(degitSrc: string, targetPath: string): Promise<void> {
   const emitter = degit(degitSrc, { force: true, verbose: false });
   await emitter.clone(targetPath);
+}
+
+function isMissingRefError(error: unknown): boolean {
+  if (!error) return false;
+  const message = error instanceof Error ? error.message : String(error);
+  return /could not find commit hash/i.test(message);
+}
+
+async function cloneRemoteWithFallback(degitSrc: string, targetPath: string): Promise<string> {
+  try {
+    await cloneRemote(degitSrc, targetPath);
+    return degitSrc;
+  } catch (error) {
+    if (!degitSrc.includes('#') || !isMissingRefError(error)) {
+      throw error;
+    }
+  }
+
+  const fallbackSrc = stripSourceRef(degitSrc);
+  await cloneRemote(fallbackSrc, targetPath);
+  return fallbackSrc;
 }
 
 export async function materializeSourceToDir(input: {
@@ -42,8 +63,8 @@ export async function materializeSourceToDir(input: {
   }
 
   const degitPath = toDegitPath(input.source);
-  await cloneRemote(degitPath, targetDir);
-  return { sourceType, materializedFrom: degitPath };
+  const materializedFrom = await cloneRemoteWithFallback(degitPath, targetDir);
+  return { sourceType, materializedFrom };
 }
 
 export async function materializeSourceToTemp(source: string): Promise<{ dir: string; cleanup: () => void; sourceType: SourceType }> {
@@ -68,4 +89,3 @@ export async function materializeSourceToTemp(source: string): Promise<{ dir: st
     throw e;
   }
 }
-
