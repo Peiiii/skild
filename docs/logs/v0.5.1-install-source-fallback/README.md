@@ -8,16 +8,14 @@
 ### 验证/验收
 - `pnpm release:check`（内部执行 `build`/`lint`/`typecheck`）
 - 线上验收（发布后）：
-  - `npm view skild version` 输出最新版本号
-  - `npm view @skild/core version` 输出最新版本号
+  - `npm view skild version --registry=https://registry.npmjs.org/` 输出 `0.5.1`
+  - `npm view @skild/core version --registry=https://registry.npmjs.org/` 输出 `0.5.1`
 
 ### 发布/部署
 - 按 `docs/processes/npm-release-process.md` 执行 changeset -> version -> publish。
 - 发布范围：`@skild/core`、`skild`。
 - 本次无 migrations，发布后以 npm 线上查询完成闭环。
-- 进度：
-  - 已完成：changeset、`pnpm release:version`。
-  - 阻塞：`pnpm release:publish` 缺少 npm auth（需 `.npmrc.publish.local` 或 `NPM_TOKEN`）。
+- 已完成：changeset、`pnpm release:version`、`pnpm release:publish`。
 
 ### 影响范围 / 风险
 - Breaking change：否。
