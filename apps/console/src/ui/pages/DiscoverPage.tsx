@@ -228,7 +228,7 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
                 <span className="text-xs font-bold uppercase tracking-widest">{sortLabels[currentSort] || 'Sort'}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-48 bg-white shadow-2xl shadow-brand-forest/20 border-brand-forest/10">
               <DropdownMenuLabel>Sort by</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onSortChange('downloads_7d')} className="gap-2">

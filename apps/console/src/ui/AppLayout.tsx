@@ -80,14 +80,14 @@ export function AppLayout(): JSX.Element {
                 <>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 gap-2 font-mono text-sm">
+                      <Button variant="ghost" className="h-8 px-3 gap-2 font-mono text-sm">
                         @{publisher.handle}
                         <svg className="w-3 h-3 opacity-50" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <path d="M6 9l6 6 6-6" />
                         </svg>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuContent align="end" className="w-52 bg-white shadow-2xl shadow-brand-forest/20 border-brand-forest/10">
                       <DropdownMenuItem asChild>
                         <Link to="/me" className="flex items-center gap-2">
                           <LayoutDashboard className="w-4 h-4 opacity-70" />
