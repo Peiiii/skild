@@ -20,6 +20,7 @@ import { logout } from './commands/logout.js';
 import { whoami } from './commands/whoami.js';
 import { publish } from './commands/publish.js';
 import { search } from './commands/search.js';
+import { extractGithubSkills } from './commands/extract-github-skills.js';
 import { PLATFORMS } from '@skild/core';
 
 const require = createRequire(import.meta.url);
@@ -158,6 +159,19 @@ program
     .option('--limit <n>', 'Max results (default: 50)', '50')
     .option('--json', 'Output JSON')
     .action(async (query: string, options: any) => search(query, options));
+
+program
+    .command('extract-github-skills <source>')
+    .description('Extract GitHub skills into a local catalog directory')
+    .option('--out <dir>', 'Output directory (default: ./skild-github-skills)')
+    .option('-f, --force', 'Overwrite existing output directory')
+    .option('--depth <n>', 'Max markdown recursion depth (default: 0)', '0')
+    .option('--scan-depth <n>', 'Max directory depth to scan for SKILL.md (default: 6)', '6')
+    .option('--max-skills <n>', 'Max discovered skills to export (default: 200)', '200')
+    .option('--json', 'Output JSON')
+    .action(async (source: string, options: any) => {
+        await extractGithubSkills(source, options);
+    });
 
 // Default action: show help
 program.action(() => {

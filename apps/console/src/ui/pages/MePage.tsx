@@ -36,7 +36,7 @@ export function MePage(): JSX.Element {
         description={`Welcome back, @${publisher.handle}`}
       />
 
-      <Card className="p-8">
+      <Card className="p-5">
         <CardContent className="flex flex-wrap gap-4 pt-0">
           <Button asChild className="gap-2 px-6 h-12 rounded-full">
             <Link to="/me/tokens">
@@ -50,7 +50,7 @@ export function MePage(): JSX.Element {
               My skills
             </Link>
           </Button>
-          <Button asChild variant="outline" className="gap-2 px-6 h-12 rounded-full border-brand-forest/10 hover:bg-brand-forest/5 hover:text-brand-forest">
+          <Button asChild variant="outline" className="gap-2 px-6 h-12 rounded-full border-brand-forest/30 hover:bg-brand-forest/10 hover:text-brand-forest font-bold">
             <Link to="/publish">
               <BookOpen className="w-4 h-4" />
               Publish guide

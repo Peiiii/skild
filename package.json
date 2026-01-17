@@ -13,6 +13,7 @@
         "dev:web": "pnpm --filter web dev",
         "dev:cli": "pnpm --filter ./packages/cli dev",
         "dev:console": "cross-env VITE_REGISTRY_URL=http://localhost:18787 pnpm -C apps/console dev -- --port 5173",
+        "dev:console:remote-registry": "cross-env VITE_REGISTRY_URL=https://registry.skild.sh pnpm -C apps/console dev -- --port 5173",
         "dev:registry": "pnpm -C workers/registry exec wrangler d1 migrations apply skild-registry --local && pnpm -C workers/registry exec wrangler dev src/index.ts --local --port 18787 --persist-to .wrangler/state --var EMAIL_MODE:log --var REGISTRY_PUBLIC_URL:http://localhost:18787 --var CONSOLE_PUBLIC_URL:http://localhost:5173",
         "build": "pnpm -r --filter './apps/*' --filter './workers/*' --filter './packages/*' build",
         "build:web": "pnpm --filter web build",

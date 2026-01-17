@@ -74,39 +74,39 @@ export function GettingStartedPage(): JSX.Element {
                 </p>
             </section>
 
-            <section className="rounded-[32px] border border-brand-forest/5 bg-white p-10 space-y-8 shadow-xl shadow-brand-forest/[0.02]">
+            <section className="rounded-[24px] border border-brand-forest/5 bg-white p-6 space-y-6 shadow-xl shadow-brand-forest/[0.02]">
                 <h2 className="text-2xl font-serif font-bold text-brand-forest">Next Steps</h2>
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-3">
                     <Link
                         to="/skills"
-                        className="flex items-center gap-4 p-5 rounded-[20px] bg-brand-forest/[0.02] border border-brand-forest/5 hover:bg-brand-forest/[0.05] hover:border-brand-forest/10 transition-all group"
+                        className="flex items-center gap-3 p-4 rounded-[16px] bg-brand-forest/[0.02] border border-brand-forest/5 hover:bg-brand-forest/[0.05] hover:border-brand-forest/10 transition-all group"
                     >
-                        <Compass className="h-6 w-6 text-brand-forest group-hover:text-brand-eco transition-colors" />
+                        <Compass className="h-5 w-5 text-brand-forest group-hover:text-brand-eco transition-colors" />
                         <div>
-                            <div className="font-bold text-sm text-brand-forest">Browse Skills</div>
-                            <div className="text-xs text-brand-forest/40 font-medium">Discover capabilities</div>
+                            <div className="font-bold text-[13px] text-brand-forest">Browse Skills</div>
+                            <div className="text-[10px] text-brand-forest/40 font-medium">Discover capabilities</div>
                         </div>
                     </Link>
                     <Link
                         to="/skillsets"
-                        className="flex items-center gap-4 p-5 rounded-[20px] bg-brand-forest/[0.02] border border-brand-forest/5 hover:bg-brand-forest/[0.05] hover:border-brand-forest/10 transition-all group"
+                        className="flex items-center gap-3 p-4 rounded-[16px] bg-brand-forest/[0.02] border border-brand-forest/5 hover:bg-brand-forest/[0.05] hover:border-brand-forest/10 transition-all group"
                     >
-                        <Layers className="h-6 w-6 text-brand-forest group-hover:text-brand-eco transition-colors" />
+                        <Layers className="h-5 w-5 text-brand-forest group-hover:text-brand-eco transition-colors" />
                         <div>
-                            <div className="font-bold text-sm text-brand-forest">Skillsets</div>
-                            <div className="text-xs text-brand-forest/40 font-medium">Install skill packs</div>
+                            <div className="font-bold text-[13px] text-brand-forest">Skillsets</div>
+                            <div className="text-[10px] text-brand-forest/40 font-medium">Install skill packs</div>
                         </div>
                     </Link>
                     <a
                         href="https://github.com/Peiiii/skild"
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center gap-4 p-5 rounded-[20px] bg-brand-forest/[0.02] border border-brand-forest/5 hover:bg-brand-forest/[0.05] hover:border-brand-forest/10 transition-all group"
+                        className="flex items-center gap-3 p-4 rounded-[16px] bg-brand-forest/[0.02] border border-brand-forest/5 hover:bg-brand-forest/[0.05] hover:border-brand-forest/10 transition-all group"
                     >
-                        <ExternalLink className="h-6 w-6 text-brand-forest group-hover:text-brand-eco transition-colors" />
+                        <ExternalLink className="h-5 w-5 text-brand-forest group-hover:text-brand-eco transition-colors" />
                         <div>
-                            <div className="font-bold text-sm text-brand-forest">Documentation</div>
-                            <div className="text-xs text-brand-forest/40 font-medium">Full guides on GitHub</div>
+                            <div className="font-bold text-[13px] text-brand-forest">Documentation</div>
+                            <div className="text-[10px] text-brand-forest/40 font-medium">Full guides on GitHub</div>
                         </div>
                     </a>
                 </div>

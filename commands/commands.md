@@ -6,3 +6,14 @@
 - `/validate`: 对项目进行验证，至少运行 `build`、`lint`、`tsc`，必要时补充冒烟测试。执行前需确认验证范围和可跳过项。
 
 （后续指令在此追加，保持格式一致。） 
+
+---
+
+## extract-github-skills
+
+- **名称**：`extract-github-skills`
+- **用途**：从 GitHub 链接解析技能树并导出完整技能目录（含全部文件）。
+- **输入格式**：`skild extract-github-skills <source> [--out <dir>] [--force] [--depth <n>] [--scan-depth <n>] [--max-skills <n>]`
+- **输出/期望行为**：
+  - 输出目录树与 `catalog.json`
+  - 每个技能目录包含完整内容与 `skill.json`

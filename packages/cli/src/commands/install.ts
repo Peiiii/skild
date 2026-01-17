@@ -28,7 +28,7 @@ import {
   readSkillMetadata,
   type DiscoveredSkillDir
 } from './install-discovery.js';
-import { discoverMarkdownSkillsFromSource, type MarkdownTreeNode } from './install-markdown.js';
+import { discoverMarkdownSkillsFromSource, type MarkdownTreeNode } from './markdown-discovery.js';
 import type { DiscoveredSkillInstall } from './install-types.js';
 
 // ============================================================================

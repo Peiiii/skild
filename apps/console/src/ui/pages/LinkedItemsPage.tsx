@@ -13,7 +13,8 @@ import { Badge } from '@/components/ui/badge';
 import { PageHero } from '@/components/ui/page-hero';
 import { SearchBar } from '@/components/ui/search-bar';
 import { CodeBlock } from '@/components/ui/code-block';
-import { Github, Tag, User, Clock, Package } from 'lucide-react';
+import { SkillCard } from '@/components/ui/skill-card';
+import { Plus, Github } from 'lucide-react';
 
 export function LinkedItemsPage(): JSX.Element {
   const auth = useAuth();
@@ -98,8 +99,9 @@ export function LinkedItemsPage(): JSX.Element {
         description="Browse and index skills directly from GitHub repositories."
         actions={
           <Button asChild variant="secondary" className="h-12 px-8 shadow-lg">
-            <Link to={authed ? '/linked/new' : `/login?next=${encodeURIComponent('/linked/new')}`}>
-              {authed ? '+ Submit Skill' : 'Login to submit'}
+            <Link to="/linked/new" className="gap-2 font-bold uppercase tracking-widest text-xs">
+              <Plus className="w-4 h-4" />
+              Link Repository
             </Link>
           </Button>
         }
@@ -121,12 +123,12 @@ export function LinkedItemsPage(): JSX.Element {
       )}
 
       {busy ? (
-        <div className="grid gap-6">
-          {Array.from({ length: 3 }).map((_, idx) => (
-            <div key={`skeleton-${idx}`} className="rounded-[32px] border border-brand-forest/5 p-8 animate-pulse bg-white">
-              <div className="h-6 w-48 rounded-full bg-brand-forest/5" />
-              <div className="mt-4 h-4 w-3/4 rounded-full bg-brand-forest/5" />
-              <div className="mt-6 h-12 w-full rounded-[16px] bg-brand-forest/5" />
+        <div className="grid gap-5 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <div key={`skeleton-${idx}`} className="rounded-[24px] border border-brand-forest/5 p-6 animate-pulse bg-white">
+              <div className="h-5 w-32 rounded-full bg-brand-forest/5" />
+              <div className="mt-3 h-3 w-3/4 rounded-full bg-brand-forest/5" />
+              <div className="mt-8 h-10 w-full rounded-[16px] bg-brand-forest/5" />
             </div>
           ))}
         </div>
@@ -141,85 +143,30 @@ export function LinkedItemsPage(): JSX.Element {
         </div>
       ) : (
         <div className="grid gap-6">
-          {items.map(item => {
-            const alias = normalizeAlias(item.alias);
-            const title = preferredDisplayName({ title: item.title, alias });
-            const installCmd = preferredInstallCommand({ install: item.install, alias });
-            return (
-              <Card key={item.id} className="group p-8 hover:border-brand-forest/20 transition-all hover:shadow-2xl hover:shadow-brand-forest/5">
-                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-8">
-                  <div className="min-w-0 flex-1 space-y-4">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Link to={`/linked/${encodeURIComponent(item.id)}`} className="text-2xl font-serif font-bold text-brand-forest hover:text-brand-eco transition-colors">
-                        {title}
-                      </Link>
-                      <Badge variant="eco">Linked</Badge>
-                      {alias ? (
-                        <Badge variant="forest" className="font-mono lowercase tracking-normal bg-brand-forest/5 border-none text-[10px]">{alias}</Badge>
-                      ) : (
-                        <Badge variant="outline" className="opacity-30 border-brand-forest/20 text-[10px]">no alias</Badge>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm font-medium text-brand-forest/60">
-                      <div className="w-6 h-6 rounded-full bg-brand-forest/5 flex items-center justify-center">
-                        <Github className="h-3.5 w-3.5 text-brand-forest" />
-                      </div>
-                      <a
-                        href={`https://github.com/${item.source.repo}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="hover:text-brand-forest transition-colors flex items-center gap-1"
-                      >
-                        {item.source.repo}{item.source.path ? <><span className="opacity-30">/</span>{item.source.path}</> : ''}
-                      </a>
-                    </div>
-
-                    <p className="text-base text-brand-forest/70 leading-relaxed italic">
-                      {item.description || "No description provided"}
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2">
-                      {item.submittedBy && (
-                        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-brand-forest/40">
-                          <User className="h-3 w-3" />
-                          <span>By <span className="text-brand-forest">@{item.submittedBy.handle}</span></span>
-                        </div>
-                      )}
-                      {item.tags.length > 0 && (
-                        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-brand-forest/40">
-                          <Tag className="h-3 w-3" />
-                          <div className="flex gap-1.5 font-mono text-[9px] lowercase tracking-normal">
-                             {item.tags.map(tag => (
-                               <span key={tag} className="bg-brand-forest/5 px-2 py-0.5 rounded-full">{tag}</span>
-                             ))}
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-brand-forest/40">
-                        <Clock className="h-3 w-3" />
-                        <span>{formatRelativeTime(item.createdAt)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="lg:w-80 flex-shrink-0">
-                    <div className="space-y-2">
-                       <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-brand-forest/30 ml-1">
-                         <Package className="w-3 h-3" />
-                         Install
-                       </div>
-                       <CodeBlock copyValue={installCmd} className="shadow-none" innerClassName="p-4 bg-brand-forest/5 border-none text-brand-forest rounded-[20px]">
-                         {installCmd}
-                       </CodeBlock>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+          {items.map(item => (
+            <SkillCard
+              key={item.id}
+              id={item.id}
+              type="linked"
+              title={item.title}
+              description={item.description}
+              alias={item.alias}
+              install={item.install}
+              source={{
+                repo: item.source.repo,
+                path: item.source.path,
+                url: item.source.url,
+              }}
+              publisher={item.submittedBy ? { handle: item.submittedBy.handle } : null}
+              createdAt={item.createdAt}
+              tags={item.tags}
+              onCopyInstall={() => void copyInstall(item.id, item.install)}
+              isCopied={copiedId === item.id}
+              detailsHref={`/linked/${encodeURIComponent(item.id)}`}
+            />
+          ))}
         </div>
-        )}
+      )}
 
       {nextCursor && !busy && (
         <div className="flex justify-center pt-8">

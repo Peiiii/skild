@@ -121,6 +121,25 @@ skild update pdf
 skild uninstall pdf
 ```
 
+---
+
+## Extract GitHub Skills
+
+```bash
+skild extract-github-skills https://github.com/ComposioHQ/awesome-claude-skills
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `--out <dir>` | Output directory (default: `./skild-github-skills`) |
+| `--force` | Overwrite existing output directory |
+| `--depth <n>` | Max markdown recursion depth (default: 0) |
+| `--scan-depth <n>` | Max directory depth to scan for `SKILL.md` (default: 6) |
+| `--max-skills <n>` | Max discovered skills to export (default: 200) |
+| `--json` | Output JSON |
+
 All commands accept `-t <platform>` and `--local` options.
 
 ---

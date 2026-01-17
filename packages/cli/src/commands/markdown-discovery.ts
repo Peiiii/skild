@@ -654,7 +654,7 @@ function looksLikeMarkdownPath(value?: string): boolean {
   return lower.endsWith('.md') || lower.endsWith('.markdown') || README_CANDIDATES.some(name => lower.endsWith(name.toLowerCase()));
 }
 
-function parseGitHubSource(input: string): GitHubSource | null {
+export function parseGitHubSource(input: string): GitHubSource | null {
   if (input.includes('github.com') || input.includes('raw.githubusercontent.com')) {
     try {
       const url = new URL(input);
@@ -690,11 +690,11 @@ function parseGitHubSource(input: string): GitHubSource | null {
   return null;
 }
 
-function toRepoSource(parsed: GitHubSource): string {
+export function toRepoSource(parsed: GitHubSource): string {
   return buildRepoSource(parsed);
 }
 
-function buildRepoSource(parsed: GitHubSource): string {
+export function buildRepoSource(parsed: GitHubSource): string {
   const base = `${parsed.owner}/${parsed.repo}${parsed.path ? `/${parsed.path}` : ''}`;
   return parsed.ref ? `${base}#${parsed.ref}` : base;
 }

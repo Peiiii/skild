@@ -27,7 +27,7 @@ export function PageHero({
           {title}
         </h1>
         {description && (
-          <p className="text-xl text-brand-forest/60 font-medium italic">
+          <p className="text-xl text-brand-forest/80 font-medium italic">
             {description}
           </p>
         )}

@@ -13,16 +13,10 @@ import { PageLoading } from '@/components/PageLoading';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import {
-  Github,
-  Package,
-  User,
-  Tag,
-  Clock,
   Search,
-  Check,
-  Copy,
-  ExternalLink,
+  Clock,
   Download,
   Calendar,
   TrendingUp,
@@ -39,6 +33,7 @@ import {
 import { PageHero } from '@/components/ui/page-hero';
 import { SearchBar } from '@/components/ui/search-bar';
 import { CodeBlock } from '@/components/ui/code-block';
+import { SkillCard } from '@/components/ui/skill-card';
 
 export type DiscoverMode = 'skills' | 'skillsets';
 
@@ -275,135 +270,38 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
       {busy && items.length === 0 && (
         <PageLoading />
       )}
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {items.map(item => {
           const id = `${item.type}:${item.sourceId}`;
-          const isLinked = item.type === 'linked';
-          const route = !isLinked ? canonicalToRoute(item.sourceId) : null;
-          const href = isLinked ? `/linked/${encodeURIComponent(item.sourceId)}` : route ? `/skills/${route.scope}/${encodeURIComponent(route.skill)}` : undefined;
-          const alias = normalizeAlias(item.alias);
-          const displayTitle = preferredDisplayName({ title: item.title, alias });
-          const installCmd = preferredInstallCommand({ install: item.install, alias });
-
           return (
-            <div
+            <SkillCard
               key={id}
-              className={cn(
-                "group relative flex flex-col rounded-[24px] border border-brand-forest/5 bg-white p-6 transition-all duration-300",
-                "hover:border-brand-forest/20 hover:shadow-2xl hover:shadow-brand-forest/[0.04] hover:-translate-y-1",
-                !isLinked && isSkillsetFlag(item.skillset) && "after:absolute after:inset-0 after:border after:border-brand-forest/10 after:rounded-[24px] after:-translate-x-1.5 after:translate-y-1.5 after:-z-10 before:absolute before:inset-0 before:border before:border-brand-forest/5 before:rounded-[24px] before:-translate-x-3 before:translate-y-3 before:-z-20"
-              )}
-            >
-              <div className="flex flex-col h-full gap-4">
-                <div className="space-y-3 flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex flex-wrap items-center gap-2 min-w-0">
-                      {href ? (
-                        <Link
-                          className="text-base font-serif font-bold text-brand-forest hover:text-brand-eco transition-colors truncate max-w-[200px]"
-                          to={href}
-                          title={alias ? `${displayTitle} (${item.title})` : item.title}
-                        >
-                          {displayTitle}
-                        </Link>
-                      ) : (
-                        <div className="text-base font-bold truncate max-w-[200px]" title={alias ? `${displayTitle} (${item.title})` : item.title}>
-                          {displayTitle}
-                        </div>
-                      )}
-                      <Badge variant={isLinked ? 'eco' : 'forest'} className="text-[10px] h-4.5 px-2 shrink-0">
-                        {isLinked ? 'Linked' : 'Registry'}
-                      </Badge>
-                      {alias ? (
-                        <Badge variant="secondary" className="text-[10px] h-4.5 px-2 shrink-0 font-mono lower">
-                          alias:{alias}
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-[10px] h-4.5 px-2 shrink-0 border-brand-forest/10 text-brand-forest/30">
-                          no alias
-                        </Badge>
-                      )}
-                      {!isLinked && isSkillsetFlag(item.skillset) && <SkillsetBadge className="scale-90 origin-left" />}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 text-xs text-brand-forest/60 font-medium">
-                    {isLinked && item.source ? (
-                      <div className="flex items-center gap-1 min-w-0 overflow-hidden">
-                        <Github className="h-3 w-3 shrink-0" />
-                        <span className="truncate">{item.source.repo}{item.source.path ? ` / ${item.source.path}` : ''}</span>
-                      </div>
-                    ) : !isLinked ? (
-                      <div className="flex items-center gap-1 min-w-0 overflow-hidden">
-                        <Package className="h-3 w-3 shrink-0" />
-                        <code className="text-[10px] bg-brand-forest/5 text-brand-forest/80 px-1.5 py-0.5 rounded truncate max-w-full font-mono">{item.sourceId}</code>
-                      </div>
-                    ) : null}
-                  </div>
-
-                  <div className="text-xs text-brand-forest/50 leading-relaxed line-clamp-2 h-8 font-medium">
-                    {item.description || <span className="italic opacity-40">No description provided</span>}
-                  </div>
-                </div>
-
-                <div className="space-y-4 pt-4 border-t border-brand-forest/5">
-                  <div className="flex flex-col gap-2.5">
-                    <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.15em] text-brand-forest/30 px-0.5">
-                      <span>Install Command</span>
-                      {copiedId === id && <span className="text-brand-eco animate-in fade-in slide-in-from-right-1">Copied!</span>}
-                    </div>
-                    <div className="relative group/install">
-                      <div className="rounded-xl bg-brand-forest/[0.03] border border-brand-forest/5 p-3 font-mono text-[10px] leading-tight break-all text-brand-forest/80 pr-10 min-h-[42px] flex items-center transition-colors group-hover/install:border-brand-forest/10">
-                        {installCmd}
-                      </div>
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-brand-forest/5 text-brand-forest/40"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            void copyInstall(item);
-                          }}
-                        >
-                          {copiedId === id ? <Check className="h-3.5 w-3.5 text-brand-eco" /> : <Copy className="h-3.5 w-3.5 opacity-40 group-hover/install:opacity-100 transition-opacity" />}
-                        </Button>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground/80">
-                        <Clock className="h-3 w-3" />
-                        <span>{formatRelativeTime(item.discoverAt)}</span>
-                      </div>
-                      {(item.downloadsTotal > 0 || currentSort.startsWith('downloads')) && (
-                        <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-500/80">
-                          <Download className="h-3 w-3" />
-                          <span>
-                            {currentSort === 'downloads_7d' ? item.downloads7d :
-                              currentSort === 'downloads_30d' ? item.downloads30d :
-                                item.downloadsTotal}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    {isLinked && item.source?.url && (
-                      <a
-                        href={item.source.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-[10px] font-bold text-brand-forest/40 hover:text-brand-eco transition-colors flex items-center gap-1"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Source <ExternalLink className="h-2.5 w-2.5" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+              id={item.sourceId}
+              type={item.type}
+              title={item.title}
+              description={item.description}
+              alias={item.alias}
+              install={item.install}
+              skillset={item.skillset}
+              source={item.source}
+              publisher={{ handle: item.publisherHandle || 'unknown' }}
+              createdAt={item.discoverAt}
+              downloads={{
+                total: item.downloadsTotal,
+                sevenDays: item.downloads7d,
+                thirtyDays: item.downloads30d,
+              }}
+              tags={item.tags}
+              currentSort={currentSort}
+              onCopyInstall={() => void copyInstall(item)}
+              isCopied={copiedId === id}
+              href={(() => {
+                const isLinked_ = item.type === 'linked';
+                if (isLinked_) return `/linked/${encodeURIComponent(item.sourceId)}`;
+                const route = canonicalToRoute(item.sourceId);
+                return route ? `/skills/${route.scope}/${encodeURIComponent(route.skill)}` : undefined;
+              })()}
+            />
           );
         })}
         {!busy && !error && items.length === 0 && (

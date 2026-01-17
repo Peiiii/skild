@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { PageLoading } from '@/components/PageLoading';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, Hash, Layers, Check, Copy, Download, TrendingUp, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -155,7 +156,7 @@ export function SkillDetailPage(): JSX.Element {
     <div className="space-y-12">
       {/* Hero Section */}
       <div className={cn(
-        "relative -mx-6 -mt-8 px-6 py-20 overflow-hidden border-b border-brand-forest/5 bg-white",
+        "relative -mx-6 -mt-8 px-6 py-12 overflow-hidden border-b border-brand-forest/5 bg-white",
         data.skillset ? "bg-gradient-to-br from-brand-forest/[0.03] via-transparent to-transparent" : "bg-white"
       )}>
         {/* Decorative elements for Skillsets */}
@@ -243,7 +244,7 @@ export function SkillDetailPage(): JSX.Element {
               </div>
 
               {data.dependencies.length > 0 ? (
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {data.dependencies.map((dep) => {
                     const trimmed = dep.trim();
                     const isInline = trimmed.startsWith('./') || trimmed.startsWith('../');
@@ -262,14 +263,14 @@ export function SkillDetailPage(): JSX.Element {
                     const href = route ? `/skills/${encodeURIComponent(route.scope)}/${encodeURIComponent(route.skill)}` : null;
 
                     return (
-                      <div key={dep} className="group/dep relative rounded-[20px] border border-brand-forest/5 bg-white p-5 hover:border-brand-forest/20 hover:shadow-xl hover:shadow-brand-forest/[0.04] transition-all flex flex-col justify-between min-h-[100px]">
-                        <div className="flex flex-col gap-1.5 min-w-0">
+                      <Card key={dep} className="group/dep relative p-5 transition-all flex flex-col justify-between min-h-[110px] rounded-[24px]">
+                        <div className="flex flex-col gap-2 min-w-0">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               {isInline ? (
-                                <Badge variant="forest" className="h-4.5 text-[8px] uppercase tracking-widest bg-brand-forest/5 text-brand-forest border-none px-2 font-bold">Bundled</Badge>
+                                <Badge variant="forest" className="h-4 text-[8px] uppercase tracking-widest bg-brand-forest/5 text-brand-forest border-none px-2 font-bold">Bundled</Badge>
                               ) : (
-                                <Badge variant="eco" className="h-4.5 text-[8px] uppercase tracking-widest bg-brand-eco/10 text-brand-eco border-none px-2 font-bold">Registry</Badge>
+                                <Badge variant="eco" className="h-4 text-[8px] uppercase tracking-widest bg-brand-eco/10 text-brand-eco border-none px-2 font-bold">Registry</Badge>
                               )}
                               {context && context !== 'Bundled' && (
                                 <span className="text-[9px] text-brand-forest/40 font-mono truncate max-w-[100px] uppercase tracking-wider" title={context}>{context}</span>
@@ -281,7 +282,7 @@ export function SkillDetailPage(): JSX.Element {
                                 e.stopPropagation();
                                 void navigator.clipboard.writeText(trimmed);
                               }}
-                              className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-white/10 text-muted-foreground hover:text-indigo-400 opacity-0 group-hover/dep:opacity-100 transition-opacity"
+                              className="h-6 w-6 rounded-md flex items-center justify-center hover:bg-brand-forest/5 text-brand-forest/30 hover:text-brand-forest transition-colors"
                               title="Copy full path"
                             >
                               <Copy className="h-3 w-3" />
@@ -291,14 +292,14 @@ export function SkillDetailPage(): JSX.Element {
                           <div className="min-w-0">
                             {href ? (
                               <Link
-                                className="font-serif text-base font-bold text-brand-forest group-hover/dep:text-brand-eco transition-colors flex items-center gap-1.5"
+                                className="font-serif text-lg font-bold text-brand-forest group-hover/dep:text-brand-eco transition-colors flex items-center gap-1.5"
                                 to={href as string}
                               >
                                 <span className="truncate">{name}</span>
-                                <ExternalLink className="h-3 w-3 shrink-0 opacity-0 group-hover/dep:opacity-100 transition-opacity" />
+                                <ExternalLink className="h-4 w-4 shrink-0 opacity-0 group-hover/dep:opacity-100 transition-opacity" />
                               </Link>
                             ) : (
-                              <code className="font-mono text-xs text-brand-forest/70 truncate block">
+                              <code className="font-mono text-sm text-brand-forest/70 truncate block">
                                 {name}
                               </code>
                             )}
@@ -306,12 +307,12 @@ export function SkillDetailPage(): JSX.Element {
                         </div>
 
                         {/* Full Path Reveal */}
-                        <div className="mt-3 pt-3 border-t border-brand-forest/5">
-                          <p className="font-mono text-[9px] text-brand-forest/30 truncate group-hover/dep:text-brand-forest/50 group-hover/dep:break-all group-hover/dep:whitespace-normal transition-colors">
+                        <div className="mt-4 pt-3 border-t border-brand-forest/5">
+                          <p className="font-mono text-[9px] text-brand-forest/30 truncate group-hover/dep:text-brand-forest/50 transition-colors">
                             {trimmed}
                           </p>
                         </div>
-                      </div>
+                      </Card>
                     );
                   })}
                 </div>
@@ -327,24 +328,24 @@ export function SkillDetailPage(): JSX.Element {
         {/* Sidebar */}
         <div className="md:col-span-4 space-y-6">
           {/* Stats */}
-          <div className="rounded-[24px] border border-brand-forest/5 bg-white p-8 space-y-6 shadow-xl shadow-brand-forest/[0.02]">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-forest/30 flex items-center gap-2">
-              <TrendingUp className="h-3 w-3" />
+          <Card className="p-5 space-y-5">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-forest/60 flex items-center gap-2">
+              <TrendingUp className="h-3 w-3 opacity-80" />
               Insights
             </h3>
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <div className="text-3xl font-serif font-bold text-brand-forest leading-none">{stats?.total ?? 0}</div>
-                <div className="text-[9px] text-brand-forest/40 uppercase font-bold tracking-widest mt-2">Installs</div>
+                <div className="text-[9px] text-brand-forest/60 uppercase font-black tracking-widest mt-2">Installs</div>
               </div>
               <div>
                 <div className="text-3xl font-serif font-bold text-brand-eco leading-none">+{stats?.trend.slice(-1)[0]?.downloads ?? 0}</div>
-                <div className="text-[9px] text-brand-forest/40 uppercase font-bold tracking-widest mt-2">24h</div>
+                <div className="text-[9px] text-brand-forest/60 uppercase font-black tracking-widest mt-2">24h</div>
               </div>
             </div>
 
             {stats && stats.trend.length > 0 && (
-              <div className="pt-6 border-t border-brand-forest/5">
+              <div className="pt-6 border-t border-brand-forest/10">
                 <div className="flex items-end gap-[3px] h-12 w-full group/graph">
                   {stats.trend.slice(-30).map((t, idx) => {
                     const max = Math.max(...stats.trend.slice(-30).map(d => d.downloads), 1);
@@ -361,14 +362,14 @@ export function SkillDetailPage(): JSX.Element {
                 </div>
               </div>
             )}
-          </div>
+          </Card>
 
           {/* Metadata */}
-          <div className="rounded-[24px] border border-brand-forest/5 bg-white p-8 space-y-8 shadow-xl shadow-brand-forest/[0.02]">
+          <Card className="p-5 space-y-6">
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <Hash className="h-3 w-3 text-brand-forest/30" />
-                <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-brand-forest/30">Latest Version</span>
+                <Hash className="h-3 w-3 text-brand-forest/60" />
+                <span className="text-[9px] uppercase font-black tracking-[0.2em] text-brand-forest/60">Latest Version</span>
               </div>
               <div className="flex items-center justify-between">
                 <code className="text-2xl font-serif font-bold text-brand-forest leading-none">{latest || '0.0.0'}</code>
@@ -376,23 +377,23 @@ export function SkillDetailPage(): JSX.Element {
               </div>
             </div>
 
-            <div className="space-y-5 pt-8 border-t border-brand-forest/5">
+            <div className="space-y-5 pt-8 border-t border-brand-forest/10">
               <div className="flex items-center gap-2">
-                <Layers className="h-3 w-3 text-brand-forest/30" />
-                <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-brand-forest/30">Version History</span>
+                <Layers className="h-3 w-3 text-brand-forest/60" />
+                <span className="text-[9px] uppercase font-black tracking-[0.2em] text-brand-forest/60">Version History</span>
               </div>
               <ul className="space-y-4">
                 {data.versions.slice(0, 5).map(v => (
                   <li key={v.version} className="flex justify-between items-center text-xs group/ver">
                     <span className="font-bold text-brand-forest group-hover/ver:text-brand-eco transition-colors">{v.version}</span>
-                    <span className="text-[9px] font-mono text-brand-forest/30 uppercase tracking-tighter">
+                    <span className="text-[9px] font-mono text-brand-forest/50 uppercase tracking-tighter">
                       {formatRelativeTime(v.published_at)}
                     </span>
                   </li>
                 ))}
               </ul>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>
