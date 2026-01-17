@@ -123,8 +123,8 @@ export function LinkedItemsPage(): JSX.Element {
       )}
 
       {busy ? (
-        <div className="grid gap-5 grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, idx) => (
+        <div className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, idx) => (
             <div key={`skeleton-${idx}`} className="rounded-[24px] border border-brand-forest/5 p-6 animate-pulse bg-white">
               <div className="h-5 w-32 rounded-full bg-brand-forest/5" />
               <div className="mt-3 h-3 w-3/4 rounded-full bg-brand-forest/5" />
@@ -142,7 +142,7 @@ export function LinkedItemsPage(): JSX.Element {
           </p>
         </div>
       ) : (
-        <div className="grid gap-6">
+        <div className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {items.map(item => (
             <SkillCard
               key={item.id}
