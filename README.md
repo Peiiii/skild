@@ -110,6 +110,7 @@ skild info pdf             # Show Skill details
 skild validate pdf         # Validate Skill structure
 skild update pdf           # Update a Skill
 skild uninstall pdf        # Remove a Skill
+skild sync                 # Auto-detect and sync missing installs across platforms (tree prompt)
 ```
 
 ## ✨ Create Skills
@@ -140,6 +141,7 @@ Ready to share? See **[Publishing Skills](./docs/publishing-skills.md)** for the
 | `skild logout` | Remove credentials |
 | `skild publish` | Publish a Skill to the registry |
 | `skild extract-github-skills <source>` | Extract GitHub Skills into a local catalog |
+| `skild sync [skills...]` | Auto-detect missing installs across platforms and sync (tree selection) |
 
 Run `skild <command> --help` for full options.
 

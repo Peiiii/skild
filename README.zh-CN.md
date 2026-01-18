@@ -78,6 +78,7 @@ skild info pdf             # 查看 Skill 详情
 skild validate pdf         # 校验 Skill 结构
 skild update pdf           # 更新 Skill
 skild uninstall pdf        # 卸载 Skill
+skild sync                 # 自动发现跨平台缺失并同步（树形选择）
 ```
 
 ## ✨ 创建 Skills
@@ -108,6 +109,7 @@ skild validate .           # 校验结构
 | `skild search <query>` | 在 registry 搜索 Skills |
 | `skild publish` | 发布 Skill 目录到 registry |
 | `skild extract-github-skills <source>` | 从 GitHub 导出 Skills 目录树 |
+| `skild sync [skills...]` | 自动发现跨平台缺失并同步（树形选择） |
 
 提示：可以用 `skild <命令> --help` 查看完整参数。
 
