@@ -1,5 +1,11 @@
 # skild
 
+## 0.9.1
+
+### Patch Changes
+
+- Improve `skild sync` UX: English logs, per-platform missing counts, and clearer “nothing to sync” messaging.
+
 ## 0.9.0
 
 ### Minor Changes
