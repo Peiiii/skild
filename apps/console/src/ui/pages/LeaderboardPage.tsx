@@ -141,7 +141,7 @@ export function LeaderboardPage(): JSX.Element {
                 <div className="border border-brand-forest/15 rounded-[24px] overflow-hidden bg-white shadow-xl shadow-brand-forest/[0.05]">
                     <table className="w-full text-left border-collapse table-fixed">
                         <thead>
-                            <tr className="bg-brand-forest/[0.05] text-[9px] font-black uppercase tracking-[0.2em] text-brand-forest/60 border-b border-brand-forest/15">
+                            <tr className="bg-brand-forest/[0.05] text-[10px] font-black uppercase tracking-[0.2em] text-brand-forest/60 border-b border-brand-forest/15">
                                 <th className="px-6 py-4 w-16 sm:w-20 text-center">Rank</th>
                                 <th className="px-4 py-4">Skill</th>
                                 <th className="hidden sm:table-cell px-5 py-4 text-center w-24">Installs</th>

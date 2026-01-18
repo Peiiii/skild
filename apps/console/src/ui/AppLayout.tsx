@@ -191,7 +191,7 @@ export function AppLayout(): JSX.Element {
               }
             >
               <item.icon className="w-5 h-5" />
-              <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider">{item.label}</span>
             </NavLink>
           ))}
         </div>
