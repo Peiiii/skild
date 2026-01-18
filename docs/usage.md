@@ -121,6 +121,21 @@ skild update pdf
 skild uninstall pdf
 ```
 
+### Sync Skills Across Platforms
+
+Keep installations aligned between tools:
+
+```bash
+# Sync everything from default platform to all others
+skild sync
+
+# Sync specific skills from claude to codex and cursor
+skild sync pdf web-scraper --from claude --to codex,cursor
+
+# Force re-sync even if already installed
+skild sync --all --force
+```
+
 ---
 
 ## Extract GitHub Skills

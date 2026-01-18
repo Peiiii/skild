@@ -1,5 +1,11 @@
 # skild
 
+## 0.8.0
+
+### Minor Changes
+
+- Add `skild sync` command to synchronize installed skills across platforms.
+
 ## 0.7.0
 
 ### Minor Changes

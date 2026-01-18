@@ -21,6 +21,7 @@ import { whoami } from './commands/whoami.js';
 import { publish } from './commands/publish.js';
 import { search } from './commands/search.js';
 import { extractGithubSkills } from './commands/extract-github-skills.js';
+import { sync } from './commands/sync.js';
 import { PLATFORMS } from '@skild/core';
 
 const require = createRequire(import.meta.url);
@@ -171,6 +172,20 @@ program
     .option('--json', 'Output JSON')
     .action(async (source: string, options: any) => {
         await extractGithubSkills(source, options);
+    });
+
+program
+    .command('sync [skills...]')
+    .description('Sync installed skills from one platform to others')
+    .option('--from <platform>', `Source platform (default: global config)`)
+    .option('--to <platforms>', `Comma-separated target platforms: ${PLATFORMS.join(', ')}`)
+    .option('--all', 'Sync to all other platforms')
+    .option('-l, --local', 'Use project-level directory instead of global')
+    .option('-y, --yes', 'Skip interactive prompts (defaults to all other platforms)')
+    .option('-f, --force', 'Force reinstall even if target already exists')
+    .option('--json', 'Output JSON')
+    .action(async (skills: string[] = [], options: any) => {
+        await sync(skills, options);
     });
 
 // Default action: show help

@@ -75,6 +75,21 @@ skild update pdf -t codex --local
 skild uninstall pdf -t codex --local
 ```
 
+### 跨平台同步（sync）
+
+保持不同工具的安装一致：
+
+```bash
+# 默认：从配置的默认平台同步到其余平台
+skild sync
+
+# 指定来源和目标平台
+skild sync pdf web-scraper --from claude --to codex,cursor
+
+# 已安装也强制覆盖
+skild sync --all --force
+```
+
 ### 创建一个新的 Skill 项目
 
 ```bash

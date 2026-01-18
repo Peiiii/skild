@@ -17,3 +17,13 @@
 - **输出/期望行为**：
   - 输出目录树与 `catalog.json`
   - 每个技能目录包含完整内容与 `skill.json`
+
+## sync
+
+- **名称**：`skild sync`
+- **用途**：在不同平台间同步已安装的 skills（保持安装源与版本一致）。
+- **输入格式**：`skild sync [skills...] [--from <platform>] [--to <platforms>] [--all] [--local] [--yes] [--force] [--json]`
+- **输出/期望行为**：
+  - 默认从配置的默认平台同步到其余平台
+  - 支持选择指定 skill 列表或同步全部
+  - JSON 模式输出同步结果（成功/跳过/失败）

@@ -113,6 +113,25 @@ skild update [skill] [options]
 
 ---
 
+### skild sync
+
+Sync installed skills from one platform to others.
+
+```bash
+skild sync [skills...] [--from <platform>] [--to <platforms>] [--all] [--local] [--yes] [--force] [--json]
+```
+
+**Examples:**
+```bash
+# Sync everything from default platform to the rest
+skild sync
+
+# Sync specific skills from claude to codex and cursor
+skild sync pdf web-scraper --from claude --to codex,cursor
+```
+
+---
+
 ## Discovery Commands
 
 ### skild list
