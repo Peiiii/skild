@@ -12,6 +12,8 @@ Install a Skill from various sources. Alias: `skild i`
 
 ```bash
 skild install <source> [options]
+# npm-style alias
+skild add <source> [options]
 ```
 
 **Sources:**

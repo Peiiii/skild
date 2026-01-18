@@ -176,6 +176,9 @@ Example:
 ```bash
 # Install to Codex, project-level
 skild install anthropics/skills/skills/pdf -t codex --local
+
+# Alias: npm-style
+skild add anthropics/skills/skills/pdf
 ```
 
 ---

@@ -1,5 +1,11 @@
 # skild
 
+## 0.10.0
+
+### Minor Changes
+
+- Add npm-style `skild add` alias for installs (same behavior as `skild install` / `skild i`).
+
 ## 0.9.1
 
 ### Patch Changes

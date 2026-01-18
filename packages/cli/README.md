@@ -15,6 +15,7 @@ skild --help
 
 # Install a skill (Git URL / degit shorthand / local dir)
 skild install https://github.com/anthropics/skills/tree/main/skills/pdf
+skild add https://github.com/anthropics/skills/tree/main/skills/pdf  # npm-style alias
 skild install anthropics/skills/skills/pdf#main
 skild install ./path/to/your-skill
 

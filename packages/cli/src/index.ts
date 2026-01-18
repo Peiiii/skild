@@ -37,6 +37,7 @@ program
 program
     .command('install <source>')
     .alias('i')
+    .alias('add')
     .description('Install a Skill from a Git URL, degit shorthand, or local directory')
     .option('-t, --target <platform>', `Target platform: ${PLATFORMS.join(', ')}`)
     .option('--all', `Install to all platforms: ${PLATFORMS.join(', ')}`)
