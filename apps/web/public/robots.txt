@@ -1,0 +1,9 @@
+# https://www.robotstxt.org/
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://skild.sh/sitemap-index.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1

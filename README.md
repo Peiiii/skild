@@ -123,6 +123,21 @@ skild validate .           # Validate structure
 
 Ready to share? See **[Publishing Skills](./docs/publishing-skills.md)** for the complete guide.
 
+## 🔄 Cross-platform Sync
+
+Keep multiple tools in lockstep:
+
+```bash
+# Detect missing installs and choose with a tree (All → Platform → Skill)
+skild sync
+
+# Limit to certain skills / platforms
+skild sync pdf web-scraper --to codex,cursor
+
+# Non-interactive, overwrite existing
+skild sync --yes --force
+```
+
 ## 🛠️ All Commands
 
 | Command | Description |

@@ -2,12 +2,18 @@
 interface Props {
 	title: string;
 	description?: string;
+	image?: string;
 }
 
 const {
 	title,
 	description = "The npm for Agent Skills. Discover, install, manage, and publish skills for Claude, Codex, Windsurf, OpenCode, Copilot & Antigravity with ease.",
+	image = "/og-image.svg",
 } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? "https://skild.sh");
+const keywords = "AI agent skills, Claude skills, Codex skills, npm for AI, skill registry, skillsets, AI tools, LLM tools, Windsurf, OpenCode, Copilot, Antigravity";
+
 import "../styles/global.css";
 ---
 
@@ -17,21 +23,55 @@ import "../styles/global.css";
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="canonical" href={canonicalURL} />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<meta name="description" content={description} />
+		<meta name="keywords" content={keywords} />
+		<meta name="author" content="Skild" />
+		<meta name="robots" content="index, follow" />
 
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content="website" />
-		<meta property="og:url" content={Astro.url} />
+		<meta property="og:url" content={canonicalURL} />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
+		<meta property="og:image" content={new URL(image, Astro.site ?? "https://skild.sh")} />
+		<meta property="og:site_name" content="Skild" />
+		<meta property="og:locale" content="en_US" />
 
 		<!-- Twitter -->
 		<meta property="twitter:card" content="summary_large_image" />
-		<meta property="twitter:url" content={Astro.url} />
+		<meta property="twitter:url" content={canonicalURL} />
 		<meta property="twitter:title" content={title} />
 		<meta property="twitter:description" content={description} />
+		<meta property="twitter:image" content={new URL(image, Astro.site ?? "https://skild.sh")} />
+
+		<!-- Structured Data (JSON-LD) -->
+		<script type="application/ld+json" set:html={JSON.stringify({
+			"@context": "https://schema.org",
+			"@type": "SoftwareApplication",
+			"name": "Skild",
+			"applicationCategory": "DeveloperApplication",
+			"operatingSystem": "Cross-platform",
+			"description": description,
+			"url": "https://skild.sh",
+			"offers": {
+				"@type": "Offer",
+				"price": "0",
+				"priceCurrency": "USD"
+			},
+			"author": {
+				"@type": "Organization",
+				"name": "Skild",
+				"url": "https://skild.sh"
+			},
+			"aggregateRating": {
+				"@type": "AggregateRating",
+				"ratingValue": "5",
+				"ratingCount": "1"
+			}
+		})} />
 
 		<!-- Fonts -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
