@@ -12,4 +12,4 @@
 
 ### 发布/部署
 - 无后端/数据库变更。
-- 未触发 npm 发布。如需发布 CLI，请按 `docs/processes/npm-release-process.md` 执行。
+- 已发布 npm：`skild@0.8.0`（tag：`skild@0.8.0`），流程：`pnpm changeset` → `pnpm release:version` → `pnpm release:publish`（内含 build/lint/typecheck）。
