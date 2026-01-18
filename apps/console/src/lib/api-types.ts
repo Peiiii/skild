@@ -45,12 +45,16 @@ export type TokenCreateResponse = { ok: true; token: string; tokenMeta: TokenMet
 export type TokenRevokeResponse = { ok: true; revoked: boolean } | ApiError;
 
 export interface MySkillItem {
+  id: string;
   name: string;
   description: string | null;
   alias?: string | null;
   skillset?: boolean;
   updated_at: string;
   versionsCount: number | string;
+  downloadsTotal?: number;
+  downloads7d?: number;
+  downloads30d?: number;
 }
 
 export type PublisherSkillsResponse = { ok: true; skills: MySkillItem[] } | ApiError;
@@ -71,6 +75,9 @@ export interface LinkedItem {
   submittedBy: { id: string; handle: string } | null;
   createdAt: string;
   updatedAt: string;
+  downloadsTotal?: number;
+  downloads7d?: number;
+  downloads30d?: number;
 }
 
 export type LinkedItemWithInstall = LinkedItem & { install: string };
@@ -83,6 +90,7 @@ export type LinkedItemParseResponse =
   | ApiError;
 
 export interface SkillListItem {
+  id: string;
   name: string;
   description: string | null;
   targets_json: string | null;
@@ -92,7 +100,9 @@ export interface SkillListItem {
   updated_at: string;
 }
 
-export type SkillsListResponse = { ok: true; skills: SkillListItem[] } | ApiError;
+export type SkillsListResponse =
+  | { ok: true; skills: SkillListItem[]; deprecated?: boolean; replacement?: string }
+  | ApiError;
 
 export interface DiscoverItem {
   type: 'registry' | 'linked';
@@ -129,6 +139,7 @@ export interface VersionRow {
 }
 
 export interface SkillDetail {
+  id: string;
   name: string;
   description: string | null;
   targets_json: string | null;

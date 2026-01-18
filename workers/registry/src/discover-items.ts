@@ -116,25 +116,32 @@ function getSortValue(row: DiscoverItemRow, sort: DiscoverSort): string {
 function decodeCursor(
   cursor: string | null | undefined,
   sort: DiscoverSort,
-): { sortValue: string; discoverAt: string; type: DiscoverItemType; sourceId: string } | null {
+): { sortValue: string; discoverAt: string; id: string } | null {
   if (!cursor) return null;
   const parts = cursor.split("|");
+  if (parts[0] === "v2") {
+    if (parts.length < 4) return null;
+    const [, sortValue, discoverAt, id] = parts;
+    if (!sortValue || !discoverAt || !id) return null;
+    return { sortValue, discoverAt, id };
+  }
   if (parts.length === 3) {
     const [discoverAt, typeRaw, sourceId] = parts;
     const type = typeRaw === "registry" || typeRaw === "linked" ? typeRaw : null;
     if (!discoverAt || !type || !sourceId) return null;
-    return { sortValue: discoverAt, discoverAt, type, sourceId };
+    return { sortValue: discoverAt, discoverAt, id: `${type}:${sourceId}` };
   }
   if (parts.length < 4) return null;
   const [sortValue, discoverAt, typeRaw, sourceId] = parts;
   const type = typeRaw === "registry" || typeRaw === "linked" ? typeRaw : null;
   if (!sortValue || !discoverAt || !type || !sourceId) return null;
-  return { sortValue, discoverAt, type, sourceId };
+  return { sortValue, discoverAt, id: `${type}:${sourceId}` };
 }
 
 function encodeCursor(row: DiscoverItemRow, sort: DiscoverSort): string {
   const sortValue = getSortValue(row, sort);
-  return `${sortValue}|${row.discover_at}|${row.type}|${row.source_id}`;
+  const cursorId = `${row.type}:${row.source_id}`;
+  return `v2|${sortValue}|${row.discover_at}|${cursorId}`;
 }
 
 function buildRegistryInstall(name: string): string {
@@ -309,7 +316,7 @@ export async function listDiscoverItems(
 
   if (cursor) {
     outerClauses.push(
-      "(sort_value < ? OR (sort_value = ? AND discover_at < ?) OR (sort_value = ? AND discover_at = ? AND type < ?) OR (sort_value = ? AND discover_at = ? AND type = ? AND source_id < ?))",
+      "(sort_value < ? OR (sort_value = ? AND discover_at < ?) OR (sort_value = ? AND discover_at = ? AND (type || ':' || source_id) < ?))",
     );
     outerParams.push(
       cursor.sortValue,
@@ -317,11 +324,7 @@ export async function listDiscoverItems(
       cursor.discoverAt,
       cursor.sortValue,
       cursor.discoverAt,
-      cursor.type,
-      cursor.sortValue,
-      cursor.discoverAt,
-      cursor.type,
-      cursor.sourceId,
+      cursor.id,
     );
   }
 
@@ -335,7 +338,7 @@ export async function listDiscoverItems(
   let sql = `SELECT *, ${sortExpr} AS sort_value FROM (${baseSql}) base`;
   const paramsList = [...baseParams, ...outerParams];
   if (outerClauses.length > 0) sql += ` WHERE ${outerClauses.join(" AND ")}`;
-  sql += ` ORDER BY ${sortExpr} DESC, discover_at DESC, type DESC, source_id DESC LIMIT ?`;
+  sql += ` ORDER BY ${sortExpr} DESC, discover_at DESC, (type || ':' || source_id) DESC LIMIT ?`;
   paramsList.push(limit + 1);
 
   const result = await env.DB.prepare(sql).bind(...paramsList).all();

@@ -32,6 +32,7 @@ export interface EmailVerificationTokenRow {
 }
 
 export interface SkillRow {
+  id: string;
   name: string;
   publisher_id: string;
   description: string;

@@ -320,13 +320,20 @@ export async function createLinkedItem(
 
 function decodeCursor(cursor: string | null | undefined): { createdAt: string; id: string } | null {
   if (!cursor) return null;
-  const [createdAt, id] = cursor.split("|");
+  const parts = cursor.split("|");
+  if (parts[0] === "v2") {
+    if (parts.length < 3) return null;
+    const [, createdAt, id] = parts;
+    if (!createdAt || !id) return null;
+    return { createdAt, id };
+  }
+  const [createdAt, id] = parts;
   if (!createdAt || !id) return null;
   return { createdAt, id };
 }
 
 function encodeCursor(row: LinkedItemRow): string {
-  return `${row.created_at}|${row.id}`;
+  return `v2|${row.created_at}|${row.id}`;
 }
 
 export async function listLinkedItems(env: Env, input: { q?: string; limit?: number; cursor?: string | null }): Promise<LinkedItemsPage> {

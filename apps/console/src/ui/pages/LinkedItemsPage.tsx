@@ -6,13 +6,10 @@ import { HttpError } from '@/lib/http';
 import { formatRelativeTime } from '@/lib/time';
 import { useAuth } from '@/features/auth/auth-store';
 import { normalizeAlias, preferredInstallCommand, preferredDisplayName } from '@/lib/install';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import { PageHero } from '@/components/ui/page-hero';
 import { SearchBar } from '@/components/ui/search-bar';
-import { CodeBlock } from '@/components/ui/code-block';
 import { SkillCard } from '@/components/ui/skill-card';
 import { Plus, Github } from 'lucide-react';
 
@@ -159,6 +156,11 @@ export function LinkedItemsPage(): JSX.Element {
               }}
               publisher={item.submittedBy ? { handle: item.submittedBy.handle } : null}
               createdAt={item.createdAt}
+              downloads={item.downloadsTotal !== undefined ? {
+                total: item.downloadsTotal,
+                sevenDays: item.downloads7d || 0,
+                thirtyDays: item.downloads30d || 0,
+              } : undefined}
               tags={item.tags}
               onCopyInstall={() => void copyInstall(item.id, item.install)}
               isCopied={copiedId === item.id}

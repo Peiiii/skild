@@ -417,7 +417,7 @@ app.get("/publisher/skills", async (c) => {
   try {
     const auth = await requireSessionAuth(c);
     const rows = await c.env.DB.prepare(
-      "SELECT s.name, s.description, s.updated_at, s.skillset, s.alias, COUNT(v.version) AS versionsCount\n" +
+      "SELECT s.id, s.name, s.description, s.updated_at, s.skillset, s.alias, COUNT(v.version) AS versionsCount\n" +
         "FROM skills s\n" +
         "LEFT JOIN skill_versions v ON v.skill_name = s.name\n" +
         "WHERE s.publisher_id = ?1\n" +
@@ -452,17 +452,18 @@ app.get("/publisher/linked-items", async (c) => {
   }
 });
 
+// Deprecated list endpoint: use /discover for registry + linked listings.
 app.get("/skills", async (c) => {
   const q = (c.req.query("q") || "").trim().toLowerCase();
   const limit = Math.min(Number.parseInt(c.req.query("limit") || "50", 10) || 50, 100);
 
   const sql = q
-    ? "SELECT name, description, targets_json, skillset, alias, created_at, updated_at FROM skills WHERE name LIKE ?1 OR description LIKE ?1 OR alias LIKE ?1 ORDER BY updated_at DESC LIMIT ?2"
-    : "SELECT name, description, targets_json, skillset, alias, created_at, updated_at FROM skills ORDER BY updated_at DESC LIMIT ?1";
+    ? "SELECT id, name, description, targets_json, skillset, alias, created_at, updated_at FROM skills WHERE name LIKE ?1 OR description LIKE ?1 OR alias LIKE ?1 ORDER BY updated_at DESC LIMIT ?2"
+    : "SELECT id, name, description, targets_json, skillset, alias, created_at, updated_at FROM skills ORDER BY updated_at DESC LIMIT ?1";
 
   const stmt = q ? c.env.DB.prepare(sql).bind(`%${q}%`, limit) : c.env.DB.prepare(sql).bind(limit);
   const result = await stmt.all();
-  return c.json({ ok: true, skills: result.results });
+  return c.json({ ok: true, skills: result.results, deprecated: true, replacement: "/discover" });
 });
 
 app.get("/resolve", async (c) => {
@@ -799,7 +800,7 @@ app.get("/skills/:scope/:skill", async (c) => {
     const name = `@${scope}/${skillSegment}`;
 
     const skill = await c.env.DB.prepare(
-      "SELECT name, description, targets_json, skillset, dependencies_json, alias, publisher_id, created_at, updated_at FROM skills WHERE name = ?1 LIMIT 1",
+      "SELECT id, name, description, targets_json, skillset, dependencies_json, alias, publisher_id, created_at, updated_at FROM skills WHERE name = ?1 LIMIT 1",
     )
       .bind(name)
       .first();
@@ -1100,9 +1101,9 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
     const integrity = await sha256Hex(bytes);
     const artifactKey = `sha256/${integrity}.tgz`;
 
-    const existingSkill = await c.env.DB.prepare("SELECT publisher_id, created_at FROM skills WHERE name = ?1 LIMIT 1")
+    const existingSkill = await c.env.DB.prepare("SELECT id, publisher_id, created_at FROM skills WHERE name = ?1 LIMIT 1")
       .bind(name)
-      .first<{ publisher_id: string; created_at: string }>();
+      .first<{ id: string | null; publisher_id: string; created_at: string }>();
     if (existingSkill && existingSkill.publisher_id !== publisher.id) return errorJson(c as any, "Skill name is owned by another publisher.", 403);
 
     const existingVersion = await c.env.DB.prepare(
@@ -1123,11 +1124,12 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
     }
 
     const now = new Date().toISOString();
+    const skillId = existingSkill?.id || crypto.randomUUID();
     const batch = [
       c.env.DB.prepare(
-        "INSERT INTO skills (name, publisher_id, description, targets_json, skillset, dependencies_json, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)\n" +
-          "ON CONFLICT(name) DO UPDATE SET description = excluded.description, targets_json = excluded.targets_json, skillset = excluded.skillset, dependencies_json = excluded.dependencies_json, updated_at = excluded.updated_at",
-      ).bind(name, publisher.id, description, targetsJson, skillset ? 1 : 0, dependenciesJson, now, now),
+        "INSERT INTO skills (id, name, publisher_id, description, targets_json, skillset, dependencies_json, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)\n" +
+          "ON CONFLICT(name) DO UPDATE SET id = COALESCE(skills.id, excluded.id), description = excluded.description, targets_json = excluded.targets_json, skillset = excluded.skillset, dependencies_json = excluded.dependencies_json, updated_at = excluded.updated_at",
+      ).bind(skillId, name, publisher.id, description, targetsJson, skillset ? 1 : 0, dependenciesJson, now, now),
       c.env.DB.prepare(
         "INSERT INTO skill_versions (skill_name, version, integrity, artifact_key, published_at, publisher_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",
       ).bind(name, version, integrity, artifactKey, now, publisher.id),
