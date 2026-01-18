@@ -39,14 +39,25 @@
                 <div class="w-12 h-12 rounded-full bg-brand-eco/10 flex items-center justify-center text-brand-forest font-serif font-bold text-xl shrink-0 group-hover:bg-brand-forest group-hover:text-white transition-colors duration-300">
                     2
                 </div>
-                <div>
+                <div class="flex-1">
                     <h4 class="text-xl font-serif font-bold text-brand-forest mb-2">Equip any skill</h4>
-                    <p class="text-brand-forest/50 mb-4">Choose from thousands of skills on the Skild Hub and install them instantly.</p>
-                    <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-brand-forest border border-brand-forest/5 flex items-center justify-between">
-                        <code>skild install @publisher/skill</code>
-                        <button class="opacity-30 hover:opacity-100 transition-opacity">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                        </button>
+                    <p class="text-brand-forest/50 mb-4">Choose from thousands of skills on the Skild Hub and install them instantly. Multiple sources supported.</p>
+                    <div class="space-y-3">
+                        <!-- From GitHub -->
+                        <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-brand-forest border border-brand-forest/5">
+                            <div class="text-[10px] text-brand-forest/40 font-bold uppercase tracking-widest mb-1.5 font-sans">From GitHub</div>
+                            <code class="text-sm">skild install [username]/[repo]</code>
+                        </div>
+                        <!-- From Registry -->
+                        <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-brand-forest border border-brand-forest/5">
+                            <div class="text-[10px] text-brand-forest/40 font-bold uppercase tracking-widest mb-1.5 font-sans">From Registry</div>
+                            <code class="text-sm">skild install @[publisher]/[skill]</code>
+                        </div>
+                        <!-- By Alias -->
+                        <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-brand-forest border border-brand-forest/5">
+                            <div class="text-[10px] text-brand-forest/40 font-bold uppercase tracking-widest mb-1.5 font-sans">By Alias</div>
+                            <code class="text-sm">skild install [alias]</code>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -56,9 +67,13 @@
                 <div class="w-12 h-12 rounded-full bg-brand-eco text-white flex items-center justify-center font-serif font-bold text-xl shrink-0">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 </div>
-                <div>
+                <div class="flex-1">
                     <h4 class="text-xl font-serif font-bold text-brand-forest mb-2">Done</h4>
-                    <p class="text-brand-forest/50">Your agent is now equipped with new capabilities. Ready to work.</p>
+                    <p class="text-brand-forest/50 mb-4">Your agent is now equipped with new capabilities. Ready to work.</p>
+                    <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-brand-forest border border-brand-forest/5">
+                        <div class="text-[10px] text-brand-forest/40 font-bold uppercase tracking-widest mb-1.5 font-sans">View installed skills</div>
+                        <code class="text-sm">skild list</code>
+                    </div>
                 </div>
             </div>
         </div>
