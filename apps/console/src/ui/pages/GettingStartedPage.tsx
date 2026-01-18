@@ -70,7 +70,7 @@ export function GettingStartedPage(): JSX.Element {
                     <div className="text-white/40 italic font-medium mt-3 select-none"># Your agent automatically discovers and uses the skill</div>
                 </CodeBlock>
                 <p className="text-sm text-brand-forest/60 font-medium px-2">
-                    Skild supports Claude, Codex, and Copilot. Use <code className="bg-brand-forest/5 px-2 py-0.5 rounded-full text-brand-forest font-bold">-t codex</code> to target other platforms.
+                    Skild supports Claude, Codex, Windsurf, OpenCode, and Copilot. Use <code className="bg-brand-forest/5 px-2 py-0.5 rounded-full text-brand-forest font-bold">-t windsurf</code> to target other platforms.
                 </p>
             </section>
 
