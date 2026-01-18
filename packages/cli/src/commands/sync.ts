@@ -103,6 +103,7 @@ function deriveMissingTargets(
     sourcePlatforms: Platform[];
   }>;
   warnings: string[];
+  missingByPlatform: Map<Platform, number>;
 } {
   const installed = collectInstalled(scope);
   const skillNames = new Set<string>();
@@ -125,6 +126,7 @@ function deriveMissingTargets(
     source: InstallRecord;
     sourcePlatforms: Platform[];
   }> = [];
+  const missingByPlatform = new Map<Platform, number>();
 
   for (const skill of filteredSkillNames) {
     const sources = PLATFORMS.map(p => installed.get(p)?.get(skill)).filter(Boolean) as InstallRecord[];
@@ -148,6 +150,7 @@ function deriveMissingTargets(
         source: sourceRecord,
         sourcePlatforms
       });
+      missingByPlatform.set(platform, (missingByPlatform.get(platform) || 0) + 1);
     }
   }
 
@@ -160,7 +163,7 @@ function deriveMissingTargets(
     sourceTypeLabel: p.source.sourceType === 'registry' ? 'registry' : 'local copy'
   }));
 
-  return { choices, plans, warnings };
+  return { choices, plans, warnings, missingByPlatform };
 }
 
 export async function sync(skills: string[] = [], options: SyncCommandOptions = {}): Promise<void> {
@@ -170,18 +173,27 @@ export async function sync(skills: string[] = [], options: SyncCommandOptions = 
   const preferredSourcePlatform = targetFilter.length === 0 ? config.defaultPlatform : undefined;
   const filterSkills = skills.map(s => s.trim()).filter(Boolean);
 
-  const { choices, plans, warnings } = deriveMissingTargets(scope, preferredSourcePlatform, filterSkills, targetFilter);
+  const { choices, plans, warnings, missingByPlatform } = deriveMissingTargets(scope, preferredSourcePlatform, filterSkills, targetFilter);
 
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY);
   if (!options.json) {
-    logger.header(`\n跨平台同步（scope: ${scope}）`);
+    logger.header(`\nCross-platform sync (scope: ${scope})`);
+    const platformsToReport = targetFilter.length > 0 ? targetFilter : PLATFORMS;
+    for (const p of platformsToReport) {
+      const missing = missingByPlatform.get(p) || 0;
+      if (missing > 0) {
+        logger.dim(`- ${platformDisplay(p)}: ${missing} to sync`);
+      } else {
+        logger.dim(`- ${platformDisplay(p)}: up to date (no missing skills)`);
+      }
+    }
     if (warnings.length) warnings.forEach(w => logger.warn(w));
   }
 
   if (plans.length === 0) {
     const message = filterSkills.length
-      ? '没有可同步的目标（技能已在所有平台安装，或未找到源记录）。'
-      : '所有平台已包含现有技能，无需同步。';
+      ? 'No sync targets: requested skills already installed on selected platforms or missing sources.'
+      : 'All platforms already have the current skills; nothing to sync.';
     if (options.json) {
       process.stdout.write(JSON.stringify({ ok: true, message, results: [] }) + '\n');
     } else {
@@ -194,7 +206,7 @@ export async function sync(skills: string[] = [], options: SyncCommandOptions = 
   if (interactive && !options.json && !options.yes) {
     const selectedChoices = await promptSyncTargetsInteractive(choices);
     if (!selectedChoices) {
-      logger.warn('同步已取消。');
+      logger.warn('Sync cancelled by user.');
       return;
     }
     const selectedKey = new Set(selectedChoices.map(c => `${c.skill}::${c.targetPlatform}`));
@@ -222,20 +234,20 @@ export async function sync(skills: string[] = [], options: SyncCommandOptions = 
         results.push({
           skill,
           targetPlatform,
-          sourcePlatform: source.platform,
-          sourceType: source.sourceType,
-          scope,
-          status: 'skipped',
-          reason: '目标已安装，使用 --force 可覆盖'
-        });
-        if (!options.json) logger.warn(`- ${label}: 目标已安装，使用 --force 可覆盖`);
-        continue;
-      }
+        sourcePlatform: source.platform,
+        sourceType: source.sourceType,
+        scope,
+        status: 'skipped',
+        reason: 'Already installed; use --force to overwrite'
+      });
+      if (!options.json) logger.warn(`- ${label}: already installed, use --force to overwrite`);
+      continue;
+    }
 
-      if (!options.json) {
-        logger.dim(`- ${label}: 同步中...（源：${platformDisplay(source.platform)}${source.sourceType === 'registry' ? ', registry' : ', local copy'}）`);
-      }
-      spinner = options.json ? null : createSpinner(`同步 ${displayName} 到 ${platformDisplay(targetPlatform)}`);
+    if (!options.json) {
+      logger.dim(`- ${label}: syncing... (source: ${platformDisplay(source.platform)}${source.sourceType === 'registry' ? ', registry' : ', local copy'})`);
+    }
+    spinner = options.json ? null : createSpinner(`Sync ${displayName} → ${platformDisplay(targetPlatform)}`);
 
       if (source.sourceType === 'registry') {
         await installRegistrySkill(
@@ -249,7 +261,7 @@ export async function sync(skills: string[] = [], options: SyncCommandOptions = 
         );
       }
 
-      if (spinner) spinner.succeed(`同步完成 ${displayName} → ${platformDisplay(targetPlatform)}`);
+    if (spinner) spinner.succeed(`Synced ${displayName} → ${platformDisplay(targetPlatform)}`);
 
       results.push({
         skill,
@@ -262,7 +274,7 @@ export async function sync(skills: string[] = [], options: SyncCommandOptions = 
       });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      if (spinner) spinner.fail(`同步失败 ${displayName} → ${platformDisplay(targetPlatform)}`);
+    if (spinner) spinner.fail(`Sync failed ${displayName} → ${platformDisplay(targetPlatform)}`);
       results.push({
         skill,
         targetPlatform,
