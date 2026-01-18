@@ -60,15 +60,13 @@ export function AppLayout(): JSX.Element {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-dvh bg-background flex flex-col relative overflow-hidden">
+    <div className="min-h-dvh bg-background flex flex-col relative">
       <DesignGrid />
       <header className="border-b border-brand-forest/5 backdrop-blur-md sticky top-0 z-50 bg-background/80">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
           {/* Logo / Brand */}
           <Link to="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
-            <div className="w-8 h-8 bg-brand-forest rounded-lg flex items-center justify-center shadow-lg shadow-brand-forest/10">
-              <img src="/favicon.svg" alt="Skild Logo" className="w-5 h-5 invert" />
-            </div>
+            <img src="/favicon.svg" alt="Skild Logo" className="w-8 h-8 rounded-lg shadow-lg shadow-brand-forest/10" />
             <span className="text-xl font-serif font-bold tracking-tight text-brand-forest">
               skild <span className="text-brand-eco italic">hub</span>
             </span>
@@ -159,6 +157,16 @@ export function AppLayout(): JSX.Element {
               >
                 skild.sh
                 <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity" />
+              </a>
+                            {/* GitHub Link - always visible, near auth area (Vercel/Supabase pattern) */}
+              <a
+                href="https://github.com/Peiiii/skild"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-9 w-9 flex items-center justify-center rounded-full text-brand-forest/50 hover:text-brand-forest hover:bg-brand-forest/5 transition-colors"
+                title="View on GitHub"
+              >
+                <Github className="w-5 h-5" />
               </a>
             </div>
           </div>

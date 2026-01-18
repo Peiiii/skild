@@ -12,4 +12,8 @@ export interface Env {
   GITHUB_TOKEN?: string;
   ADMIN_TOKEN?: string;
   DISCOVER_MIN_STARS?: string;
+  DISCOVER_CRON_QUERY?: string;
+  DISCOVER_CRON_PAGES?: string;
+  DISCOVER_CRON_PER_PAGE?: string;
+  DISCOVER_CRON_DELAY_MS?: string;
 }

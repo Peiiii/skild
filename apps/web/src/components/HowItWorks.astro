@@ -26,9 +26,14 @@
                     <h4 class="text-xl font-serif font-bold text-brand-forest mb-2">Install the CLI</h4>
                     <p class="text-brand-forest/50 mb-4">Start by installing our command-line interface globally via npm.</p>
                     <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-brand-forest border border-brand-forest/5 flex items-center justify-between">
-                        <code>npm install -g skild</code>
-                        <button class="opacity-30 hover:opacity-100 transition-opacity">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <code id="install-cmd">npm install -g skild</code>
+                        <button 
+                            id="copy-btn"
+                            class="opacity-30 hover:opacity-100 transition-opacity cursor-pointer p-1 rounded hover:bg-brand-forest/10"
+                            title="Copy to clipboard"
+                        >
+                            <svg id="copy-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <svg id="check-icon" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </button>
                     </div>
                 </div>
@@ -79,4 +84,34 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const copyBtn = document.getElementById('copy-btn');
+    const installCmd = document.getElementById('install-cmd');
+    const copyIcon = document.getElementById('copy-icon');
+    const checkIcon = document.getElementById('check-icon');
+    
+    if (copyBtn && installCmd) {
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(installCmd.textContent || 'npm install -g skild');
+                // Show check icon
+                copyIcon?.classList.add('hidden');
+                checkIcon?.classList.remove('hidden');
+                copyBtn.classList.add('text-brand-eco');
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    copyIcon?.classList.remove('hidden');
+                    checkIcon?.classList.add('hidden');
+                    copyBtn.classList.remove('text-brand-eco');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        });
+    }
+});
+</script>
 

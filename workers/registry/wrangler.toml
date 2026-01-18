@@ -32,3 +32,6 @@ database_id = "3ffc8dc6-d318-41a6-9f79-db8a80642df6"
 [[r2_buckets]]
 binding = "BUCKET"
 bucket_name = "skild-registry-artifacts"
+
+[triggers]
+crons = ["0 2 * * *"] # Daily discovery/metrics refresh

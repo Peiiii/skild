@@ -1164,3 +1164,49 @@ app.post("/skills/:scope/:skill/publish", async (c) => {
 });
 
 export default app;
+
+// =============================================================================
+// Scheduled tasks (Cloudflare Cron)
+// =============================================================================
+
+type ScheduledCtx = { waitUntil(promise: Promise<unknown>): void };
+
+function parseEnvInt(value: string | undefined, fallback: number, min: number, max: number): number {
+  const n = Number.parseInt((value || "").trim(), 10);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(Math.max(n, min), max);
+}
+
+async function runGithubDiscovery(env: Env): Promise<void> {
+  const q = (env.DISCOVER_CRON_QUERY || "").trim() || "filename:SKILL.md path:skills";
+  const pages = parseEnvInt(env.DISCOVER_CRON_PAGES, 1, 1, 5);
+  const perPage = parseEnvInt(env.DISCOVER_CRON_PER_PAGE, 30, 1, 100);
+  const delayMs = parseEnvInt(env.DISCOVER_CRON_DELAY_MS, 1200, 200, 10_000);
+
+  await discoverGithubSkills(env, { q, pages, perPage, delayMs });
+}
+
+async function runRepoMetricsRefresh(env: Env): Promise<void> {
+  // Refresh top repos seen in discover_items to keep stars fresh.
+  const repos = await listDiscoverRepos(env, 200, 0);
+  if (repos.length === 0) return;
+  await refreshRepoMetrics(env, repos);
+}
+
+export const scheduled = async (_event: unknown, env: Env, ctx: ScheduledCtx): Promise<void> => {
+  ctx.waitUntil(
+    (async () => {
+      try {
+        await runGithubDiscovery(env);
+      } catch (err) {
+        console.error("discover_cron_failed", err instanceof Error ? err.message : String(err));
+      }
+
+      try {
+        await runRepoMetricsRefresh(env);
+      } catch (err) {
+        console.error("repo_metrics_refresh_failed", err instanceof Error ? err.message : String(err));
+      }
+    })(),
+  );
+};
