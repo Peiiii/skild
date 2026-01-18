@@ -123,17 +123,17 @@ skild uninstall pdf
 
 ### Sync Skills Across Platforms
 
-Keep installations aligned between tools:
+Auto-discover missing installs across platforms, then select what to sync (tree view: All → Platform → Skill):
 
 ```bash
-# Sync everything from default platform to all others
+# Auto detect missing skills and sync (default: all platforms, tree prompt in TTY)
 skild sync
 
-# Sync specific skills from claude to codex and cursor
-skild sync pdf web-scraper --from claude --to codex,cursor
+# Limit to specific skills or target platforms
+skild sync pdf web-scraper --to codex,cursor
 
-# Force re-sync even if already installed
-skild sync --all --force
+# Non-interactive: sync all missing items (use --force to overwrite existing)
+skild sync --yes --force
 ```
 
 ---

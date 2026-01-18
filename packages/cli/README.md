@@ -30,8 +30,8 @@ skild validate pdf -t codex --local
 skild update pdf -t codex --local
 skild uninstall pdf -t codex --local
 
-# Sync installed skills across platforms
-skild sync --all
+# Sync installed skills across platforms (auto-detect missing, tree prompt)
+skild sync
 
 # Create a new Skill
 skild init my-skill

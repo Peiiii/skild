@@ -1,5 +1,11 @@
 # skild
 
+## 0.9.0
+
+### Minor Changes
+
+- Enhance `skild sync` to auto-detect missing installs across all platforms, show a tree selector (All → Platform → Skill), and sync using the best available source (registry or local copy).
+
 ## 0.8.0
 
 ### Minor Changes

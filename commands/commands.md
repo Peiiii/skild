@@ -21,9 +21,9 @@
 ## sync
 
 - **名称**：`skild sync`
-- **用途**：在不同平台间同步已安装的 skills（保持安装源与版本一致）。
-- **输入格式**：`skild sync [skills...] [--from <platform>] [--to <platforms>] [--all] [--local] [--yes] [--force] [--json]`
+- **用途**：跨平台补齐已安装的 skills：自动汇总所有平台的安装集合，计算缺失列表并以树形交互选择同步目标，保持安装源/版本一致。
+- **输入格式**：`skild sync [skills...] [--to <platforms>] [--all] [--local] [--yes] [--force] [--json]`
 - **输出/期望行为**：
-  - 默认从配置的默认平台同步到其余平台
-  - 支持选择指定 skill 列表或同步全部
+  - 自动发现“缺失技能 × 目标平台”矩阵，默认全选；TTY 下提供“全部→平台→技能”的树形选择
+  - 复用已安装内容（非 registry 源时复制源目录；registry 保持同版本安装）
   - JSON 模式输出同步结果（成功/跳过/失败）

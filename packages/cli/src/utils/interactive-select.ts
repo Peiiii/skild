@@ -32,6 +32,14 @@ export type SkillTreeNode = {
     skillIndex?: number;
 };
 
+export type SyncTargetChoice = {
+    skill: string;
+    displayName: string;
+    targetPlatform: Platform;
+    sourcePlatform: Platform;
+    sourceTypeLabel: string;
+};
+
 type TreeNode = {
     id: string;
     name: string;
@@ -84,6 +92,36 @@ function buildSkillTree(skills: SkillChoice[]): TreeNode {
     collapseIntermediateNodes(allNode);
 
     return wrapWithRoot(allNode);
+}
+
+function buildSyncTree(choices: SyncTargetChoice[]): TreeNode {
+    const root = createTreeNode('root', 'All targets', 1, false);
+
+    const platforms = new Map<Platform, TreeNode>();
+
+    for (let i = 0; i < choices.length; i++) {
+        const choice = choices[i]!;
+        let platformNode = platforms.get(choice.targetPlatform);
+        if (!platformNode) {
+            platformNode = createTreeNode(choice.targetPlatform, choice.targetPlatform, 2, false);
+            platforms.set(choice.targetPlatform, platformNode);
+            root.children.push(platformNode);
+        }
+
+        const skillNode = createTreeNode(
+            `${choice.targetPlatform}:${choice.skill}`,
+            choice.displayName,
+            3,
+            true,
+            [i]
+        );
+
+        platformNode.children.push(skillNode);
+        platformNode.leafIndices.push(i);
+        root.leafIndices.push(i);
+    }
+
+    return wrapWithRoot(root);
 }
 
 function buildPlatformTree(items: { platform: Platform }[]): TreeNode {
@@ -428,6 +466,10 @@ function getSkillDescriptionSuffix(skills: SkillChoice[], node: TreeNode, isCurs
     return chalk.dim(` - ${description}`);
 }
 
+function getPlatformDisplay(platform: Platform): string {
+    return PLATFORM_DISPLAY[platform] || platform;
+}
+
 // ============================================================================
 // Public API
 // ============================================================================
@@ -490,6 +532,45 @@ export async function promptSkillsInteractive(
     const names = selectedSkills.map(s => s.relPath === '.' ? s.suggestedSource : s.relPath);
     console.log(chalk.green(`\n✓ Selected ${selectedSkills.length} skill${selectedSkills.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`));
     return selectedSkills;
+}
+
+export async function promptSyncTargetsInteractive(
+    choices: SyncTargetChoice[]
+): Promise<SyncTargetChoice[] | null> {
+    if (choices.length === 0) return null;
+
+    const selectedIndices = await interactiveTreeSelect(choices, {
+        title: 'Select sync targets',
+        subtitle: '↑↓ navigate • Space toggle • Enter confirm',
+        buildTree: buildSyncTree,
+        formatNode: (node, selection, isCursor) => {
+            // Platform node label
+            if (!node.isLeaf && node.depth === 2) {
+                const display = getPlatformDisplay(node.name as Platform);
+                return formatTreeNode({ ...node, name: display }, selection, isCursor);
+            }
+
+            // Leaf node (skill)
+            if (node.isLeaf && node.leafIndices.length === 1) {
+                const choice = choices[node.leafIndices[0]!]!;
+                const platformLabel = getPlatformDisplay(choice.sourcePlatform);
+                const suffix = chalk.dim(` [from ${platformLabel} · ${choice.sourceTypeLabel}]`);
+                return formatTreeNode(node, selection, isCursor, { suffix });
+            }
+
+            return formatTreeNode(node, selection, isCursor);
+        },
+        defaultAll: true,
+    });
+
+    if (!selectedIndices) return null;
+
+    const selected = selectedIndices.map(i => choices[i]!);
+    const summary = selected
+        .map(c => `${c.displayName}→${getPlatformDisplay(c.targetPlatform)}`)
+        .join(', ');
+    console.log(chalk.green(`\n✓ Syncing ${selected.length} target(s): ${chalk.cyan(summary)}\n`));
+    return selected;
 }
 
 export async function promptSkillsTreeInteractive(

@@ -77,17 +77,17 @@ skild uninstall pdf -t codex --local
 
 ### 跨平台同步（sync）
 
-保持不同工具的安装一致：
+自动汇总所有平台的安装，计算“缺失技能 × 目标平台”，TTY 下以树形结构（全部→平台→技能）选择要补齐的项目：
 
 ```bash
-# 默认：从配置的默认平台同步到其余平台
+# 默认：发现缺失并弹窗选择（或非交互直接全选）
 skild sync
 
-# 指定来源和目标平台
-skild sync pdf web-scraper --from claude --to codex,cursor
+# 仅同步指定技能或指定目标平台
+skild sync pdf web-scraper --to codex,cursor
 
-# 已安装也强制覆盖
-skild sync --all --force
+# 强制覆盖已安装
+skild sync --yes --force
 ```
 
 ### 创建一个新的 Skill 项目

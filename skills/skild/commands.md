@@ -115,19 +115,19 @@ skild update [skill] [options]
 
 ### skild sync
 
-Sync installed skills from one platform to others.
+Sync installed skills across platforms by auto-detecting missing installs and prompting with a tree (All → Platform → Skill).
 
 ```bash
-skild sync [skills...] [--from <platform>] [--to <platforms>] [--all] [--local] [--yes] [--force] [--json]
+skild sync [skills...] [--to <platforms>] [--all] [--local] [--yes] [--force] [--json]
 ```
 
 **Examples:**
 ```bash
-# Sync everything from default platform to the rest
+# Auto-detect missing skills and sync all (TTY shows selection tree)
 skild sync
 
-# Sync specific skills from claude to codex and cursor
-skild sync pdf web-scraper --from claude --to codex,cursor
+# Limit to specific platforms
+skild sync pdf web-scraper --to codex,cursor
 ```
 
 ---

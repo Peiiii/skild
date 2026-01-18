@@ -176,10 +176,9 @@ program
 
 program
     .command('sync [skills...]')
-    .description('Sync installed skills from one platform to others')
-    .option('--from <platform>', `Source platform (default: global config)`)
-    .option('--to <platforms>', `Comma-separated target platforms: ${PLATFORMS.join(', ')}`)
-    .option('--all', 'Sync to all other platforms')
+    .description('Sync missing skills across platforms (auto-detect + tree selection)')
+    .option('--to <platforms>', `Comma-separated target platforms to include: ${PLATFORMS.join(', ')}`)
+    .option('--all', 'Alias for default (all platforms)')
     .option('-l, --local', 'Use project-level directory instead of global')
     .option('-y, --yes', 'Skip interactive prompts (defaults to all other platforms)')
     .option('-f, --force', 'Force reinstall even if target already exists')
