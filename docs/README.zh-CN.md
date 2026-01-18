@@ -19,6 +19,7 @@
 | 文档 | 说明 |
 |------|------|
 | **[安装 Skills](./installing-skills.zh-CN.md)** | 从 GitHub、本地或 Registry 安装 |
+| **[跨平台同步](./installing-skills.zh-CN.md#%E8%B7%A8%E5%B9%B3%E5%8F%B0%E5%90%8C%E6%AD%A5)** | 自动发现缺失并跨平台同步 |
 | **[Skillsets 指南](./skillsets.zh-CN.md)** | 一键安装多个 Skills |
 | **[Skild Hub 指南](./hub.zh-CN.md)** | Web 界面使用 |
 | **[常见问题](./faq.md)** | 常见问题解答 |
@@ -63,4 +64,3 @@
 - **Skild Hub**: [hub.skild.sh](https://hub.skild.sh)
 - **GitHub**: [github.com/Peiiii/skild](https://github.com/Peiiii/skild)
 - **npm**: [npmjs.com/package/skild](https://www.npmjs.com/package/skild)
-

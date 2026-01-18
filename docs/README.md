@@ -19,6 +19,7 @@ Install, manage, and discover Skills for your AI agents.
 | Document | Description |
 |----------|-------------|
 | **[Installing Skills](./installing-skills.md)** | Install from GitHub, local path, or registry |
+| **[Sync Skills](./installing-skills.md#sync-across-platforms)** | Auto-detect and sync missing installs across platforms |
 | **[Skillsets](./skillsets.md)** | Install multiple Skills with one command |
 | **[Skild Hub Guide](./hub.md)** | Using the web interface |
 | **[FAQ](./faq.md)** | Common questions and answers |

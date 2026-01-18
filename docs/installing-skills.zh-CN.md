@@ -146,6 +146,21 @@ skild uninstall skill-name
 skild validate skill-name
 ```
 
+### 跨平台同步
+
+在一个平台安装后，可自动发现其他平台缺失并补齐：
+
+```bash
+# 发现缺失并用树形（全部→平台→技能）选择
+skild sync
+
+# 指定目标平台或技能
+skild sync pdf web-scraper --to codex,cursor
+
+# 非交互全量同步，覆盖已安装
+skild sync --yes --force
+```
+
 ---
 
 ## 选项参考

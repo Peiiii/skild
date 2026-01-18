@@ -146,6 +146,21 @@ skild uninstall skill-name
 skild validate skill-name
 ```
 
+### Sync Across Platforms
+
+After installing on one platform, you can auto-detect missing installs and sync to others:
+
+```bash
+# Detect missing installs and select with a tree (All → Platform → Skill)
+skild sync
+
+# Target specific platforms or skills
+skild sync pdf web-scraper --to codex,cursor
+
+# Non-interactive, overwrite existing
+skild sync --yes --force
+```
+
 ---
 
 ## Options Reference
