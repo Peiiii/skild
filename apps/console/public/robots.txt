@@ -1,0 +1,9 @@
+# https://www.robotstxt.org/
+User-agent: *
+Allow: /
+
+# Sitemap (TBD - SPA requires prerendering for full sitemap)
+# Sitemap: https://hub.skild.sh/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
