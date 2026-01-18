@@ -14,9 +14,9 @@ export function GettingStartedPage(): JSX.Element {
 
     return (
         <div className="max-w-3xl mx-auto space-y-12">
-            <div className="text-center space-y-4 py-8">
-                <h1 className="text-5xl font-serif font-bold tracking-tight text-brand-forest">Get Started with Skild</h1>
-                <p className="text-xl text-brand-forest/60 font-medium italic">
+            <div className="text-center space-y-4 py-6 sm:py-8">
+                <h1 className="text-3xl sm:text-5xl font-serif font-bold tracking-tight text-brand-forest">Get Started with Skild</h1>
+                <p className="text-lg sm:text-xl text-brand-forest/60 font-medium italic">
                     Install skills for your AI agents in seconds.
                 </p>
             </div>

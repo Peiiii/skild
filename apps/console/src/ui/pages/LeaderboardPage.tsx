@@ -139,56 +139,60 @@ export function LeaderboardPage(): JSX.Element {
                 </div>
             ) : (
                 <div className="border border-brand-forest/15 rounded-[24px] overflow-hidden bg-white shadow-xl shadow-brand-forest/[0.05]">
-                    <table className="w-full text-left border-collapse">
+                    <table className="w-full text-left border-collapse table-fixed">
                         <thead>
                             <tr className="bg-brand-forest/[0.05] text-[9px] font-black uppercase tracking-[0.2em] text-brand-forest/60 border-b border-brand-forest/15">
-                                <th className="px-6 py-4 w-16 text-center">Rank</th>
-                                <th className="px-5 py-4">Skill</th>
-                                <th className="px-5 py-4 text-center">Installs</th>
-                                <th className="px-6 py-4 text-right">Actions</th>
+                                <th className="px-6 py-4 w-16 sm:w-20 text-center">Rank</th>
+                                <th className="px-4 py-4">Skill</th>
+                                <th className="hidden sm:table-cell px-5 py-4 text-center w-24">Installs</th>
+                                <th className="px-6 py-4 text-right w-24 sm:w-32">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {items.map((item, idx) => {
                                 const id = `${item.type}:${item.sourceId}`;
                                 const isLinked = item.type === 'linked';
-                                const href = isLinked ? `/linked/${encodeURIComponent(item.sourceId)}` : `/skills/${item.sourceId.replace('/', '%2F')}`; // Simplified, router handles it
-
+                                
                                 return (
                                     <tr key={item.sourceId} className="group border-b border-brand-forest/10 last:border-0 hover:bg-brand-forest/[0.02] transition-all text-sm">
-                                        <td className="px-6 py-5 text-center font-serif font-black text-brand-forest/50 group-hover:text-brand-forest transition-colors text-base italic">
+                                        <td className="px-6 py-5 text-center font-serif font-black text-brand-forest/30 group-hover:text-brand-forest transition-colors text-base italic">
                                             {idx + 1}
                                         </td>
-                                        <td className="px-5 py-3">
+                                        <td className="px-4 py-3 min-w-0">
                                             <div className="flex items-center gap-3">
-                                                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-brand-forest/5 flex items-center justify-center transition-transform group-hover:scale-105">
+                                                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-brand-forest/5 flex items-center justify-center transition-transform group-hover:scale-105 hidden xs:flex">
                                                     {isLinked ? (
                                                         <Github className="h-5 w-5 text-brand-eco" />
                                                     ) : (
                                                         <Package className="h-5 w-5 text-brand-forest" />
                                                     )}
                                                 </div>
-                                                <div className="min-w-0">
+                                                <div className="min-w-0 flex-1">
                                                     <Link to={isLinked ? `/linked/${encodeURIComponent(item.sourceId)}` : `/skills/${item.sourceId.split('/')[0]}/${item.sourceId.split('/')[1]}`} className="font-serif text-base font-bold text-brand-forest hover:text-brand-eco transition-colors block truncate">
                                                         {item.title}
                                                     </Link>
                                                     <div className="flex items-center gap-2 mt-0.5">
-                                                        <Badge variant={isLinked ? 'eco' : 'forest'} className="px-1.5 text-[8px] h-3.5 leading-none uppercase tracking-widest font-black">
+                                                        <Badge variant={isLinked ? 'eco' : 'forest'} className="px-1.5 text-[8px] h-3.5 leading-none uppercase tracking-widest font-black shrink-0">
                                                             {isLinked ? 'Linked' : 'Registry'}
                                                         </Badge>
+                                                        {/* Mobile-only Installs and copy link hint */}
+                                                        <div className="flex sm:hidden items-center gap-1.5 text-[10px] font-bold text-brand-eco ml-1">
+                                                            <Download className="h-2.5 w-2.5" />
+                                                            {item.downloads}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-5 py-3 text-center">
+                                        <td className="hidden sm:table-cell px-5 py-3 text-center">
                                             <div className="inline-flex flex-col items-center">
                                                 <span className="text-xl font-serif font-bold text-brand-forest leading-none">{item.downloads}</span>
                                                 <TrendingUp className="h-2.5 w-2.5 text-brand-eco opacity-40 mt-1" />
                                             </div>
                                         </td>
                                         <td className="px-6 py-3 text-right">
-                                            <div className="flex items-center justify-end gap-3">
-                                                <div className="hidden lg:block">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <div className="hidden xl:block">
                                                     <code className="text-[10px] text-brand-forest/20 font-mono mr-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         {item.install}
                                                     </code>
@@ -196,11 +200,11 @@ export function LeaderboardPage(): JSX.Element {
                                                 <Button
                                                     size="sm"
                                                     variant="secondary"
-                                                    className="h-8 gap-2 px-3 shadow-sm text-xs"
+                                                    className="h-8 w-8 sm:h-8 sm:w-auto sm:px-3 rounded-lg sm:rounded-full shadow-sm text-xs p-0 sm:p-auto flex items-center justify-center shrink-0"
                                                     onClick={() => void copyInstall(item)}
                                                 >
                                                     {copiedId === id ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                                                    <span className="hidden sm:inline">{copiedId === id ? 'Copied' : 'Copy'}</span>
+                                                    <span className="hidden sm:inline ml-2">{copiedId === id ? 'Copied' : 'Copy'}</span>
                                                 </Button>
                                             </div>
                                         </td>

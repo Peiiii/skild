@@ -42,9 +42,10 @@ export function SearchBar({
       />
       <Button
         type="submit"
-        className="absolute right-2 top-2 h-10 px-6 rounded-full font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-brand-forest/10"
+        className="absolute right-2 top-2 h-10 w-10 sm:w-auto sm:px-6 rounded-full font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-brand-forest/10 p-0 sm:p-auto flex items-center justify-center"
       >
-        Search
+        <span className="hidden sm:inline">Search</span>
+        <Search className="h-4 w-4 sm:hidden" />
       </Button>
     </form>
   );

@@ -67,11 +67,11 @@ export function SkillCard({
     return (
         <Card
             className={cn(
-                "group relative flex flex-col p-5 h-full",
+                "group relative flex flex-col p-4 sm:p-5 h-full",
                 !isLinked && isSkillset && "after:absolute after:inset-0 after:border after:border-brand-forest/10 after:rounded-[24px] after:-translate-x-1.5 after:translate-y-1.5 after:-z-10 before:absolute before:inset-0 before:border before:border-brand-forest/5 before:rounded-[24px] before:-translate-x-3 before:translate-y-3 before:-z-20"
             )}
         >
-            <div className="flex flex-col h-full gap-4">
+            <div className="flex flex-col h-full gap-3 sm:gap-4">
                 {/* Row 1: Title & Origin */}
                 <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">

@@ -156,7 +156,7 @@ export function SkillDetailPage(): JSX.Element {
     <div className="space-y-12">
       {/* Hero Section */}
       <div className={cn(
-        "relative -mx-6 -mt-8 px-6 py-12 overflow-hidden border-b border-brand-forest/5 bg-white",
+        "relative -mx-4 sm:-mx-6 -mt-8 px-4 sm:px-6 py-10 sm:py-16 overflow-hidden border-b border-brand-forest/5 bg-white",
         data.skillset ? "bg-gradient-to-br from-brand-forest/[0.03] via-transparent to-transparent" : "bg-white"
       )}>
         {/* Decorative elements for Skillsets */}
@@ -166,8 +166,8 @@ export function SkillDetailPage(): JSX.Element {
             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-brand-forest/5 blur-[100px] rounded-full translate-y-1/2 -translate-x-1/4" />
           </>
         )}
-
-        <div className="relative z-10 max-w-5xl mx-auto space-y-8">
+ 
+        <div className="relative z-10 max-w-5xl mx-auto space-y-6 sm:space-y-8">
           <div className="flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-brand-forest/40">
             <Link className="hover:text-brand-forest transition-colors" to="/skills">
               Skills
@@ -175,19 +175,19 @@ export function SkillDetailPage(): JSX.Element {
             <span className="opacity-30">/</span>
             <span className="text-brand-forest/60 italic lowercase font-serif">{scope}</span>
           </div>
-
-          <div className="space-y-6">
-            <div className="flex flex-wrap items-center gap-4">
-              <h1 className="text-4xl md:text-6xl font-serif font-bold tracking-tight text-brand-forest">
+ 
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-serif font-bold tracking-tight text-brand-forest">
                 {alias ?? data.name}
               </h1>
-              <div className="flex items-center gap-2">
-                <Badge variant="forest" className="h-6 px-3 text-[10px] font-bold tracking-widest uppercase">Registry</Badge>
-                {data.skillset && <SkillsetBadge className="h-6" />}
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="forest" className="h-6 px-3 text-[10px] font-bold tracking-widest uppercase shrink-0">Registry</Badge>
+                {data.skillset && <SkillsetBadge className="h-6 shrink-0" />}
                 {alias ? (
-                  <Badge variant="secondary" className="h-6 px-2 text-[10px] font-mono">alias:{alias}</Badge>
+                  <Badge variant="secondary" className="h-6 px-2 text-[10px] font-mono shrink-0">alias:{alias}</Badge>
                 ) : (
-                  <Badge variant="outline" className="h-6 px-2 text-[10px] text-brand-forest/40">no alias</Badge>
+                  <Badge variant="outline" className="h-6 px-2 text-[10px] text-brand-forest/40 shrink-0">no alias</Badge>
                 )}
                 {canManage && (
                   <Button asChild size="sm" variant="outline" className="h-7 px-3 text-xs border-brand-forest/10 hover:bg-brand-forest/5 hover:text-brand-forest">
@@ -199,16 +199,16 @@ export function SkillDetailPage(): JSX.Element {
             {alias && (
               <div className="text-xs text-brand-forest/30 font-mono tracking-widest uppercase">{data.name}</div>
             )}
-            <p className="text-xl text-brand-forest/60 max-w-2xl leading-relaxed font-medium italic">
+            <p className="text-lg sm:text-xl text-brand-forest/60 max-w-2xl leading-relaxed font-medium italic">
               {data.description || 'Elevate your agents with specialized capabilities.'}
             </p>
           </div>
         </div>
       </div>
-
-      <div className="grid gap-8 md:grid-cols-12 max-w-5xl mx-auto">
+ 
+      <div className="grid gap-8 lg:grid-cols-12 max-w-5xl mx-auto">
         {/* Main Column */}
-        <div className="md:col-span-8 space-y-10">
+        <div className="lg:col-span-8 space-y-10">
           {/* Install Command */}
           <div className="space-y-5">
             <div className="flex items-center justify-between px-1">
@@ -218,7 +218,7 @@ export function SkillDetailPage(): JSX.Element {
               </h2>
             </div>
             <div className="group relative">
-              <div className="relative rounded-[24px] bg-brand-forest border border-brand-forest/5 p-8 font-mono text-sm leading-relaxed text-white pr-20 shadow-2xl shadow-brand-forest/20 overflow-hidden">
+              <div className="relative rounded-[24px] bg-brand-forest border border-brand-forest/5 p-6 sm:p-8 font-mono text-sm leading-relaxed text-white pr-16 sm:pr-20 shadow-2xl shadow-brand-forest/20 overflow-hidden break-all">
                 <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-brand-eco" />
                 <span className="text-brand-eco select-none mr-3 opacity-60">$</span>
                 {install}
@@ -227,7 +227,7 @@ export function SkillDetailPage(): JSX.Element {
                 type="button"
                 size="icon"
                 variant="ghost"
-                className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 bg-white/5 hover:bg-white/10 active:scale-95 transition-all text-white/40 hover:text-white"
+                className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 h-10 w-10 sm:h-12 sm:w-12 bg-white/5 hover:bg-white/10 active:scale-95 transition-all text-white/40 hover:text-white"
                 onClick={copyInstall}
               >
                 {copied ? <Check className="h-5 w-5 text-brand-eco" /> : <Copy className="h-5 w-5" />}
@@ -326,7 +326,7 @@ export function SkillDetailPage(): JSX.Element {
         </div>
 
         {/* Sidebar */}
-        <div className="md:col-span-4 space-y-6">
+        <div className="lg:col-span-4 space-y-6">
           {/* Stats */}
           <Card className="p-5 space-y-5">
             <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-forest/60 flex items-center gap-2">
