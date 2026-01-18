@@ -122,7 +122,9 @@ function decodeCursor(
   if (parts[0] === "v2") {
     if (parts.length < 4) return null;
     const [, sortValue, discoverAt, id] = parts;
-    if (!sortValue || !discoverAt || !id) return null;
+    if (sortValue === undefined || sortValue === null || discoverAt === undefined || discoverAt === null || id === undefined || id === null) {
+      return null;
+    }
     return { sortValue, discoverAt, id };
   }
   if (parts.length === 3) {
@@ -303,31 +305,6 @@ export async function listDiscoverItems(
 
   const baseParams: Array<string | number> = [start7d, endDay, start30d, endDay];
 
-  const filterClauses = [...clauses];
-  const filterParams = [...params];
-
-  // Filter low-star linked items (registry items不受影响)
-  filterClauses.push("(type != 'linked' OR COALESCE(stars_total, 0) >= ?)");
-  filterParams.push(minStars);
-
-  // For list query (with pagination cursor)
-  const outerClauses = [...filterClauses];
-  const outerParams = [...filterParams];
-
-  if (cursor) {
-    outerClauses.push(
-      "(sort_value < ? OR (sort_value = ? AND discover_at < ?) OR (sort_value = ? AND discover_at = ? AND (type || ':' || source_id) < ?))",
-    );
-    outerParams.push(
-      cursor.sortValue,
-      cursor.sortValue,
-      cursor.discoverAt,
-      cursor.sortValue,
-      cursor.discoverAt,
-      cursor.id,
-    );
-  }
-
   let sortExpr = "discover_at";
   if (sort === "downloads_7d") sortExpr = "downloads_7d";
   else if (sort === "downloads_30d") sortExpr = "downloads_30d";
@@ -335,10 +312,43 @@ export async function listDiscoverItems(
   else if (sort === "stars_30d") sortExpr = "COALESCE(stars_30d, 0)";
   else if (sort === "new") sortExpr = "created_at";
 
-  let sql = `SELECT *, ${sortExpr} AS sort_value FROM (${baseSql}) base`;
+  const filterClauses = [...clauses];
+  const filterParams = [...params];
+
+  // Filter low-star linked items (registry items不受影响)
+  filterClauses.push("(type != 'linked' OR COALESCE(stars_total, 0) >= ?)");
+  filterParams.push(minStars);
+
+  // Build sort-projected subquery so we can reuse sort_value in WHERE safely
+  const withSortSql = `SELECT *, ${sortExpr} AS sort_value FROM (${baseSql}) base`;
+
+  // For list query (with pagination cursor)
+  const outerClauses = [...filterClauses];
+  const outerParams = [...filterParams];
+
+  const cursorSortValue =
+    cursor && (sort === "downloads_7d" || sort === "downloads_30d" || sort === "stars" || sort === "stars_30d")
+      ? Number(cursor.sortValue)
+      : cursor?.sortValue ?? null;
+
+  if (cursor && cursorSortValue !== null) {
+    outerClauses.push(
+      "(sort_value < ? OR (sort_value = ? AND discover_at < ?) OR (sort_value = ? AND discover_at = ? AND (type || ':' || source_id) < ?))",
+    );
+    outerParams.push(
+      cursorSortValue,
+      cursorSortValue,
+      cursor.discoverAt,
+      cursorSortValue,
+      cursor.discoverAt,
+      cursor.id,
+    );
+  }
+
+  let sql = `SELECT * FROM (${withSortSql}) sorted`;
   const paramsList = [...baseParams, ...outerParams];
   if (outerClauses.length > 0) sql += ` WHERE ${outerClauses.join(" AND ")}`;
-  sql += ` ORDER BY ${sortExpr} DESC, discover_at DESC, (type || ':' || source_id) DESC LIMIT ?`;
+  sql += ` ORDER BY sort_value DESC, discover_at DESC, (type || ':' || source_id) DESC LIMIT ?`;
   paramsList.push(limit + 1);
 
   const result = await env.DB.prepare(sql).bind(...paramsList).all();
