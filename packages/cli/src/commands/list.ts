@@ -175,6 +175,21 @@ function renderTableView(allSkills: ReturnType<typeof listAllSkills>, scope: str
   const totalInstalls = allSkills.length;
   console.log('');
   console.log(chalk.dim(`Summary: ${totalSkills} unique skill${totalSkills === 1 ? '' : 's'}, ${totalInstalls} total installation${totalInstalls === 1 ? '' : 's'} across ${activePlatforms.length} platform${activePlatforms.length === 1 ? '' : 's'} (${scope})`));
+
+  // Check for skills that are not synced across all platforms
+  if (activePlatforms.length > 1) {
+    const unsyncedSkills = regular.filter(row => {
+      const installedCount = activePlatforms.filter(p => row.platforms.get(p)?.installed).length;
+      return installedCount > 0 && installedCount < activePlatforms.length;
+    });
+
+    if (unsyncedSkills.length > 0) {
+      console.log('');
+      console.log(chalk.yellow(`💡 ${unsyncedSkills.length} skill${unsyncedSkills.length === 1 ? '' : 's'} not synced across all platforms.`));
+      console.log(chalk.dim(`   Run ${chalk.cyan('skild sync')} to sync skills across platforms.`));
+    }
+  }
+
   console.log('');
 }
 
