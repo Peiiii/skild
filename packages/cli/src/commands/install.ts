@@ -20,7 +20,7 @@ import {
   PLATFORMS
 } from '@skild/core';
 import { createSpinner, logger } from '../utils/logger.js';
-import { promptSkillsInteractive, promptPlatformsInteractive, promptSkillsTreeInteractive } from '../utils/interactive-select.js';
+import { flushInteractiveUiNow, promptSkillsInteractive, promptPlatformsInteractive, promptSkillsTreeInteractive } from '../utils/interactive-select.js';
 import {
   discoverSkillDirsWithHeuristics,
   parseNonNegativeInt,
@@ -404,6 +404,8 @@ async function promptSelections(ctx: InstallContext): Promise<boolean> {
       }
       ctx.targets = selectedPlatforms;
       ctx.needsPlatformPrompt = false;
+      flushInteractiveUiNow();
+      if (ctx.spinner) ctx.spinner.start();
     }
     return true;
   }
@@ -490,6 +492,7 @@ async function promptSelections(ctx: InstallContext): Promise<boolean> {
       ctx.needsPlatformPrompt = false;
     }
 
+    flushInteractiveUiNow();
     if (ctx.spinner) ctx.spinner.start();
   } else {
     // Auto-select all

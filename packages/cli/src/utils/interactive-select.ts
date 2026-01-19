@@ -13,6 +13,78 @@ import chalk from 'chalk';
 import type { Platform } from '@skild/core';
 import { PLATFORMS } from '@skild/core';
 
+let altScreenRefCount = 0;
+let altScreenActive = false;
+let altScreenExitTimer: NodeJS.Timeout | null = null;
+let altScreenStdout: NodeJS.WriteStream | null = null;
+const postPromptLogs: string[] = [];
+
+export function enqueuePostPromptLog(message: string): void {
+    postPromptLogs.push(message);
+}
+
+function flushPostPromptLogs(stdout: NodeJS.WriteStream): void {
+    if (altScreenActive) return;
+    if (postPromptLogs.length === 0) return;
+    for (const msg of postPromptLogs.splice(0)) {
+        stdout.write(msg.endsWith('\n') ? msg : msg + '\n');
+    }
+}
+
+function enterAltScreen(stdout: NodeJS.WriteStream): void {
+    if (altScreenExitTimer) {
+        clearTimeout(altScreenExitTimer);
+        altScreenExitTimer = null;
+    }
+    altScreenStdout = stdout;
+    if (!altScreenActive) {
+        stdout.write('\x1B[?1049h'); // Switch to alt screen
+        stdout.write('\x1B[H'); // Move to top-left
+        stdout.write('\x1B[2J'); // Clear
+        altScreenActive = true;
+    }
+    altScreenRefCount += 1;
+}
+
+function exitAltScreenDeferred(): void {
+    if (altScreenExitTimer) return;
+    const stdout = altScreenStdout;
+    if (!stdout) return;
+    altScreenExitTimer = setTimeout(() => {
+        altScreenExitTimer = null;
+        if (altScreenRefCount !== 0) return;
+        if (!altScreenActive) return;
+        stdout.write('\x1B[?1049l'); // Exit alt screen (restores previous content)
+        altScreenActive = false;
+        flushPostPromptLogs(stdout);
+    }, 200);
+}
+
+function leaveAltScreen(stdout: NodeJS.WriteStream): void {
+    if (altScreenStdout && altScreenStdout !== stdout) {
+        // Different stream; best-effort: close current screen immediately.
+        altScreenStdout.write('\x1B[?1049l');
+        altScreenActive = false;
+        altScreenStdout = stdout;
+    }
+    altScreenRefCount = Math.max(0, altScreenRefCount - 1);
+    if (altScreenRefCount === 0) exitAltScreenDeferred();
+}
+
+export function flushInteractiveUiNow(): void {
+    const stdout = altScreenStdout || process.stdout;
+    if (altScreenExitTimer) {
+        clearTimeout(altScreenExitTimer);
+        altScreenExitTimer = null;
+    }
+    if (altScreenRefCount !== 0) return;
+    if (altScreenActive) {
+        stdout.write('\x1B[?1049l');
+        altScreenActive = false;
+    }
+    flushPostPromptLogs(stdout);
+}
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -337,12 +409,9 @@ async function interactiveTreeSelect<T>(
     stdin.resume();
     readline.emitKeypressEvents(stdin);
 
-    // Enter alternate screen buffer to avoid repaint artifacts affecting main terminal
-    if (useAltScreen) {
-        stdout.write('\x1B[?1049h'); // Switch to alt screen
-        stdout.write('\x1B[H'); // Move to top-left
-        stdout.write('\x1B[2J'); // Clear
-    }
+    // Enter alternate screen buffer to avoid repaint artifacts affecting main terminal.
+    // Use a small deferred-exit window to prevent flicker between consecutive prompts.
+    if (useAltScreen) enterAltScreen(stdout);
 
     // Create renderer
     const renderer = createRenderer(
@@ -372,7 +441,7 @@ async function interactiveTreeSelect<T>(
             stdin.removeListener('keypress', onKeypress);
             stdout.write('\x1B[?25h'); // Show cursor
             if (useAltScreen) {
-                stdout.write('\x1B[?1049l'); // Exit alt screen (restores previous content)
+                leaveAltScreen(stdout);
             }
         }
 
@@ -643,7 +712,7 @@ export async function promptSkillsInteractive(
 
     const selectedSkills = selectedIndices.map(i => skills[i]!);
     const names = selectedSkills.map(s => s.relPath === '.' ? s.suggestedSource : s.relPath);
-    console.log(chalk.green(`\n✓ Selected ${selectedSkills.length} skill${selectedSkills.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`));
+    enqueuePostPromptLog(chalk.green(`\n✓ Selected ${selectedSkills.length} skill${selectedSkills.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`));
     return selectedSkills;
 }
 
@@ -682,7 +751,7 @@ export async function promptSyncTargetsInteractive(
     const summary = selected
         .map(c => `${c.displayName}→${getPlatformDisplay(c.targetPlatform)}`)
         .join(', ');
-    console.log(chalk.green(`\n✓ Syncing ${selected.length} target(s): ${chalk.cyan(summary)}\n`));
+    enqueuePostPromptLog(chalk.green(`\n✓ Syncing ${selected.length} target(s): ${chalk.cyan(summary)}\n`));
     return selected;
 }
 
@@ -706,7 +775,7 @@ export async function promptSkillsTreeInteractive(
 
     const selectedSkills = selectedIndices.map(i => skills[i]!);
     const names = selectedSkills.map(s => s.displayName || s.relPath || s.suggestedSource);
-    console.log(chalk.green(`\n✓ Selected ${selectedSkills.length} skill${selectedSkills.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`));
+    enqueuePostPromptLog(chalk.green(`\n✓ Selected ${selectedSkills.length} skill${selectedSkills.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`));
     return selectedSkills;
 }
 
@@ -735,6 +804,6 @@ export async function promptPlatformsInteractive(
 
     const selected = selectedIndices.map(i => platforms[i]!);
     const names = selected.map(p => PLATFORM_DISPLAY[p] || p);
-    console.log(chalk.green(`\n✓ Installing to ${selected.length} platform${selected.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`));
+    enqueuePostPromptLog(chalk.green(`\n✓ Installing to ${selected.length} platform${selected.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`));
     return selected;
 }
