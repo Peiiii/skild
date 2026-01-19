@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { PLATFORMS, listAllSkills, listSkills, type Platform } from '@skild/core';
-import { TableBuilder } from '../utils/table-utils.js';
+import { Table } from '../utils/table-utils.js';
 
 export interface ListCommandOptions {
   target?: Platform | string;
@@ -18,7 +18,7 @@ const PLATFORM_ABBREV: Record<Platform, string> = {
   codex: 'Codex',
   copilot: 'Copilot',
   cursor: 'Cursor',
-  antigravity: 'Antigrav',
+  antigravity: 'Antigravity',
   opencode: 'OpenCode',
   windsurf: 'Windsurf',
 };
@@ -117,29 +117,27 @@ function renderTableView(allSkills: ReturnType<typeof listAllSkills>, scope: str
   const matrix = buildSkillMatrix(allSkills);
   const activePlatforms = PLATFORMS.filter(p => allSkills.some(s => s.platform === p));
 
-  // Build table
-  const table = new TableBuilder();
+  // Build table with new fluent API
+  const table = new Table();
 
   // Add columns: Skill name + one column per active platform
-  table.addColumn('Skill', 30, 'left');
+  table.column('Skill', 30, 'left');
   for (const platform of activePlatforms) {
-    table.addColumn(PLATFORM_ABBREV[platform] || platform, 9, 'center');
+    table.column(PLATFORM_ABBREV[platform] || platform, 11, 'center');
   }
 
   // Group rows by type
   const skillsets = matrix.filter(r => r.isSkillset && r.indent === 0);
-  const skillsetDeps = matrix.filter(r => r.indent > 0);
   const regular = matrix.filter(r => !r.isSkillset && !r.isDependency && r.indent === 0);
 
   // Add skillsets section (only if there are skillsets)
   if (skillsets.length > 0) {
-    const sectionHeader = [`${chalk.bold('📦 SKILLSETS')} ${chalk.dim(`(${skillsets.length})`)}`, ...activePlatforms.map(() => '')];
-    table.addHeaderRow(sectionHeader);
+    table.section(`📦 SKILLSETS ${chalk.dim(`(${skillsets.length})`)}`);
 
     for (const row of skillsets) {
       const nameCell = chalk.cyan(row.displayName);
       const statusCells = activePlatforms.map(p => renderStatusIcon(row.platforms.get(p)));
-      table.addRow([nameCell, ...statusCells]);
+      table.row([nameCell, ...statusCells]);
 
       // Add dependencies if verbose
       if (options.verbose && row.dependencies) {
@@ -150,7 +148,7 @@ function renderTableView(allSkills: ReturnType<typeof listAllSkills>, scope: str
             const status = dep.platforms.get(p);
             return status?.installed ? chalk.dim('•') : chalk.dim('-');
           });
-          table.addRow([depName, ...depStatus]);
+          table.row([depName, ...depStatus]);
         }
       }
     }
@@ -158,14 +156,13 @@ function renderTableView(allSkills: ReturnType<typeof listAllSkills>, scope: str
 
   // Add regular skills section
   if (regular.length > 0) {
-    if (skillsets.length > 0) table.addSeparator();
-    const sectionHeader = [`${chalk.bold('⚡ SKILLS')} ${chalk.dim(`(${regular.length})`)}`, ...activePlatforms.map(() => '')];
-    table.addHeaderRow(sectionHeader);
+    if (skillsets.length > 0) table.separator();
+    table.section(`⚡ SKILLS ${chalk.dim(`(${regular.length})`)}`);
 
     for (const row of regular) {
       const nameCell = chalk.cyan(row.displayName);
       const statusCells = activePlatforms.map(p => renderStatusIcon(row.platforms.get(p)));
-      table.addRow([nameCell, ...statusCells]);
+      table.row([nameCell, ...statusCells]);
     }
   }
 
