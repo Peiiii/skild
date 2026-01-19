@@ -302,7 +302,42 @@ async function discoverSkills(ctx: InstallContext): Promise<boolean> {
       return true;
     }
 
-    // Case 3: Remote source - markdown discovery first
+    // Case 3: Remote source — skill-first strategy (materialize first, then markdown fallback)
+    let materializeError: unknown | null = null;
+    try {
+      const materialized = await materializeSourceToTemp(resolvedSource);
+      ctx.materializedDir = materialized.dir;
+      ctx.cleanupMaterialized = appendCleanup(ctx.cleanupMaterialized, materialized.cleanup);
+
+      const hasSkillMd = fs.existsSync(path.join(ctx.materializedDir, 'SKILL.md'));
+      if (hasSkillMd) {
+        const metadata = readSkillMetadata(ctx.materializedDir);
+        ctx.isSingleSkill = true;
+        ctx.selectedSkills = [{
+          relPath: '.',
+          suggestedSource: resolvedSource,
+          materializedDir: ctx.materializedDir,
+          displayName: metadata?.name,
+          description: metadata?.description,
+        }];
+        return true;
+      }
+
+      const discovered = discoverSkillDirsWithHeuristics(ctx.materializedDir, { maxDepth: scanDepth, maxSkills });
+      if (discovered.length > 0) {
+        ctx.discoveredSkills = asDiscoveredSkills(
+          discovered,
+          d => deriveChildSource(resolvedSource, d.relPath),
+          d => d.absDir,
+          d => d.absDir
+        );
+        return true;
+      }
+    } catch (error: unknown) {
+      materializeError = error;
+    }
+
+    // Fallback: markdown-based discovery (README/links)
     const markdownResult = await discoverMarkdownSkillsFromSource({
       source: resolvedSource,
       maxDocDepth: markdownDepth,
@@ -325,46 +360,15 @@ async function discoverSkills(ctx: InstallContext): Promise<boolean> {
       return true;
     }
 
-    // Case 4: Remote source - materialize first
-    const materialized = await materializeSourceToTemp(resolvedSource);
-    ctx.materializedDir = materialized.dir;
-    ctx.cleanupMaterialized = appendCleanup(ctx.cleanupMaterialized, materialized.cleanup);
-
-    const hasSkillMd = fs.existsSync(path.join(ctx.materializedDir, 'SKILL.md'));
-    if (hasSkillMd) {
-      const metadata = readSkillMetadata(ctx.materializedDir);
-      ctx.isSingleSkill = true;
-      ctx.selectedSkills = [{
-        relPath: '.',
-        suggestedSource: resolvedSource,
-        materializedDir: ctx.materializedDir,
-        displayName: metadata?.name,
-        description: metadata?.description,
-      }];
-      return true;
+    const message = `No SKILL.md found in source "${resolvedSource}".` + (materializeError ? ' (materialize failed, markdown fallback empty)' : '');
+    if (jsonOnly) {
+      printJson({ ok: false, error: 'SKILL_MD_NOT_FOUND', message, source: ctx.source, resolvedSource });
+    } else {
+      if (ctx.spinner) ctx.spinner.stop();
+      console.error(chalk.red(message));
     }
-
-    // Discover skills in materialized directory
-    const discovered = discoverSkillDirsWithHeuristics(ctx.materializedDir, { maxDepth: scanDepth, maxSkills });
-    if (discovered.length === 0) {
-      const message = `No SKILL.md found in source "${resolvedSource}".`;
-      if (jsonOnly) {
-        printJson({ ok: false, error: 'SKILL_MD_NOT_FOUND', message, source: ctx.source, resolvedSource });
-      } else {
-        if (ctx.spinner) ctx.spinner.stop();
-        console.error(chalk.red(message));
-      }
-      process.exitCode = 1;
-      return false;
-    }
-
-    ctx.discoveredSkills = asDiscoveredSkills(
-      discovered,
-      d => deriveChildSource(resolvedSource, d.relPath),
-      d => d.absDir,
-      d => d.absDir
-    );
-    return true;
+    process.exitCode = 1;
+    return false;
 
   } catch (error: unknown) {
     const message = error instanceof SkildError ? error.message : error instanceof Error ? error.message : String(error);

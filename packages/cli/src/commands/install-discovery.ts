@@ -110,6 +110,20 @@ export function discoverSkillDirsWithHeuristics(
     path.join('.github', 'skills'),
   ];
 
+  const results: DiscoveredSkillDir[] = [];
+  const seen = new Set<string>();
+
+  const addResults = (entries: DiscoveredSkillDir[], prefix?: string) => {
+    for (const entry of entries) {
+      const absKey = path.resolve(entry.absDir);
+      if (seen.has(absKey)) continue;
+      seen.add(absKey);
+      const relPath = prefix ? normalizeRelPath(path.join(prefix, entry.relPath)) : normalizeRelPath(entry.relPath);
+      results.push({ relPath, absDir: entry.absDir });
+    }
+  };
+
+  // Priority scan: common skills directories
   for (const rel of candidates) {
     const candidateDir = path.join(root, rel);
     if (!fs.existsSync(candidateDir)) continue;
@@ -118,12 +132,13 @@ export function discoverSkillDirsWithHeuristics(
     } catch {
       continue;
     }
-    const found = discoverSkillDirs(candidateDir, options).map(s => ({
-      relPath: normalizeRelPath(path.join(rel, s.relPath)),
-      absDir: s.absDir,
-    }));
-    if (found.length) return found;
+    const found = discoverSkillDirs(candidateDir, options);
+    addResults(found, rel);
   }
 
-  return discoverSkillDirs(root, options);
+  // Full scan to catch any directory containing SKILL.md (not limited to named skills dirs)
+  const fullScan = discoverSkillDirs(root, options);
+  addResults(fullScan);
+
+  return results;
 }

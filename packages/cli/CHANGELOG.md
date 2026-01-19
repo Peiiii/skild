@@ -1,5 +1,17 @@
 # skild
 
+## 0.10.5
+
+### Patch Changes
+
+- Improve remote skill discovery priority: always scan entire repo for any directory containing `SKILL.md` (not just known `skills/` folders) and then fall back to README parsing, so multi-skill repos without standard paths are detected first.
+
+## 0.10.4
+
+### Patch Changes
+
+- Disable download stats reporting by default during `skild install` to avoid post-install delays; keep opt-in via `SKILD_ENABLE_STATS`/`SKILD_ENABLE_DOWNLOAD_STATS`/`SKILD_ENABLE_TELEMETRY`.
+
 ## 0.10.3
 
 ### Patch Changes
