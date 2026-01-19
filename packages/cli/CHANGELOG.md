@@ -1,5 +1,13 @@
 # skild
 
+## 0.10.16
+
+### Patch Changes
+
+- Refactor the interactive tree prompt into a reusable UI module, improve long-list navigation (no wrap-around), and add a small UI selfcheck.
+- Updated dependencies
+  - @skild/core@0.10.16
+
 ## 0.10.15
 
 ### Patch Changes

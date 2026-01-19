@@ -1,5 +1,11 @@
 # @skild/core
 
+## 0.10.16
+
+### Patch Changes
+
+- No functional changes; version bump to keep npm packages in sync for the CLI release.
+
 ## 0.10.3
 
 ### Patch Changes
