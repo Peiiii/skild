@@ -731,6 +731,12 @@ async function reportDownload(
   record: { sourceType: string; canonicalName?: string; source: string; registryUrl?: string },
   registryOverride?: string
 ): Promise<void> {
+  const enableStats =
+    process.env.SKILD_ENABLE_STATS === '1' ||
+    process.env.SKILD_ENABLE_DOWNLOAD_STATS === '1' ||
+    process.env.SKILD_ENABLE_TELEMETRY === '1';
+  if (!enableStats) return;
+
   try {
     if (record.sourceType === 'local') return;
     const registryUrl = resolveRegistryUrl(record.registryUrl || registryOverride);

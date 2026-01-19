@@ -46,6 +46,8 @@ coverage/
 *.tmp
 *.temp
 .cache/
+data/skills/
+data/skills-harvest.json
 
 # OS files
 Thumbs.db
