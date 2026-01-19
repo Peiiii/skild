@@ -46,6 +46,7 @@ coverage/
 *.tmp
 *.temp
 .cache/
+data/skills-report.md
 data/skills/
 data/skills-harvest.json
 

@@ -8,6 +8,7 @@
  * - Visual hints for actions
  */
 import readline from 'readline';
+import stringWidth from 'string-width';
 import chalk from 'chalk';
 import type { Platform } from '@skild/core';
 import { PLATFORMS } from '@skild/core';
@@ -55,7 +56,7 @@ interface TreeSelectOptions<T> {
     title: string;
     subtitle: string;
     buildTree: (items: T[]) => TreeNode;
-    formatNode: (node: TreeNode, selection: SelectionInfo, isCursor: boolean) => string;
+    formatNode: (node: TreeNode, selection: SelectionInfo, isCursor: boolean, maxWidth: number) => string;
     defaultAll: boolean;
     defaultSelected?: Set<number>;
 }
@@ -243,7 +244,10 @@ function createRenderer(
     flatNodes: TreeNode[],
     selected: Set<number>,
     getCursor: () => number,
-    formatNode: (node: TreeNode, selection: SelectionInfo, isCursor: boolean) => string
+    getViewOffset: () => number,
+    viewHeight: number,
+    maxWidth: number,
+    formatNode: (node: TreeNode, selection: SelectionInfo, isCursor: boolean, maxWidth: number) => string
 ): TerminalRenderer {
     function renderContent(): string[] {
         const lines: string[] = [];
@@ -252,19 +256,24 @@ function createRenderer(
         lines.push(''); // blank line
 
         const cursor = getCursor();
-        for (let i = 0; i < flatNodes.length; i++) {
+        const offset = getViewOffset();
+        const end = Math.min(flatNodes.length, offset + viewHeight);
+
+        for (let i = offset; i < end; i++) {
             const node = flatNodes[i]!;
             const selection = getNodeSelection(node, selected);
-            lines.push(formatNode(node, selection, i === cursor));
+            lines.push(formatNode(node, selection, i === cursor, maxWidth));
         }
 
-        lines.push(''); // trailing blank
+        lines.push(''); // blank line
+        lines.push(chalk.dim(`Space toggle • Enter confirm • A select all • Ctrl+C cancel`));
+        lines.push(chalk.dim(`Showing ${end - offset}/${flatNodes.length} (offset ${offset + 1})`));
         return lines;
     }
 
     function getLineCount(): number {
-        // title + subtitle + blank + nodes + blank
-        return 4 + flatNodes.length;
+        // title + subtitle + blank + visible nodes + blank + footer(2)
+        return 6 + Math.min(viewHeight, flatNodes.length);
     }
 
     return { renderContent, getLineCount };
@@ -278,8 +287,8 @@ function writeToTerminal(stdout: NodeJS.WriteStream, lines: string[]): void {
 
 function clearAndRerender(stdout: NodeJS.WriteStream, lineCount: number, lines: string[]): void {
     stdout.write('\x1B[?25l'); // Hide cursor
-    stdout.write(`\x1B[${lineCount}A`); // Move up
-    stdout.write('\x1B[0J'); // Clear to end
+    stdout.write('\x1B[H'); // Move to top-left
+    stdout.write('\x1B[2J'); // Clear entire screen
     writeToTerminal(stdout, lines);
 }
 
@@ -297,6 +306,12 @@ async function interactiveTreeSelect<T>(
     const flatNodes = flattenTree(root);
     if (flatNodes.length === 0) return null;
 
+    const stdout = process.stdout;
+    const cols = typeof stdout.columns === 'number' ? stdout.columns : 120;
+    const rows = typeof stdout.rows === 'number' ? stdout.rows : 24;
+    const viewHeight = Math.max(5, rows - 5); // leave space for title/subtitle/footer
+    const maxWidth = Math.max(40, cols - 2);
+
     // Initialize selection
     const selected = new Set<number>();
     if (defaultSelected) {
@@ -306,13 +321,15 @@ async function interactiveTreeSelect<T>(
     }
 
     let cursor = 0;
+    let viewOffset = 0;
     const stdin = process.stdin;
-    const stdout = process.stdout;
 
     // Non-interactive fallback
     if (!stdin.isTTY || !stdout.isTTY) {
         return defaultAll ? Array.from(selected) : null;
     }
+
+    const useAltScreen = true;
 
     // Setup raw mode
     const wasRaw = Boolean((stdin as any).isRaw);
@@ -320,15 +337,32 @@ async function interactiveTreeSelect<T>(
     stdin.resume();
     readline.emitKeypressEvents(stdin);
 
-    // Create renderer
-    const renderer = createRenderer(title, subtitle, flatNodes, selected, () => cursor, formatNode);
+    // Enter alternate screen buffer to avoid repaint artifacts affecting main terminal
+    if (useAltScreen) {
+        stdout.write('\x1B[?1049h'); // Switch to alt screen
+        stdout.write('\x1B[H'); // Move to top-left
+        stdout.write('\x1B[2J'); // Clear
+    }
 
-    // Initial render
-    writeToTerminal(stdout, renderer.renderContent());
+    // Create renderer
+    const renderer = createRenderer(
+        title,
+        subtitle,
+        flatNodes,
+        selected,
+        () => cursor,
+        () => viewOffset,
+        viewHeight,
+        maxWidth,
+        (node, selection, isCursor) => formatNode(node, selection, isCursor, maxWidth)
+    );
+
+    // Initial render (clear to ensure we start at the top of a clean buffer)
+    clearAndRerender(stdout, renderer.getLineCount(), renderer.renderContent());
 
     return new Promise<number[] | null>((resolve) => {
         function cleanup(clear = false) {
-            if (clear) {
+            if (clear && !useAltScreen) {
                 const lineCount = renderer.getLineCount();
                 stdout.write(`\x1B[${lineCount}A`); // Move up
                 stdout.write('\x1B[0J'); // Clear to end
@@ -337,6 +371,9 @@ async function interactiveTreeSelect<T>(
             stdin.pause();
             stdin.removeListener('keypress', onKeypress);
             stdout.write('\x1B[?25h'); // Show cursor
+            if (useAltScreen) {
+                stdout.write('\x1B[?1049l'); // Exit alt screen (restores previous content)
+            }
         }
 
         function rerender() {
@@ -345,10 +382,11 @@ async function interactiveTreeSelect<T>(
 
         function toggleNode(node: TreeNode) {
             const { state } = getNodeSelection(node, selected);
-            if (state === 'all') {
-                for (const idx of node.leafIndices) selected.delete(idx);
-            } else {
+            const shouldSelectAll = state !== 'all';
+            if (shouldSelectAll) {
                 for (const idx of node.leafIndices) selected.add(idx);
+            } else {
+                for (const idx of node.leafIndices) selected.delete(idx);
             }
         }
 
@@ -375,12 +413,14 @@ async function interactiveTreeSelect<T>(
 
             if (key.name === 'up') {
                 cursor = (cursor - 1 + flatNodes.length) % flatNodes.length;
+                if (cursor < viewOffset) viewOffset = cursor;
                 rerender();
                 return;
             }
 
             if (key.name === 'down') {
                 cursor = (cursor + 1) % flatNodes.length;
+                if (cursor >= viewOffset + viewHeight) viewOffset = cursor - viewHeight + 1;
                 rerender();
                 return;
             }
@@ -416,11 +456,47 @@ const PLATFORM_DISPLAY: Record<Platform, string> = {
     windsurf: 'Windsurf',
 };
 
+function truncateVisible(value: string, maxLen: number): string {
+    let width = 0;
+    let result = '';
+    for (const ch of value) {
+        const w = stringWidth(ch);
+        if (width + w > maxLen - 1) {
+            result += '…';
+            return result;
+        }
+        width += w;
+        result += ch;
+    }
+    return result;
+}
+
+function truncateMiddleVisible(value: string, maxLen: number): string {
+    if (stringWidth(value) <= maxLen) return value;
+    if (maxLen <= 1) return '…';
+
+    const leftMax = Math.max(1, Math.floor((maxLen - 1) / 2));
+    const rightMax = Math.max(1, maxLen - 1 - leftMax);
+
+    const left = truncateVisible(value, leftMax).replace(/…$/, '');
+    let width = 0;
+    let right = '';
+    for (let i = value.length - 1; i >= 0; i--) {
+        const ch = value[i]!;
+        const w = stringWidth(ch);
+        if (width + w > rightMax) break;
+        width += w;
+        right = ch + right;
+    }
+    if (!right) right = value[value.length - 1] || '';
+    return `${left}…${right}`;
+}
+
 function formatTreeNode(
     node: TreeNode,
     selection: SelectionInfo,
     isCursor: boolean,
-    options: { suffix?: string } = {}
+    options: { suffixText?: string; hintText?: string; maxWidth?: number } = {}
 ): string {
     const { state, selectedCount } = selection;
     const totalCount = node.leafIndices.length;
@@ -429,7 +505,8 @@ function formatTreeNode(
     const checkbox = state === 'all' ? chalk.green('●')
         : state === 'partial' ? chalk.yellow('◐')
             : chalk.dim('○');
-    const name = isCursor ? chalk.cyan.underline(node.name) : node.name;
+    const baseName = node.name || '';
+    let name = isCursor ? chalk.cyan.underline(baseName) : baseName;
     const cursorMark = isCursor ? chalk.cyan('› ') : '  ';
 
     // Formatted count: e.g. (16/16) or (1/16)
@@ -438,17 +515,47 @@ function formatTreeNode(
         count = chalk.dim(` (${selectedCount}/${totalCount})`);
     }
 
-    const suffix = options.suffix || '';
+    let rawSuffix = options.suffixText || '';
+    let rawHint = isCursor ? (options.hintText || '') : '';
+    let hint = rawHint ? chalk.dim(rawHint) : '';
+    let suffix = rawSuffix ? chalk.dim(rawSuffix) : '';
 
-    // Action hint
-    let hint = '';
-    if (isCursor && totalCount > 0) {
-        hint = state === 'all'
-            ? chalk.dim(' ← Space to deselect')
-            : chalk.dim(' ← Space to select');
+    const prefix = `${cursorMark}${indent}${checkbox} `;
+    const maxWidth = options.maxWidth;
+
+    if (maxWidth) {
+        const fixedWidth = stringWidth(prefix) + stringWidth(count);
+
+        const fits = (n: string, s: string, h: string) => {
+            const nStyled = isCursor ? chalk.cyan.underline(n) : n;
+            const sStyled = s ? chalk.dim(s) : '';
+            const hStyled = h ? chalk.dim(h) : '';
+            return stringWidth(`${prefix}${nStyled}${count}${sStyled}${hStyled}`) <= maxWidth;
+        };
+
+        // 1) Truncate suffix (description/extra info) first
+        if (rawSuffix && !fits(baseName, rawSuffix, rawHint)) {
+            const available = Math.max(1, maxWidth - fixedWidth - stringWidth(baseName) - stringWidth(rawHint));
+            rawSuffix = truncateVisible(rawSuffix, available);
+            suffix = chalk.dim(rawSuffix);
+        }
+
+        // 2) Truncate hint next (keep it present)
+        if (rawHint && !fits(baseName, rawSuffix, rawHint)) {
+            const available = Math.max(1, maxWidth - fixedWidth - stringWidth(baseName) - stringWidth(rawSuffix));
+            rawHint = truncateVisible(rawHint, available);
+            hint = chalk.dim(rawHint);
+        }
+
+        // 3) Finally truncate name (middle ellipsis) if still too wide
+        if (!fits(baseName, rawSuffix, rawHint)) {
+            const available = Math.max(1, maxWidth - fixedWidth - stringWidth(rawSuffix) - stringWidth(rawHint));
+            const truncated = truncateMiddleVisible(baseName, available);
+            name = isCursor ? chalk.cyan.underline(truncated) : truncated;
+        }
     }
 
-    return `${cursorMark}${indent}${checkbox} ${name}${count}${suffix}${hint}`;
+    return `${prefix}${name}${count}${suffix}${hint}`;
 }
 
 function truncateDescription(value: string, maxLen: number): string {
@@ -463,11 +570,21 @@ function getSkillDescriptionSuffix(skills: SkillChoice[], node: TreeNode, isCurs
     if (!skill?.description) return '';
     const description = truncateDescription(skill.description, 72);
     if (!description) return '';
-    return chalk.dim(` - ${description}`);
+    return ` - ${description}`;
 }
 
 function getPlatformDisplay(platform: Platform): string {
     return PLATFORM_DISPLAY[platform] || platform;
+}
+
+function buildSpaceHint(node: TreeNode, selection: SelectionInfo): string {
+    const totalCount = node.leafIndices.length;
+    if (totalCount <= 0) return '';
+    const isLeaf = Boolean(node.isLeaf && node.leafIndices.length === 1);
+    if (selection.state === 'all') {
+        return isLeaf ? ' (Space: unselect)' : ' (Space: unselect all)';
+    }
+    return isLeaf ? ' (Space: select)' : ' (Space: select all)';
 }
 
 // ============================================================================
@@ -482,44 +599,40 @@ export async function promptSkillsInteractive(
 
     const targetPlatforms = options.targetPlatforms || [];
     const hasInstalledCheck = targetPlatforms.length > 0;
-
-    // Calculate default selection
     const defaultSelected = new Set<number>();
+
     for (let i = 0; i < skills.length; i++) {
         const skill = skills[i]!;
         const installedOnTargets = skill.installedPlatforms?.filter(p => targetPlatforms.includes(p)) || [];
         const isFullyInstalled = hasInstalledCheck && installedOnTargets.length === targetPlatforms.length;
-
-        if (options.defaultAll !== false && !isFullyInstalled) {
-            defaultSelected.add(i);
-        }
+        if (options.defaultAll !== false && !isFullyInstalled) defaultSelected.add(i);
     }
 
     const selectedIndices = await interactiveTreeSelect(skills, {
         title: 'Select skills to install',
         subtitle: '↑↓ navigate • Space toggle • Enter confirm',
         buildTree: buildSkillTree,
-        formatNode: (node, selection, isCursor) => {
+        formatNode: (node, selection, isCursor, maxWidth) => {
             // Check installed status for leaf nodes
-            let installedSuffix = '';
+            let installedSuffixText = '';
             if (node.isLeaf && node.leafIndices.length === 1) {
                 const skill = skills[node.leafIndices[0]!];
                 if (skill?.installedPlatforms?.length) {
                     if (skill.installedPlatforms.length === targetPlatforms.length && targetPlatforms.length > 0) {
-                        installedSuffix = chalk.dim(' [installed]');
+                        installedSuffixText = ' [installed]';
                     } else if (skill.installedPlatforms.length > 0) {
-                        installedSuffix = chalk.dim(` [installed on ${skill.installedPlatforms.length}]`);
+                        installedSuffixText = ` [installed on ${skill.installedPlatforms.length}]`;
                     }
                 }
             }
 
             const descriptionSuffix = getSkillDescriptionSuffix(skills, node, isCursor);
-            const formatted = formatTreeNode(node, selection, isCursor, { suffix: `${installedSuffix}${descriptionSuffix}` });
+            const formatted = formatTreeNode(node, selection, isCursor, {
+                suffixText: `${installedSuffixText}${descriptionSuffix}`,
+                hintText: buildSpaceHint(node, selection),
+                maxWidth
+            });
 
-            // Override hint for installed items
-            if (isCursor && installedSuffix && selection.state !== 'all') {
-                return formatted.replace('← Space to select', '← Space to reinstall');
-            }
             return formatted;
         },
         defaultAll: false,
@@ -543,22 +656,22 @@ export async function promptSyncTargetsInteractive(
         title: 'Select sync targets',
         subtitle: '↑↓ navigate • Space toggle • Enter confirm',
         buildTree: buildSyncTree,
-        formatNode: (node, selection, isCursor) => {
+        formatNode: (node, selection, isCursor, maxWidth) => {
             // Platform node label
             if (!node.isLeaf && node.depth === 2) {
                 const display = getPlatformDisplay(node.name as Platform);
-                return formatTreeNode({ ...node, name: display }, selection, isCursor);
+                return formatTreeNode({ ...node, name: display }, selection, isCursor, { hintText: buildSpaceHint(node, selection), maxWidth });
             }
 
             // Leaf node (skill)
             if (node.isLeaf && node.leafIndices.length === 1) {
                 const choice = choices[node.leafIndices[0]!]!;
                 const platformLabel = getPlatformDisplay(choice.sourcePlatform);
-                const suffix = chalk.dim(` [from ${platformLabel} · ${choice.sourceTypeLabel}]`);
-                return formatTreeNode(node, selection, isCursor, { suffix });
+                const suffixText = ` [from ${platformLabel} · ${choice.sourceTypeLabel}]`;
+                return formatTreeNode(node, selection, isCursor, { suffixText, hintText: buildSpaceHint(node, selection), maxWidth });
             }
 
-            return formatTreeNode(node, selection, isCursor);
+            return formatTreeNode(node, selection, isCursor, { hintText: buildSpaceHint(node, selection), maxWidth });
         },
         defaultAll: true,
     });
@@ -582,9 +695,9 @@ export async function promptSkillsTreeInteractive(
         title: 'Select skills from markdown',
         subtitle: '↑↓ navigate • Space toggle • Enter confirm',
         buildTree: () => buildTreeFromSkillNodes(tree, skills.length),
-        formatNode: (node, selection, isCursor) => {
+        formatNode: (node, selection, isCursor, maxWidth) => {
             const descriptionSuffix = getSkillDescriptionSuffix(skills, node, isCursor);
-            return formatTreeNode(node, selection, isCursor, { suffix: descriptionSuffix });
+            return formatTreeNode(node, selection, isCursor, { suffixText: descriptionSuffix, hintText: buildSpaceHint(node, selection), maxWidth });
         },
         defaultAll: options.defaultAll !== false,
     });
@@ -607,13 +720,13 @@ export async function promptPlatformsInteractive(
         title: 'Select target platforms',
         subtitle: '↑↓ navigate • Space toggle • Enter confirm',
         buildTree: buildPlatformTree,
-        formatNode: (node, selection, isCursor) => {
+        formatNode: (node, selection, isCursor, maxWidth) => {
             const displayName = node.name === 'All Platforms'
                 ? node.name
                 : PLATFORM_DISPLAY[node.name as Platform] || node.name;
 
             const modifiedNode = { ...node, name: displayName };
-            return formatTreeNode(modifiedNode, selection, isCursor);
+            return formatTreeNode(modifiedNode, selection, isCursor, { hintText: buildSpaceHint(node, selection), maxWidth });
         },
         defaultAll: options.defaultAll !== false,
     });

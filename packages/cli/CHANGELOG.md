@@ -1,5 +1,59 @@
 # skild
 
+## 0.10.14
+
+### Patch Changes
+
+- Improve interactive tree selection UX: show precise Space hints for leaf vs folder nodes and adaptively truncate description/hint before truncating the name, keeping long paths readable without wrapping.
+
+## 0.10.13
+
+### Patch Changes
+
+- Add per-line “(Space to toggle)” hint on focused items and make group nodes always flip all descendants (partial → all → none), keeping tree selection predictable even with long paths.
+
+## 0.10.12
+
+### Patch Changes
+
+- Trim tree selection lines to terminal width: keep folder-style tree, move hints to footer, truncate long names instead of dropping descriptions so controls stay visible without wrapping.
+
+## 0.10.11
+
+### Patch Changes
+
+- Trim tree selection lines to terminal width (drop per-line hints, truncate long names/suffixes) so long skill paths don’t wrap; keeps folder-style tree with toggle-all nodes.
+
+## 0.10.10
+
+### Patch Changes
+
+- Restore tree-style skill selection (folder-like nodes with toggle all/none) using improved viewport scrolling to avoid duplication/jumping on long lists; removes flat inquirer list regression.
+
+## 0.10.9
+
+### Patch Changes
+
+- Restore tree-structured skill selection using inquirer with indented choices (paged) so nested paths remain visible while avoiding flicker/duplication on long lists.
+
+## 0.10.8
+
+### Patch Changes
+
+- Switch install candidate selection to inquirer checkboxes (with paging) to eliminate flicker/duplication on long lists and keep focus behavior stable.
+
+## 0.10.7
+
+### Patch Changes
+
+- Render interactive selection in an alternate screen buffer (1049h/l) to avoid flicker and duplicated lines when scrolling long lists; main terminal content is preserved on exit.
+
+## 0.10.6
+
+### Patch Changes
+
+- Fix interactive install selection rendering for long lists by clearing the full screen before redraw, preventing duplicated lines when scrolling.
+
 ## 0.10.5
 
 ### Patch Changes
