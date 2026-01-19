@@ -1,5 +1,11 @@
 # skild
 
+## 0.10.15
+
+### Patch Changes
+
+- Fix interactive prompt flicker and missing output by deferring selection logs until the UI exits and explicitly flushing queued logs before starting installs.
+
 ## 0.10.14
 
 ### Patch Changes
