@@ -1,6 +1,6 @@
 {
     "name": "skild",
-    "version": "0.10.0",
+    "version": "0.10.1",
     "description": "The npm for Agent Skills — Discover, install, manage, and publish AI Agent Skills with ease.",
     "type": "module",
     "main": "./dist/index.js",
@@ -12,7 +12,7 @@
         "dev": "tsup src/index.ts --format esm --watch",
         "prepack": "pnpm build",
         "prepublishOnly": "pnpm build",
-        "start": "node dist/index.js",
+        "start": "pnpm exec node dist/index.js",
         "typecheck": "pnpm -C ../core build && tsc -p tsconfig.json --noEmit"
     },
     "files": [

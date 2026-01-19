@@ -28,7 +28,7 @@
         "lint": "pnpm -r --if-present lint",
         "test": "pnpm -r --if-present test",
         "clean": "rm -rf apps/*/dist workers/*/dist packages/*/dist node_modules/.cache",
-        "cli": "pnpm -s --filter ./packages/core build && pnpm -s --filter ./packages/cli build && node packages/cli/dist/index.js",
+        "cli": "pnpm -s --filter ./packages/core build && pnpm -s --filter ./packages/cli build && pnpm --filter ./packages/cli start",
         "changeset": "changeset",
         "release:check": "pnpm build && pnpm lint && pnpm typecheck",
         "release:version": "pnpm changeset version",
