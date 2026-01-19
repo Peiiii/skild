@@ -188,10 +188,59 @@ program
         await sync(skills, options);
     });
 
-// Default action: show help
+// Default action: show premium help
 program.action(() => {
-    console.log(chalk.bold('\n🛡️ skild — Get your agents skilled.\n'));
-    program.outputHelp();
+    const dim = chalk.dim;
+    const cyan = chalk.cyan;
+    const bold = chalk.bold;
+    const green = chalk.green;
+
+    // ASCII Art Logo
+    console.log('');
+    console.log(cyan('   ███████╗██╗  ██╗██╗██╗     ██████╗ '));
+    console.log(cyan('   ██╔════╝██║ ██╔╝██║██║     ██╔══██╗'));
+    console.log(cyan('   ███████╗█████╔╝ ██║██║     ██║  ██║'));
+    console.log(cyan('   ╚════██║██╔═██╗ ██║██║     ██║  ██║'));
+    console.log(cyan('   ███████║██║  ██╗██║███████╗██████╔╝'));
+    console.log(cyan('   ╚══════╝╚═╝  ╚═╝╚═╝╚══════╝╚═════╝ '));
+    console.log('');
+    console.log(dim(`   v${version}`) + '  ' + dim('The npm for Agent Skills'));
+    console.log('');
+
+    // Quick Start
+    console.log(bold('  Quick Start'));
+    console.log(dim('  ─────────────────────────────────────────────────────────────'));
+    console.log(`    ${dim('$')} ${cyan('skild install anthropics/skills')}   ${dim('Install Anthropic\'s official skills')}`);
+    console.log(`    ${dim('$')} ${cyan('skild list')}                        ${dim('View installed skills')}`);
+    console.log(`    ${dim('$')} ${cyan('skild sync')}                        ${dim('Sync skills across platforms')}`);
+    console.log('');
+
+    // Commands grouped
+    console.log(bold('  Commands'));
+    console.log(dim('  ─────────────────────────────────────────────────────────────'));
+    console.log(`    ${green('install')}   ${dim('i')}    Install skills from GitHub, registry, or local`);
+    console.log(`    ${green('list')}      ${dim('ls')}   List all installed skills`);
+    console.log(`    ${green('info')}            Show details about an installed skill`);
+    console.log(`    ${green('uninstall')} ${dim('rm')}   Uninstall a skill`);
+    console.log(`    ${green('update')}    ${dim('up')}   Update installed skills`);
+    console.log(`    ${green('sync')}            Sync skills across platforms`);
+    console.log(`    ${green('search')}          Search skills in the registry`);
+    console.log('');
+    console.log(`    ${green('init')}            Create a new skill project`);
+    console.log(`    ${green('validate')}  ${dim('v')}    Validate a skill folder`);
+    console.log(`    ${green('publish')}         Publish a skill to the registry`);
+    console.log('');
+    console.log(`    ${green('login')}           Login to the registry`);
+    console.log(`    ${green('logout')}          Remove stored credentials`);
+    console.log(`    ${green('whoami')}          Show current identity`);
+    console.log(`    ${green('signup')}          Create a publisher account`);
+    console.log('');
+
+    // Footer
+    console.log(dim('  ─────────────────────────────────────────────────────────────'));
+    console.log(`    Run ${cyan('skild <command> --help')} for detailed usage.`);
+    console.log(`    Docs: ${cyan('https://skild.sh/docs')}`);
+    console.log('');
 });
 
 // pnpm sometimes forwards an extra "--" when passing args to scripts.

@@ -1,5 +1,11 @@
 # @skild/core
 
+## 0.10.2
+
+### Patch Changes
+
+- improve list display
+
 ## 0.10.1
 
 ### Patch Changes
