@@ -49,6 +49,7 @@ coverage/
 data/skills-report.md
 data/skills/
 data/skills-harvest.json
+data/repo-index/
 
 # OS files
 Thumbs.db

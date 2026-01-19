@@ -23,15 +23,22 @@
 # 安装 skild
 npm i -g skild
 
-# 安装一个 Skill
+# 从 GitHub 仓库安装所有 Skills
+skild install anthropics/skills
+
+# 从 GitHub 仓库安装一个 Skill
 skild install anthropics/skills/skills/pdf
 
 # 列出已安装的 Skills
 skild list
 ```
 
-搞定！你的 Agent 现在拥有了 `pdf` 技能。
+或者使用npx免安装使用，例如
 
+```bash
+npx skild install anthropics/skills
+```
+搞定！你的 Agent 现在拥有了 `pdf` 技能。
 ## 📖 什么是 Agent Skills？
 
 [Agent Skills](https://agentskills.io) 是 Anthropic 发布的开放标准，用于为 AI Agent 扩展专业知识和工作流。**skild** 是这些 Skills 的包管理器 — 可以理解为 AI Agent 的 npm。

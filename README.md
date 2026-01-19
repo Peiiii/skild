@@ -19,15 +19,22 @@ English | **[简体中文](./README.zh-CN.md)**
 
 ## 🚀 Quick Start
 
-```bash
 # Install skild
 npm i -g skild
 
-# Install a Skill
+# Install all Skills from  gitHub repo
+skild install anthropics/skills
+
+# Install a Skill from github
 skild install anthropics/skills/skills/pdf
 
-# List installed Skills
+# List installed Skills·
 skild list
+```
+
+or use npx to install without installing, for example:
+```bash
+npx skild install anthropics/skills
 ```
 
 That's it. Your agent now has the `pdf` skill.
