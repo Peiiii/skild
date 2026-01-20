@@ -3,7 +3,7 @@ import { detectCatalogRisk } from "./catalog-risk.js";
 import { parseSkillFrontmatter } from "./skill-frontmatter.js";
 import { buildGithubUrl, normalizeRepo } from "./github-utils.js";
 import { fetchRepoInfo } from "./github-metrics.js";
-import { upsertCatalogRepo, upsertCatalogSkill, upsertCatalogSkillSource } from "./catalog-db.js";
+import { getCatalogRepo, upsertCatalogRepo, upsertCatalogSkill, upsertCatalogSkillSource } from "./catalog-db.js";
 import { writeCatalogSnapshot } from "./catalog-storage.js";
 
 export type RepoIndexEntry = {
@@ -55,6 +55,23 @@ function parseEnvInt(value: string | undefined, fallback: number, min: number, m
 
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function parseIsoMs(value: string | null | undefined): number | null {
+  if (!value) return null;
+  const ms = Date.parse(value);
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function parseJsonArray(input: string | null | undefined): string[] {
+  if (!input) return [];
+  try {
+    const parsed = JSON.parse(input);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(v => typeof v === "string");
+  } catch {
+    return [];
+  }
 }
 
 function decodeBase64(content: string): string {
@@ -302,10 +319,71 @@ async function saveRepoSkillCursor(
     .run();
 }
 
+async function loadRepoScanState(env: Env, repo: string): Promise<{ hasState: boolean; cursorOffset: number; status: string | null }> {
+  const id = `repo:${repo}`;
+  const row = await env.DB.prepare("SELECT cursor_offset, status FROM catalog_repo_scan_state WHERE id = ?1 LIMIT 1")
+    .bind(id)
+    .first<{ cursor_offset: number | null; status: string | null }>();
+  return {
+    hasState: Boolean(row),
+    cursorOffset: Math.max(row?.cursor_offset ?? 0, 0),
+    status: row?.status ?? null,
+  };
+}
+
 async function scanRepo(env: Env, entry: RepoIndexEntry): Promise<RepoScanResult> {
   const repo = normalizeRepo(entry.repo);
   const now = new Date().toISOString();
   const errors: Array<{ repo: string; error: string }> = [];
+
+  const existing = await getCatalogRepo(env, repo);
+  const repoScanState = await loadRepoScanState(env, repo);
+  const skipUnchanged = (env.CATALOG_SKIP_UNCHANGED || "").trim().toLowerCase() !== "false";
+  const rescanTtlHours = parseEnvInt(env.CATALOG_RESCAN_TTL_HOURS, 168, 0, 8760);
+  const entryUpdatedMs = parseIsoMs(entry.pushed_at ?? entry.updated_at);
+  const existingUpdatedMs = parseIsoMs(existing?.pushed_at ?? existing?.updated_at);
+  const lastScannedMs = parseIsoMs(existing?.last_scanned_at);
+  const ttlMs = rescanTtlHours > 0 ? rescanTtlHours * 3600 * 1000 : 0;
+  const canSkip =
+    skipUnchanged &&
+    rescanTtlHours > 0 &&
+    existing &&
+    repoScanState.hasState &&
+    repoScanState.cursorOffset === 0 &&
+    repoScanState.status !== "partial" &&
+    repoScanState.status !== "error" &&
+    entryUpdatedMs !== null &&
+    existingUpdatedMs !== null &&
+    lastScannedMs !== null &&
+    Date.now() - lastScannedMs < ttlMs &&
+    entryUpdatedMs <= existingUpdatedMs;
+
+  if (canSkip && existing) {
+    const topics = entry.topics && entry.topics.length > 0 ? entry.topics : parseJsonArray(existing.topics_json);
+    await upsertCatalogRepo(env, {
+      repo,
+      sourceType: entry.source_type || existing.source_type || "github",
+      sourceUrl: entry.source_url || existing.source_url || `https://github.com/${repo}`,
+      defaultBranch: entry.default_branch || existing.default_branch,
+      description: entry.description ?? existing.description,
+      homepage: entry.homepage ?? existing.homepage,
+      topics,
+      licenseSpdx: entry.license_spdx ?? existing.license_spdx,
+      starsTotal: entry.stars_total ?? existing.stars_total,
+      forksTotal: entry.forks_total ?? existing.forks_total,
+      updatedAt: entry.updated_at ?? existing.updated_at,
+      pushedAt: entry.pushed_at ?? existing.pushed_at,
+      createdAt: entry.created_at ?? existing.created_at,
+      lastSeen: now,
+      lastScannedAt: existing.last_scanned_at,
+      scanStatus: "skipped",
+      scanError: null,
+      isSkillRepo: existing.is_skill_repo === 1,
+      hasRisk: existing.has_risk === 1,
+      riskEvidence: existing.risk_evidence,
+    });
+    return { repo, skills: 0, errors };
+  }
 
   let repoInfo = null;
   const shouldEnrich = (env.CATALOG_ENRICH_META || "").trim().toLowerCase() === "true";
@@ -443,6 +521,7 @@ async function scanRepo(env: Env, entry: RepoIndexEntry): Promise<RepoScanResult
     const name = frontmatter.name;
     const descriptionLine = frontmatter.description;
     const tags = normalizeTags(frontmatter.tags ?? []);
+    const category = null;
 
     const risk = detectCatalogRisk([skillMd, readmeMd]);
     if (risk.hasRisk) {
@@ -479,6 +558,7 @@ async function scanRepo(env: Env, entry: RepoIndexEntry): Promise<RepoScanResult
           description: descriptionLine,
           tags,
           skillset: frontmatter?.skillset ?? null,
+          category,
         },
         scan: {
           discoveredAt: now,
@@ -501,6 +581,7 @@ async function scanRepo(env: Env, entry: RepoIndexEntry): Promise<RepoScanResult
       name,
       description: descriptionLine,
       tags,
+      category,
       sourceRef: defaultBranch,
       sourceUrl,
       snapshotKey,

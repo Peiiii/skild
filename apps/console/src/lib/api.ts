@@ -23,7 +23,8 @@ import type {
   LeaderboardResponse,
   CatalogSkillsListResponse,
   CatalogSkillDetailResponse,
-  CatalogRepoDetailResponse
+  CatalogRepoDetailResponse,
+  CatalogCategoriesResponse
 } from './api-types';
 
 function newApiUrl(pathname: string): URL {
@@ -249,7 +250,7 @@ export async function listCatalogSkills(
   query: string,
   cursor?: string | null,
   limit = 20,
-  options?: { sort?: string; risk?: boolean | null; installable?: boolean | null; usageArtifact?: boolean | null }
+  options?: { sort?: string; risk?: boolean | null; installable?: boolean | null; usageArtifact?: boolean | null; category?: string | null }
 ): Promise<CatalogSkillsListResponse> {
   const url = newApiUrl('/catalog/skills');
   if (query.trim()) url.searchParams.set('q', query.trim());
@@ -258,8 +259,14 @@ export async function listCatalogSkills(
   if (options?.risk != null) url.searchParams.set('risk', options.risk ? '1' : '0');
   if (options?.installable != null) url.searchParams.set('installable', options.installable ? '1' : '0');
   if (options?.usageArtifact != null) url.searchParams.set('usage', options.usageArtifact ? '1' : '0');
+  if (options?.category) url.searchParams.set('category', options.category);
   url.searchParams.set('limit', String(limit));
   return fetchJson<CatalogSkillsListResponse>(url.toString(), {}, 10_000);
+}
+
+export async function listCatalogCategories(): Promise<CatalogCategoriesResponse> {
+  const url = newApiUrl('/catalog/categories');
+  return fetchJson<CatalogCategoriesResponse>(url.toString(), {}, 10_000);
 }
 
 export async function getCatalogSkill(id: string): Promise<CatalogSkillDetailResponse> {

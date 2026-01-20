@@ -1,5 +1,6 @@
 import type { Env } from "./env.js";
 import { buildLinkedInstall } from "./discover-items.js";
+import { formatCategoryLabel, isDefaultCategoryId, listCatalogCategoryDefinitions } from "./catalog-category.js";
 
 export type CatalogSort = "updated" | "stars";
 
@@ -9,6 +10,7 @@ export interface CatalogSkillRow {
   path: string;
   name: string | null;
   description: string | null;
+  category: string | null;
   tags_json: string;
   source_ref: string | null;
   source_url: string | null;
@@ -59,6 +61,7 @@ export interface CatalogSkill {
   path: string;
   name: string;
   description: string;
+  category: string | null;
   tags: string[];
   topics: string[];
   sourceRef: string | null;
@@ -100,6 +103,48 @@ export interface CatalogSkillsPage {
   rows: CatalogSkillRow[];
   nextCursor: string | null;
   total: number;
+}
+
+export interface CatalogCategoryStatsRow {
+  category: string | null;
+  total: number;
+  installable_total: number;
+  risk_total: number;
+}
+
+export interface CatalogCategoryRow {
+  id: string;
+  label: string;
+  description: string | null;
+  source: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CatalogCategoryOption {
+  id: string;
+  label: string;
+  description: string;
+}
+
+export interface CatalogCategoryItem {
+  id: string;
+  label: string;
+  description: string;
+  total: number;
+  installableTotal: number;
+  riskTotal: number;
+  source: string | null;
+}
+
+export interface CatalogSkillCategoryCandidate {
+  id: string;
+  repo: string;
+  path: string;
+  name: string | null;
+  description: string | null;
+  tags_json: string | null;
+  topics_json: string | null;
 }
 
 export interface CatalogSkillDetail {
@@ -173,6 +218,7 @@ export function toCatalogSkill(row: CatalogSkillRow): CatalogSkill {
     path: safePath,
     name,
     description,
+    category: row.category ?? null,
     tags,
     topics,
     sourceRef: row.source_ref ?? null,
@@ -225,6 +271,7 @@ export async function listCatalogSkills(
     usageArtifact?: boolean | null;
     repo?: string | null;
     sourceType?: string | null;
+    category?: string | null;
   },
 ): Promise<CatalogSkillsPage> {
   const q = (input.q ?? "").trim().toLowerCase();
@@ -236,6 +283,7 @@ export async function listCatalogSkills(
   const usageArtifact = input.usageArtifact ?? null;
   const repoFilter = (input.repo ?? "").trim();
   const sourceType = (input.sourceType ?? "").trim().toLowerCase();
+  const categoryFilter = (input.category ?? "").trim().toLowerCase();
 
   const clauses: string[] = [];
   const params: Array<string | number> = [];
@@ -269,6 +317,16 @@ export async function listCatalogSkills(
   if (sourceType) {
     clauses.push("LOWER(r.source_type) = ?");
     params.push(sourceType);
+  }
+
+  if (categoryFilter) {
+    if (categoryFilter === "other") {
+      clauses.push("(s.category = ? OR s.category IS NULL OR s.category = '')");
+      params.push(categoryFilter);
+    } else {
+      clauses.push("s.category = ?");
+      params.push(categoryFilter);
+    }
   }
 
   let cursorClause = "";
@@ -335,6 +393,205 @@ export async function listCatalogRepoSkills(env: Env, repo: string, limit = 200)
     .bind(repo, limit)
     .all<CatalogSkillRow>();
   return rows.results ?? [];
+}
+
+export async function listCatalogCategoryStats(env: Env): Promise<CatalogCategoryStatsRow[]> {
+  const rows = await env.DB.prepare(
+    "SELECT COALESCE(NULLIF(category, ''), 'other') as category,\n" +
+      "COUNT(1) as total,\n" +
+      "SUM(CASE WHEN installable = 1 THEN 1 ELSE 0 END) as installable_total,\n" +
+      "SUM(CASE WHEN has_risk = 1 THEN 1 ELSE 0 END) as risk_total\n" +
+      "FROM catalog_skills\n" +
+      "GROUP BY COALESCE(NULLIF(category, ''), 'other')",
+  ).all<CatalogCategoryStatsRow>();
+  return rows.results ?? [];
+}
+
+export async function upsertCatalogCategory(
+  env: Env,
+  input: {
+    id: string;
+    label: string;
+    description: string | null;
+    source: string | null;
+  },
+): Promise<void> {
+  const now = new Date().toISOString();
+  await env.DB.prepare(
+    "INSERT INTO catalog_categories (id, label, description, source, created_at, updated_at)\n" +
+      "VALUES (?1, ?2, ?3, ?4, ?5, ?6)\n" +
+      "ON CONFLICT(id) DO UPDATE SET\n" +
+      "label = CASE\n" +
+      "  WHEN excluded.source = 'system' THEN excluded.label\n" +
+      "  WHEN catalog_categories.label IS NULL OR catalog_categories.label = '' THEN excluded.label\n" +
+      "  ELSE catalog_categories.label\n" +
+      "END,\n" +
+      "description = CASE\n" +
+      "  WHEN excluded.source = 'system' THEN excluded.description\n" +
+      "  WHEN catalog_categories.description IS NULL OR catalog_categories.description = '' THEN excluded.description\n" +
+      "  ELSE catalog_categories.description\n" +
+      "END,\n" +
+      "source = CASE\n" +
+      "  WHEN catalog_categories.source IS NULL OR catalog_categories.source = '' THEN excluded.source\n" +
+      "  ELSE catalog_categories.source\n" +
+      "END,\n" +
+      "updated_at = excluded.updated_at",
+  )
+    .bind(input.id, input.label, input.description, input.source, now, now)
+    .run();
+}
+
+async function ensureCatalogCategoryDefaults(env: Env): Promise<void> {
+  const defaults = listCatalogCategoryDefinitions();
+  for (const def of defaults) {
+    await upsertCatalogCategory(env, {
+      id: def.id,
+      label: def.label,
+      description: def.description,
+      source: "system",
+    });
+  }
+}
+
+export async function listCatalogCategoryOptions(env: Env): Promise<CatalogCategoryOption[]> {
+  await ensureCatalogCategoryDefaults(env);
+  const rows = await env.DB.prepare(
+    "SELECT id, label, description FROM catalog_categories ORDER BY id",
+  ).all<CatalogCategoryRow>();
+  return (rows.results ?? []).map(row => ({
+    id: row.id,
+    label: row.label,
+    description: row.description ?? "",
+  }));
+}
+
+export async function listCatalogCategories(env: Env): Promise<CatalogCategoryItem[]> {
+  await ensureCatalogCategoryDefaults(env);
+  const [rows, stats] = await Promise.all([
+    env.DB.prepare("SELECT id, label, description, source FROM catalog_categories ORDER BY id").all<CatalogCategoryRow>(),
+    listCatalogCategoryStats(env),
+  ]);
+
+  const counts = new Map(
+    stats.map((row) => [
+      (row.category || "other").toLowerCase(),
+      {
+        total: Number(row.total ?? 0),
+        installableTotal: Number(row.installable_total ?? 0),
+        riskTotal: Number(row.risk_total ?? 0),
+      },
+    ]),
+  );
+
+  const items: CatalogCategoryItem[] = [];
+  const seen = new Set<string>();
+  for (const row of rows.results ?? []) {
+    const id = row.id.toLowerCase();
+    const count = counts.get(id) ?? { total: 0, installableTotal: 0, riskTotal: 0 };
+    items.push({
+      id,
+      label: row.label,
+      description: row.description ?? "",
+      total: count.total,
+      installableTotal: count.installableTotal,
+      riskTotal: count.riskTotal,
+      source: row.source ?? null,
+    });
+    seen.add(id);
+  }
+
+  for (const [id, count] of counts.entries()) {
+    if (seen.has(id)) continue;
+    const label = formatCategoryLabel(id) || id;
+    await upsertCatalogCategory(env, {
+      id,
+      label,
+      description: "",
+      source: isDefaultCategoryId(id) ? "system" : "ai",
+    });
+    items.push({
+      id,
+      label,
+      description: "",
+      total: count.total,
+      installableTotal: count.installableTotal,
+      riskTotal: count.riskTotal,
+      source: isDefaultCategoryId(id) ? "system" : "ai",
+    });
+  }
+
+  return items;
+}
+
+export async function listCatalogSkillsForCategoryTagging(
+  env: Env,
+  input: { limit?: number; force?: boolean; repo?: string | null; skillId?: string | null },
+): Promise<CatalogSkillCategoryCandidate[]> {
+  const safeLimit = Math.min(Math.max(input.limit ?? 50, 1), 200);
+  const force = Boolean(input.force);
+  const repo = (input.repo || "").trim();
+  const skillId = (input.skillId || "").trim();
+
+  const clauses: string[] = [
+    "s.name IS NOT NULL",
+    "s.description IS NOT NULL",
+    "s.installable = 1",
+    "s.usage_artifact = 0",
+  ];
+  const params: Array<string | number> = [];
+
+  if (!force) {
+    clauses.push("(s.category IS NULL OR s.category = '')");
+  }
+  if (repo) {
+    clauses.push("s.repo = ?");
+    params.push(repo);
+  }
+  if (skillId) {
+    clauses.push("s.id = ?");
+    params.push(skillId);
+  }
+
+  const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
+  const rows = await env.DB.prepare(
+    "SELECT s.id, s.repo, s.path, s.name, s.description, s.tags_json, r.topics_json\n" +
+      "FROM catalog_skills s\n" +
+      "LEFT JOIN catalog_repos r ON r.repo = s.repo\n" +
+      `${where}\n` +
+      "ORDER BY s.last_seen DESC\n" +
+      "LIMIT ?",
+  )
+    .bind(...params, safeLimit)
+    .all<CatalogSkillCategoryCandidate>();
+  return rows.results ?? [];
+}
+
+export async function updateCatalogSkillCategory(
+  env: Env,
+  input: {
+    id: string;
+    category: string;
+    tagSource: string | null;
+    aiTaggedAt: string | null;
+    aiModel: string | null;
+    promptDigest: string | null;
+    force?: boolean;
+  },
+): Promise<void> {
+  const now = new Date().toISOString();
+  const force = input.force ? 1 : 0;
+  await env.DB.prepare(
+    "UPDATE catalog_skills\n" +
+      "SET category = ?1,\n" +
+      "tag_source = ?2,\n" +
+      "ai_tagged_at = ?3,\n" +
+      "ai_model = ?4,\n" +
+      "prompt_digest = ?5,\n" +
+      "updated_at = ?6\n" +
+      "WHERE id = ?7 AND (?8 = 1 OR category IS NULL OR category = '')",
+  )
+    .bind(input.category, input.tagSource, input.aiTaggedAt, input.aiModel, input.promptDigest, now, input.id, force)
+    .run();
 }
 
 export async function getCatalogRepo(env: Env, repo: string): Promise<CatalogRepoRow | null> {
@@ -408,6 +665,7 @@ export async function upsertCatalogSkill(
     name: string | null;
     description: string | null;
     tags: string[];
+    category: string | null;
     sourceRef: string | null;
     sourceUrl: string | null;
     snapshotKey: string | null;
@@ -423,9 +681,9 @@ export async function upsertCatalogSkill(
 ): Promise<void> {
   const now = new Date().toISOString();
   await env.DB.prepare(
-    "INSERT INTO catalog_skills (id, repo, path, name, description, tags_json, source_ref, source_url, snapshot_key, has_readme, has_code, usage_artifact, installable, has_risk, risk_evidence, discovered_at, last_seen, created_at, updated_at)\n" +
-      "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19)\n" +
-      "ON CONFLICT(id) DO UPDATE SET name = excluded.name, description = excluded.description, tags_json = excluded.tags_json, source_ref = excluded.source_ref, source_url = excluded.source_url, snapshot_key = excluded.snapshot_key, has_readme = excluded.has_readme, has_code = excluded.has_code, usage_artifact = excluded.usage_artifact, installable = excluded.installable, has_risk = excluded.has_risk, risk_evidence = excluded.risk_evidence, last_seen = excluded.last_seen, updated_at = excluded.updated_at",
+    "INSERT INTO catalog_skills (id, repo, path, name, description, category, tags_json, source_ref, source_url, snapshot_key, has_readme, has_code, usage_artifact, installable, has_risk, risk_evidence, discovered_at, last_seen, created_at, updated_at)\n" +
+      "VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20)\n" +
+      "ON CONFLICT(id) DO UPDATE SET name = excluded.name, description = excluded.description, category = CASE WHEN excluded.category IS NOT NULL AND excluded.category != '' THEN excluded.category ELSE catalog_skills.category END, tags_json = excluded.tags_json, source_ref = excluded.source_ref, source_url = excluded.source_url, snapshot_key = excluded.snapshot_key, has_readme = excluded.has_readme, has_code = excluded.has_code, usage_artifact = excluded.usage_artifact, installable = excluded.installable, has_risk = excluded.has_risk, risk_evidence = excluded.risk_evidence, last_seen = excluded.last_seen, updated_at = excluded.updated_at",
   )
     .bind(
       input.id,
@@ -433,6 +691,7 @@ export async function upsertCatalogSkill(
       input.path,
       input.name,
       input.description,
+      input.category,
       JSON.stringify(input.tags ?? []),
       input.sourceRef,
       input.sourceUrl,

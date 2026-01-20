@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { listCatalogCategories } from '@/lib/api';
-import type { CatalogCategory } from '@/lib/api-types';
+import type { CatalogCategory, CatalogSkill } from '@/lib/api-types';
 import { PageHero } from '@/components/ui/page-hero';
 import { SearchBar } from '@/components/ui/search-bar';
 import { SkillCard } from '@/components/ui/skill-card';
@@ -11,7 +11,16 @@ import { Github } from 'lucide-react';
 import { useCatalogSkills } from './catalog/useCatalogSkills';
 import { collectCatalogTags, formatCatalogCount, formatCategoryLabel } from './catalog/catalog-utils';
 
-export function CatalogPage(): JSX.Element {
+function resolveCategory(categories: CatalogCategory[], id: string): CatalogCategory | null {
+  const match = categories.find((cat) => cat.id === id);
+  return match ?? null;
+}
+
+export function CatalogCategoryPage(): JSX.Element {
+  const params = useParams();
+  const navigate = useNavigate();
+  const categoryId = (params.slug || '').trim().toLowerCase();
+
   const {
     queryInput,
     setQueryInput,
@@ -30,10 +39,12 @@ export function CatalogPage(): JSX.Element {
     copyInstall,
     onSearch,
     query,
-  } = useCatalogSkills();
+  } = useCatalogSkills({ category: categoryId });
 
   const [categories, setCategories] = React.useState<CatalogCategory[]>([]);
   const [categoryError, setCategoryError] = React.useState<string | null>(null);
+  const [category, setCategory] = React.useState<CatalogCategory | null>(null);
+  const [categoryReady, setCategoryReady] = React.useState(false);
   const categoryLabelById = React.useMemo(() => new Map(categories.map(item => [item.id, item.label])), [categories]);
   const resolveCategoryLabel = React.useCallback(
     (id: string) => categoryLabelById.get(id) ?? formatCategoryLabel(id) ?? id,
@@ -43,6 +54,7 @@ export function CatalogPage(): JSX.Element {
   React.useEffect(() => {
     let active = true;
     async function loadCategories(): Promise<void> {
+      setCategoryReady(false);
       setCategoryError(null);
       try {
         const res = await listCatalogCategories();
@@ -50,25 +62,66 @@ export function CatalogPage(): JSX.Element {
         if (!res.ok) {
           setCategoryError(res.error);
           setCategories([]);
+          setCategory(null);
+          setCategoryReady(true);
           return;
         }
         setCategories(res.items);
+        setCategory(resolveCategory(res.items, categoryId));
+        setCategoryReady(true);
       } catch (err: unknown) {
         if (!active) return;
         setCategoryError(err instanceof Error ? err.message : String(err));
+        setCategoryReady(true);
       }
     }
-    void loadCategories();
+    if (categoryId) void loadCategories();
     return () => {
       active = false;
     };
-  }, []);
+  }, [categoryId]);
+
+  if (!categoryId) {
+    return (
+      <Alert variant="destructive">
+        <AlertTitle>Category not found</AlertTitle>
+        <AlertDescription>Missing category slug.</AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (categoryError) {
+    return (
+      <Alert variant="destructive">
+        <AlertTitle>Failed to load categories</AlertTitle>
+        <AlertDescription>{categoryError}</AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!categoryReady) {
+    return (
+      <div className="space-y-6">
+        <div className="h-12 w-64 rounded-full bg-brand-forest/5 animate-pulse" />
+        <div className="h-6 w-96 rounded-full bg-brand-forest/5 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (!category) {
+    return (
+      <Alert variant="destructive">
+        <AlertTitle>Category not found</AlertTitle>
+        <AlertDescription>We could not find this catalog category.</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-8">
       <PageHero
-        title="Auto Catalog"
-        description="Mass-discovered skills from GitHub, continuously indexed and ready to install."
+        title={category.label}
+        description={category.description}
         actions={
           <div className="flex flex-wrap items-center gap-3">
             <div className="px-4 h-10 rounded-full border border-brand-forest/10 bg-white/70 text-xs font-bold uppercase tracking-[0.2em] text-brand-forest/60 flex items-center">
@@ -91,54 +144,37 @@ export function CatalogPage(): JSX.Element {
               >
                 {riskOnly ? 'Risky only' : 'All risk levels'}
               </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 px-4 rounded-full text-xs font-bold uppercase tracking-widest"
+                onClick={() => navigate('/catalog')}
+              >
+                Back to catalog
+              </Button>
             </div>
           </div>
         }
       />
 
-      {categoryError && (
-        <Alert variant="destructive" className="rounded-[24px] border-destructive/20 bg-destructive/5">
-          <AlertTitle>Failed to load categories</AlertTitle>
-          <AlertDescription>{categoryError}</AlertDescription>
-        </Alert>
-      )}
-
-      {categories.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-serif font-bold text-brand-forest">Browse by category</h2>
-            <span className="text-xs uppercase tracking-[0.2em] text-brand-forest/40 font-bold">Categories</span>
-          </div>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {categories.map(category => (
-              <Link
-                key={category.id}
-                to={`/catalog/category/${encodeURIComponent(category.id)}`}
-                className="group rounded-[24px] border border-brand-forest/10 bg-white/60 p-5 flex flex-col gap-3 hover:border-brand-forest/20 transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold uppercase tracking-[0.2em] text-brand-forest/60">
-                    {category.label}
-                  </span>
-                  <span className="text-[10px] font-mono text-brand-forest/40">
-                    {formatCatalogCount(category.installableTotal)} skills
-                  </span>
-                </div>
-                <p className="text-xs text-brand-forest/60 leading-relaxed">{category.description}</p>
-                <div className="text-[10px] uppercase tracking-[0.25em] text-brand-eco font-bold">
-                  Explore →
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-brand-forest/40 font-bold">
+        <span>Browse</span>
+        {categories.map(item => (
+          <Link
+            key={item.id}
+            to={`/catalog/category/${encodeURIComponent(item.id)}`}
+            className={`px-3 py-1 rounded-full border ${item.id === categoryId ? 'border-brand-eco text-brand-eco' : 'border-brand-forest/10 text-brand-forest/40'} transition-colors`}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </div>
 
       <SearchBar
         value={queryInput}
         onChange={setQueryInput}
         onSubmit={onSearch}
-        placeholder="Search catalog skills..."
+        placeholder={`Search ${category.label} skills...`}
         className="mb-12"
       />
 
@@ -170,7 +206,7 @@ export function CatalogPage(): JSX.Element {
         </div>
       ) : (
         <div className="grid gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {items.map(item => (
+          {items.map((item: CatalogSkill) => (
             <SkillCard
               key={item.id}
               id={item.id}

@@ -131,6 +131,7 @@ export interface CatalogSkill {
   path: string;
   name: string;
   description: string;
+  category: string | null;
   tags: string[];
   topics: string[];
   sourceRef: string | null;
@@ -185,6 +186,19 @@ export type CatalogSkillDetailResponse =
 
 export type CatalogRepoDetailResponse =
   | { ok: true; repo: CatalogRepo; skills: CatalogSkill[] }
+  | ApiError;
+
+export interface CatalogCategory {
+  id: string;
+  label: string;
+  description: string;
+  total: number;
+  installableTotal: number;
+  riskTotal: number;
+}
+
+export type CatalogCategoriesResponse =
+  | { ok: true; items: CatalogCategory[] }
   | ApiError;
 
 export interface DistTagRow {

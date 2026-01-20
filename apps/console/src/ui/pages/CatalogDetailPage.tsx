@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getCatalogSkill } from '@/lib/api';
 import type { CatalogSkillDetailResponse } from '@/lib/api-types';
 import { HttpError } from '@/lib/http';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Copy, ExternalLink } from 'lucide-react';
+import { formatCategoryLabel } from './catalog/catalog-utils';
 
 export function CatalogDetailPage(): JSX.Element {
   const params = useParams();
@@ -117,6 +118,11 @@ export function CatalogDetailPage(): JSX.Element {
         <Badge variant="outline" className="text-xs font-mono">{skill.repo}{skill.path ? `/${skill.path}` : ''}</Badge>
         {skill.licenseSpdx && <Badge variant="secondary" className="text-xs">{skill.licenseSpdx}</Badge>}
         {skill.starsTotal != null && <Badge variant="secondary" className="text-xs">{skill.starsTotal} ★</Badge>}
+        {skill.category && (
+          <Link to={`/catalog/category/${encodeURIComponent(skill.category)}`}>
+            <Badge variant="outline" className="text-xs">Category: {formatCategoryLabel(skill.category) || skill.category}</Badge>
+          </Link>
+        )}
         {skill.hasRisk && <Badge variant="destructive" className="text-xs">Risk flagged</Badge>}
         {skill.usageArtifact && <Badge variant="outline" className="text-xs">Usage artifact</Badge>}
       </div>

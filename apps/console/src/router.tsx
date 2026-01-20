@@ -25,6 +25,7 @@ import { LeaderboardPage } from './ui/pages/LeaderboardPage';
 import { GettingStartedPage } from './ui/pages/GettingStartedPage';
 import { CatalogPage } from './ui/pages/CatalogPage';
 import { CatalogDetailPage } from './ui/pages/CatalogDetailPage';
+import { CatalogCategoryPage } from './ui/pages/CatalogCategoryPage';
 
 export const router = createBrowserRouter([
   {
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
       { path: 'linked/:id', element: <LinkedItemDetailPage /> },
       { path: 'linked/:id/manage', element: <RequireAuth><LinkedItemManagePage /></RequireAuth> },
       { path: 'catalog', element: <CatalogPage /> },
+      { path: 'catalog/category/:slug', element: <CatalogCategoryPage /> },
       { path: 'catalog/:id', element: <CatalogDetailPage /> },
       { path: 'leaderboard', element: <LeaderboardPage /> },
       { path: 'me', element: <RequireAuth><MePage /></RequireAuth> },

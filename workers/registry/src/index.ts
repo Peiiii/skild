@@ -14,9 +14,10 @@ import { getDownloadStats, getLeaderboard, recordDownloadEvent } from "./stats.j
 import { refreshRepoMetrics } from "./github-metrics.js";
 import { discoverGithubSkills } from "./github-discovery.js";
 import { requireAdmin } from "./admin.js";
-import { getCatalogRepo, getCatalogSkillById, listCatalogRepoSkills, listCatalogSkills, toCatalogRepo, toCatalogSkill, toCatalogSkillDetail } from "./catalog-db.js";
+import { getCatalogRepo, getCatalogSkillById, listCatalogCategories, listCatalogRepoSkills, listCatalogSkills, toCatalogRepo, toCatalogSkill, toCatalogSkillDetail } from "./catalog-db.js";
 import { readCatalogSnapshot } from "./catalog-storage.js";
 import { ingestCatalogIndexPart, scanCatalogIndexBatch, scanCatalogRepo } from "./catalog-scan.js";
+import { tagCatalogSkillCategories } from "./catalog-category-ai.js";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -577,6 +578,7 @@ app.get("/catalog/skills", async (c) => {
     const usageArtifact = parseOptionalBoolean(c.req.query("usage"));
     const repo = (c.req.query("repo") || "").trim() || null;
     const sourceType = (c.req.query("source") || "").trim() || null;
+    const category = (c.req.query("category") || "").trim() || null;
 
     const page = await listCatalogSkills(c.env, {
       q,
@@ -588,6 +590,7 @@ app.get("/catalog/skills", async (c) => {
       usageArtifact,
       repo,
       sourceType,
+      category,
     });
 
     return c.json({
@@ -595,6 +598,25 @@ app.get("/catalog/skills", async (c) => {
       items: page.rows.map(toCatalogSkill),
       nextCursor: page.nextCursor,
       total: page.total,
+    });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.get("/catalog/categories", async (c) => {
+  try {
+    const items = await listCatalogCategories(c.env);
+    return c.json({
+      ok: true,
+      items: items.map((item) => ({
+        id: item.id,
+        label: item.label,
+        description: item.description,
+        total: item.total,
+        installableTotal: item.installableTotal,
+        riskTotal: item.riskTotal,
+      })),
     });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
@@ -693,6 +715,29 @@ app.post("/admin/catalog/scan-repo", async (c) => {
     const repo = (body.repo || "").trim();
     if (!repo) return errorJson(c as any, "Missing repo.", 400);
     const result = await scanCatalogRepo(c.env, repo);
+    return c.json({ ok: true, ...result });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/admin/catalog/tag-categories", async (c) => {
+  try {
+    requireAdmin(c);
+    const body = (await c.req.json<{ limit?: number; delayMs?: number; force?: boolean; repo?: string; skillId?: string }>().catch(() => ({}))) as {
+      limit?: number;
+      delayMs?: number;
+      force?: boolean;
+      repo?: string;
+      skillId?: string;
+    };
+    const result = await tagCatalogSkillCategories(c.env, {
+      limit: body.limit,
+      delayMs: body.delayMs,
+      force: body.force,
+      repo: body.repo,
+      skillId: body.skillId,
+    });
     return c.json({ ok: true, ...result });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
@@ -1368,6 +1413,17 @@ async function runRepoMetricsRefresh(env: Env): Promise<void> {
   await refreshRepoMetrics(env, repos);
 }
 
+async function runCatalogCategoryTagging(env: Env): Promise<void> {
+  const enabled = (env.CATALOG_TAGGING_ENABLED || "").trim().toLowerCase();
+  if (enabled === "false" || enabled === "0") return;
+  const batchSize = parseEnvInt(env.CATALOG_TAGGING_BATCH_SIZE, 10, 1, 200);
+  const delayMs = parseEnvInt(env.CATALOG_TAGGING_DELAY_MS, 0, 0, 3000);
+  const result = await tagCatalogSkillCategories(env, { limit: batchSize, delayMs });
+  if (result.tagged > 0 || result.errors.length > 0) {
+    console.log("catalog_category_tagging", result);
+  }
+}
+
 export const scheduled = async (_event: unknown, env: Env, ctx: ScheduledCtx): Promise<void> => {
   ctx.waitUntil(
     (async () => {
@@ -1387,6 +1443,12 @@ export const scheduled = async (_event: unknown, env: Env, ctx: ScheduledCtx): P
         await runRepoMetricsRefresh(env);
       } catch (err) {
         console.error("repo_metrics_refresh_failed", err instanceof Error ? err.message : String(err));
+      }
+
+      try {
+        await runCatalogCategoryTagging(env);
+      } catch (err) {
+        console.error("catalog_category_tagging_failed", err instanceof Error ? err.message : String(err));
       }
     })(),
   );

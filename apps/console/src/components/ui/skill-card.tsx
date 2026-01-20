@@ -33,6 +33,9 @@ export interface SkillCardProps {
         thirtyDays: number;
     };
     tags?: string[];
+    category?: { id: string; label: string } | null;
+    hasRisk?: boolean;
+    usageArtifact?: boolean;
     currentSort?: string;
     onCopyInstall?: (id: string, install: string) => void;
     isCopied?: boolean;
@@ -53,6 +56,9 @@ export function SkillCard({
     createdAt,
     downloads,
     tags,
+    category,
+    hasRisk,
+    usageArtifact,
     currentSort,
     onCopyInstall,
     isCopied,
@@ -123,9 +129,29 @@ export function SkillCard({
                     </div>
                 </div>
 
-                {/* Row 2: Metadata Hub (Tags) */}
+                {/* Row 2: Metadata Hub (Category + Flags + Tags) */}
                 <div className="flex flex-wrap items-center gap-2 -mt-2">
-                    {/* Tags */}
+                    {category && (
+                        <Link
+                            to={`/catalog/category/${encodeURIComponent(category.id)}`}
+                            className="inline-flex"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <Badge variant="outline" className="text-[9px] h-4.5 px-1.5 shrink-0 font-semibold text-brand-forest/60 tracking-normal border-brand-forest/20">
+                                Category: {category.label}
+                            </Badge>
+                        </Link>
+                    )}
+                    {hasRisk && (
+                        <Badge variant="destructive" className="text-[9px] h-4.5 px-1.5 shrink-0 font-semibold uppercase tracking-normal">
+                            Risk
+                        </Badge>
+                    )}
+                    {usageArtifact && (
+                        <Badge variant="outline" className="text-[9px] h-4.5 px-1.5 shrink-0 font-semibold text-brand-forest/50 tracking-normal border-brand-forest/10">
+                            Artifact
+                        </Badge>
+                    )}
                     {tags && tags.length > 0 && tags.slice(0, 3).map(tag => (
                         <Badge key={tag} variant="outline" className="text-[9px] h-4.5 px-1.5 shrink-0 font-medium text-brand-forest/40 lowercase tracking-normal border-brand-forest/10">
                             #{tag}
