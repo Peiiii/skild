@@ -12,7 +12,7 @@ import { normalizeAlias, preferredDisplayName, preferredInstallCommand } from '@
 
 export interface SkillCardProps {
     id: string;
-    type: 'registry' | 'linked';
+    type: 'registry' | 'linked' | 'catalog';
     title: string;
     description?: string | null;
     alias?: string | null;
@@ -59,7 +59,8 @@ export function SkillCard({
     href,
     detailsHref,
 }: SkillCardProps) {
-    const isLinked = type === 'linked';
+    const isCatalog = type === 'catalog';
+    const isLinked = type === 'linked' || isCatalog;
     const displayTitle = preferredDisplayName({ title, alias });
     const installCmd = preferredInstallCommand({ install, alias });
     const isSkillset = isSkillsetFlag(skillset);
@@ -196,7 +197,7 @@ export function SkillCard({
                         </div>
 
                         <Badge variant={isLinked ? 'eco' : 'forest'} className="text-[9px] h-4.5 px-2 shrink-0 uppercase tracking-widest font-black rounded-md border-none opacity-60">
-                            {isLinked ? 'Linked' : 'Registry'}
+                            {isCatalog ? 'Catalog' : isLinked ? 'Linked' : 'Registry'}
                         </Badge>
                     </div>
                 </div>

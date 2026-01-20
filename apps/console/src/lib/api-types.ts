@@ -125,6 +125,68 @@ export interface DiscoverItem {
 
 export type DiscoverListResponse = { ok: true; items: DiscoverItem[]; nextCursor: string | null; total: number } | ApiError;
 
+export interface CatalogSkill {
+  id: string;
+  repo: string;
+  path: string;
+  name: string;
+  description: string;
+  tags: string[];
+  topics: string[];
+  sourceRef: string | null;
+  sourceUrl: string | null;
+  install: string;
+  discoveredAt: string;
+  lastSeen: string;
+  starsTotal: number | null;
+  licenseSpdx: string | null;
+  hasRisk: boolean;
+  usageArtifact: boolean;
+  installable: boolean;
+}
+
+export interface CatalogRepo {
+  repo: string;
+  sourceType: string;
+  sourceUrl: string | null;
+  defaultBranch: string | null;
+  description: string | null;
+  homepage: string | null;
+  topics: string[];
+  licenseSpdx: string | null;
+  starsTotal: number | null;
+  forksTotal: number | null;
+  updatedAt: string | null;
+  pushedAt: string | null;
+  createdAt: string | null;
+  lastSeen: string | null;
+  lastScannedAt: string | null;
+  scanStatus: string | null;
+  scanError: string | null;
+  isSkillRepo: boolean;
+  hasRisk: boolean;
+  riskEvidence: string | null;
+}
+
+export type CatalogSkillsListResponse =
+  | { ok: true; items: CatalogSkill[]; nextCursor: string | null; total: number }
+  | ApiError;
+
+export type CatalogSkillDetailResponse =
+  | {
+    ok: true;
+    skill: CatalogSkill;
+    repo: CatalogRepo | null;
+    snapshotKey: string | null;
+    riskEvidence: string[];
+    snapshot: { skillMd: string | null; readmeMd: string | null; meta: Record<string, unknown> | null } | null;
+  }
+  | ApiError;
+
+export type CatalogRepoDetailResponse =
+  | { ok: true; repo: CatalogRepo; skills: CatalogSkill[] }
+  | ApiError;
+
 export interface DistTagRow {
   tag: string;
   version: string;

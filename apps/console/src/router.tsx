@@ -23,6 +23,8 @@ import { LinkedItemNewPage } from './ui/pages/LinkedItemNewPage';
 import { LinkedItemManagePage } from './ui/pages/LinkedItemManagePage';
 import { LeaderboardPage } from './ui/pages/LeaderboardPage';
 import { GettingStartedPage } from './ui/pages/GettingStartedPage';
+import { CatalogPage } from './ui/pages/CatalogPage';
+import { CatalogDetailPage } from './ui/pages/CatalogDetailPage';
 
 export const router = createBrowserRouter([
   {
@@ -46,6 +48,8 @@ export const router = createBrowserRouter([
       { path: 'linked/new', element: <RequireAuth><LinkedItemNewPage /></RequireAuth> },
       { path: 'linked/:id', element: <LinkedItemDetailPage /> },
       { path: 'linked/:id/manage', element: <RequireAuth><LinkedItemManagePage /></RequireAuth> },
+      { path: 'catalog', element: <CatalogPage /> },
+      { path: 'catalog/:id', element: <CatalogDetailPage /> },
       { path: 'leaderboard', element: <LeaderboardPage /> },
       { path: 'me', element: <RequireAuth><MePage /></RequireAuth> },
       { path: 'me/tokens', element: <RequireAuth><TokensPage /></RequireAuth> },

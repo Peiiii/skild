@@ -1,5 +1,6 @@
 import type { Env } from "./env.js";
 import { assertHandle } from "./validate.js";
+import { buildDegitSpec, buildGithubUrl, normalizePath, normalizeRef, normalizeRepo } from "./github-utils.js";
 
 export type LinkedItemSourceProvider = "github";
 
@@ -62,27 +63,6 @@ export interface ParsedLinkedItem {
 }
 
 const DEFAULT_DESCRIPTION = "No description";
-
-function normalizeRepo(repo: string): string {
-  const r = repo.trim().replace(/^https:\/\/github\.com\//, "").replace(/\.git$/, "");
-  const m = r.match(/^([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)$/);
-  if (!m) throw new Error("Invalid repo. Expected owner/repo.");
-  return `${m[1]}/${m[2]}`;
-}
-
-function normalizePath(path: string | undefined | null): string | null {
-  const p = (path ?? "").trim().replace(/^\/+/, "").replace(/\/+$/, "");
-  if (!p) return null;
-  if (p.includes("..")) throw new Error("Invalid path.");
-  return p;
-}
-
-function normalizeRef(ref: string | undefined | null): string | null {
-  const r = (ref ?? "").trim();
-  if (!r) return null;
-  if (r.length > 200) throw new Error("Invalid ref.");
-  return r;
-}
 
 function normalizeUrl(url: string | undefined | null): string | null {
   const raw = (url ?? "").trim();
@@ -190,21 +170,9 @@ function resolveSourceInput(input: {
   return { repo, path, ref, url: parsed?.url ?? url };
 }
 
-function buildGithubUrl(input: { repo: string; path: string | null; ref: string | null }): string {
-  const ref = input.ref ?? "main";
-  const path = input.path ? `/${input.path}` : "";
-  return `https://github.com/${input.repo}/tree/${encodeURIComponent(ref)}${path}`;
-}
-
-function buildDegitPath(input: { repo: string; path: string | null; ref: string | null }): string {
-  const path = input.path ? `/${input.path}` : "";
-  const ref = input.ref ? `#${input.ref}` : "";
-  return `${input.repo}${path}${ref}`;
-}
-
 export function buildInstallCommand(source: { provider: LinkedItemSourceProvider; repo: string; path: string | null; ref: string | null; url: string | null }): string {
   if (source.provider !== "github") throw new Error("Unsupported provider.");
-  return `skild install "${buildDegitPath({ repo: source.repo, path: source.path, ref: source.ref })}"`;
+  return `skild install "${buildDegitSpec({ repo: source.repo, path: source.path, ref: source.ref })}"`;
 }
 
 export function normalizeLinkedSource(input: {

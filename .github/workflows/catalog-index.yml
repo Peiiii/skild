@@ -1,0 +1,92 @@
+name: Catalog Repo Index
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max repos to fetch in this run"
+        required: false
+        default: "20000"
+      part_size:
+        description: "Repos per index file"
+        required: false
+        default: "1000"
+      since:
+        description: "Override repo ID cursor (optional)"
+        required: false
+        default: ""
+      date:
+        description: "Override output date (YYYY-MM-DD, optional)"
+        required: false
+        default: ""
+
+env:
+  R2_BUCKET: skild-registry-artifacts
+  R2_PREFIX: repo-index
+  INDEX_LIMIT: "20000"
+  PART_SIZE: "1000"
+
+jobs:
+  build-index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Resolve cursor
+        id: cursor
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          mkdir -p data/repo-index
+          NEXT_SINCE=0
+          if [ -n "${{ github.event.inputs.since }}" ]; then
+            NEXT_SINCE="${{ github.event.inputs.since }}"
+          else
+            if pnpm -C workers/registry exec wrangler r2 object get "${R2_BUCKET}/${R2_PREFIX}/latest.json" --file /tmp/latest.json; then
+              NEXT_SINCE=$(node -e "const s=require('/tmp/latest.json'); process.stdout.write(String(s.nextSince||0));")
+            fi
+          fi
+          DATE="${{ github.event.inputs.date }}"
+          if [ -z "$DATE" ]; then
+            DATE=$(date -u +%F)
+          fi
+          echo "next_since=$NEXT_SINCE" >> "$GITHUB_OUTPUT"
+          echo "date=$DATE" >> "$GITHUB_OUTPUT"
+      - name: Build repo index
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          LIMIT="${{ github.event.inputs.limit || env.INDEX_LIMIT }}"
+          PART_SIZE="${{ github.event.inputs.part_size || env.PART_SIZE }}"
+          node scripts/catalog/build-repo-index.mjs \
+            --limit "$LIMIT" \
+            --part-size "$PART_SIZE" \
+            --since "${{ steps.cursor.outputs.next_since }}" \
+            --date "${{ steps.cursor.outputs.date }}" \
+            --out data/repo-index
+      - name: Upload index to R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          DATE="${{ steps.cursor.outputs.date }}"
+          for file in data/repo-index/$DATE/*.json; do
+            name=$(basename "$file")
+            pnpm -C workers/registry exec wrangler r2 object put "${R2_BUCKET}/${R2_PREFIX}/$DATE/$name" --file "$file"
+          done
+          pnpm -C workers/registry exec wrangler r2 object put "${R2_BUCKET}/${R2_PREFIX}/latest.json" --file "data/repo-index/$DATE/state.json"

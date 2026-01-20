@@ -24,6 +24,17 @@ EMAIL_VERIFY_TTL_HOURS = "24"
 # Temporarily allow publishing without email verification (recommended for early-stage DX).
 REQUIRE_EMAIL_VERIFICATION_FOR_PUBLISH = "false"
 
+CATALOG_REPO_SCAN_BATCH = "2"
+CATALOG_SCAN_CONCURRENCY = "1"
+CATALOG_SCAN_DELAY_MS = "0"
+CATALOG_MAX_SKILLS_PER_REPO = "20"
+CATALOG_ENRICH_META = "false"
+CATALOG_SCAN_MAX_DURATION_MS = "540000"
+CATALOG_SCAN_MAX_BATCHES = "1"
+CATALOG_FETCH_README = "false"
+DISCOVER_CRON_ENABLED = "false"
+REPO_METRICS_REFRESH_LIMIT = "0"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "skild-registry"
@@ -34,4 +45,4 @@ binding = "BUCKET"
 bucket_name = "skild-registry-artifacts"
 
 [triggers]
-crons = ["0 2 * * *"] # Daily discovery/metrics refresh
+crons = ["*/1 * * * *"] # Frequent discovery/metrics refresh

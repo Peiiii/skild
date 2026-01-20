@@ -20,7 +20,10 @@ import type {
   LinkedItemCreateResponse,
   LinkedItemParseResponse,
   EntityStatsResponse,
-  LeaderboardResponse
+  LeaderboardResponse,
+  CatalogSkillsListResponse,
+  CatalogSkillDetailResponse,
+  CatalogRepoDetailResponse
 } from './api-types';
 
 function newApiUrl(pathname: string): URL {
@@ -240,6 +243,33 @@ export async function listLinkedItems(query: string, cursor?: string | null, lim
 export async function getLinkedItem(id: string): Promise<LinkedItemDetailResponse> {
   const url = newApiUrl(`/linked-items/${encodeURIComponent(id)}`);
   return fetchJson<LinkedItemDetailResponse>(url.toString(), {}, 10_000);
+}
+
+export async function listCatalogSkills(
+  query: string,
+  cursor?: string | null,
+  limit = 20,
+  options?: { sort?: string; risk?: boolean | null; installable?: boolean | null; usageArtifact?: boolean | null }
+): Promise<CatalogSkillsListResponse> {
+  const url = newApiUrl('/catalog/skills');
+  if (query.trim()) url.searchParams.set('q', query.trim());
+  if (cursor) url.searchParams.set('cursor', cursor);
+  if (options?.sort) url.searchParams.set('sort', options.sort);
+  if (options?.risk != null) url.searchParams.set('risk', options.risk ? '1' : '0');
+  if (options?.installable != null) url.searchParams.set('installable', options.installable ? '1' : '0');
+  if (options?.usageArtifact != null) url.searchParams.set('usage', options.usageArtifact ? '1' : '0');
+  url.searchParams.set('limit', String(limit));
+  return fetchJson<CatalogSkillsListResponse>(url.toString(), {}, 10_000);
+}
+
+export async function getCatalogSkill(id: string): Promise<CatalogSkillDetailResponse> {
+  const url = newApiUrl(`/catalog/skills/${encodeURIComponent(id)}`);
+  return fetchJson<CatalogSkillDetailResponse>(url.toString(), {}, 10_000);
+}
+
+export async function getCatalogRepo(owner: string, repo: string): Promise<CatalogRepoDetailResponse> {
+  const url = newApiUrl(`/catalog/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`);
+  return fetchJson<CatalogRepoDetailResponse>(url.toString(), {}, 10_000);
 }
 
 export async function parseLinkedItemUrl(url: string): Promise<LinkedItemParseResponse> {

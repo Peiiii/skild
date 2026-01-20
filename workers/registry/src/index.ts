@@ -14,6 +14,9 @@ import { getDownloadStats, getLeaderboard, recordDownloadEvent } from "./stats.j
 import { refreshRepoMetrics } from "./github-metrics.js";
 import { discoverGithubSkills } from "./github-discovery.js";
 import { requireAdmin } from "./admin.js";
+import { getCatalogRepo, getCatalogSkillById, listCatalogRepoSkills, listCatalogSkills, toCatalogRepo, toCatalogSkill, toCatalogSkillDetail } from "./catalog-db.js";
+import { readCatalogSnapshot } from "./catalog-storage.js";
+import { ingestCatalogIndexPart, scanCatalogIndexBatch, scanCatalogRepo } from "./catalog-scan.js";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -563,6 +566,73 @@ app.get("/discover", async (c) => {
   }
 });
 
+app.get("/catalog/skills", async (c) => {
+  try {
+    const q = (c.req.query("q") || "").trim();
+    const limit = Number.parseInt(c.req.query("limit") || "20", 10) || 20;
+    const cursor = (c.req.query("cursor") || "").trim() || null;
+    const sort = (c.req.query("sort") || "").trim() || null;
+    const risk = parseOptionalBoolean(c.req.query("risk"));
+    const installable = parseOptionalBoolean(c.req.query("installable"));
+    const usageArtifact = parseOptionalBoolean(c.req.query("usage"));
+    const repo = (c.req.query("repo") || "").trim() || null;
+    const sourceType = (c.req.query("source") || "").trim() || null;
+
+    const page = await listCatalogSkills(c.env, {
+      q,
+      limit,
+      cursor,
+      sort,
+      risk,
+      installable,
+      usageArtifact,
+      repo,
+      sourceType,
+    });
+
+    return c.json({
+      ok: true,
+      items: page.rows.map(toCatalogSkill),
+      nextCursor: page.nextCursor,
+      total: page.total,
+    });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.get("/catalog/skills/:id", async (c) => {
+  try {
+    const id = c.req.param("id");
+    const row = await getCatalogSkillById(c.env, id);
+    if (!row) return errorJson(c as any, "Not found.", 404);
+    const repoRow = await getCatalogRepo(c.env, row.repo);
+    const detail = toCatalogSkillDetail(row, repoRow);
+    const snapshot = await readCatalogSnapshot(c.env, detail.snapshotKey);
+    return c.json({ ok: true, ...detail, snapshot });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.get("/catalog/repos/:owner/:name", async (c) => {
+  try {
+    const owner = decodeURIComponent(c.req.param("owner"));
+    const name = decodeURIComponent(c.req.param("name"));
+    const repo = `${owner}/${name}`;
+    const repoRow = await getCatalogRepo(c.env, repo);
+    if (!repoRow) return errorJson(c as any, "Not found.", 404);
+    const skills = await listCatalogRepoSkills(c.env, repo, 200);
+    return c.json({
+      ok: true,
+      repo: toCatalogRepo(repoRow),
+      skills: skills.map(toCatalogSkill),
+    });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
 app.post("/admin/refresh-repo-metrics", async (c) => {
   try {
     requireAdmin(c);
@@ -575,6 +645,52 @@ app.post("/admin/refresh-repo-metrics", async (c) => {
     const repos = await listDiscoverRepos(c.env, limit, offset);
     const result = await refreshRepoMetrics(c.env, repos);
     return c.json({ ok: true, repos: repos.length, ...result });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/admin/catalog/scan-index", async (c) => {
+  try {
+    requireAdmin(c);
+    const body = (await c.req.json<{ batchSize?: number }>().catch(() => ({}))) as { batchSize?: number };
+    const result = await scanCatalogIndexBatch(c.env, { batchSize: body.batchSize });
+    return c.json({ ok: true, ...result });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/admin/catalog/scan-repo", async (c) => {
+  try {
+    requireAdmin(c);
+    const body = (await c.req.json<{ repo?: string }>().catch(() => ({}))) as { repo?: string };
+    const repo = (body.repo || "").trim();
+    if (!repo) return errorJson(c as any, "Missing repo.", 400);
+    const result = await scanCatalogRepo(c.env, repo);
+    return c.json({ ok: true, ...result });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/admin/catalog/index", async (c) => {
+  try {
+    requireAdmin(c);
+    const body = (await c.req.json<{ date?: string; part?: string; repos?: Array<Record<string, unknown>> }>().catch(() => ({}))) as {
+      date?: string;
+      part?: string;
+      repos?: Array<Record<string, unknown>>;
+    };
+    const date = (body.date || "").trim();
+    const part = (body.part || "").trim();
+    if (!date) return errorJson(c as any, "Missing date.", 400);
+    const result = await ingestCatalogIndexPart(c.env, {
+      date,
+      part: part || "part-0001.json",
+      repos: (body.repos ?? []) as any,
+    });
+    return c.json({ ok: true, ...result });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
   }
@@ -1177,9 +1293,41 @@ function parseEnvInt(value: string | undefined, fallback: number, min: number, m
   return Math.min(Math.max(n, min), max);
 }
 
+async function runCatalogIndexScan(env: Env): Promise<void> {
+  const maxDurationMs = parseEnvInt(env.CATALOG_SCAN_MAX_DURATION_MS, 540000, 60000, 900000);
+  const maxBatches = parseEnvInt(env.CATALOG_SCAN_MAX_BATCHES, 50, 1, 500);
+  const start = Date.now();
+  let batches = 0;
+  let totalRepos = 0;
+  let totalSkills = 0;
+  let totalErrors = 0;
+
+  while (batches < maxBatches && Date.now() - start < maxDurationMs) {
+    const result = await scanCatalogIndexBatch(env);
+    batches += 1;
+    totalRepos += result.repos;
+    totalSkills += result.skills;
+    totalErrors += result.errors.length;
+    if (result.repos === 0) break;
+  }
+
+  if (totalRepos > 0 || totalErrors > 0) {
+    console.log("catalog_scan_summary", {
+      batches,
+      repos: totalRepos,
+      skills: totalSkills,
+      errors: totalErrors,
+    });
+  }
+}
+
 async function runGithubDiscovery(env: Env): Promise<void> {
+  const discoveryEnabled = (env.DISCOVER_CRON_ENABLED || "").trim().toLowerCase() !== "false";
+  if (!discoveryEnabled) return;
+
   const q = (env.DISCOVER_CRON_QUERY || "").trim() || "filename:SKILL.md path:skills";
-  const pages = parseEnvInt(env.DISCOVER_CRON_PAGES, 1, 1, 5);
+  const pages = parseEnvInt(env.DISCOVER_CRON_PAGES, 1, 0, 5);
+  if (pages <= 0) return;
   const perPage = parseEnvInt(env.DISCOVER_CRON_PER_PAGE, 30, 1, 100);
   const delayMs = parseEnvInt(env.DISCOVER_CRON_DELAY_MS, 1200, 200, 10_000);
 
@@ -1188,7 +1336,9 @@ async function runGithubDiscovery(env: Env): Promise<void> {
 
 async function runRepoMetricsRefresh(env: Env): Promise<void> {
   // Refresh top repos seen in discover_items to keep stars fresh.
-  const repos = await listDiscoverRepos(env, 200, 0);
+  const limit = parseEnvInt(env.REPO_METRICS_REFRESH_LIMIT, 200, 0, 500);
+  if (limit <= 0) return;
+  const repos = await listDiscoverRepos(env, limit, 0);
   if (repos.length === 0) return;
   await refreshRepoMetrics(env, repos);
 }
@@ -1196,6 +1346,12 @@ async function runRepoMetricsRefresh(env: Env): Promise<void> {
 export const scheduled = async (_event: unknown, env: Env, ctx: ScheduledCtx): Promise<void> => {
   ctx.waitUntil(
     (async () => {
+      try {
+        await runCatalogIndexScan(env);
+      } catch (err) {
+        console.error("catalog_scan_failed", err instanceof Error ? err.message : String(err));
+      }
+
       try {
         await runGithubDiscovery(env);
       } catch (err) {

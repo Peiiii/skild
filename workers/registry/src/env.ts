@@ -1,6 +1,7 @@
 export interface Env {
   DB: D1Database;
   BUCKET: R2Bucket;
+  CATALOG_BUCKET?: R2Bucket;
   PBKDF2_ITERATIONS: string;
   REGISTRY_PUBLIC_URL?: string;
   CONSOLE_PUBLIC_URL?: string;
@@ -12,8 +13,19 @@ export interface Env {
   GITHUB_TOKEN?: string;
   ADMIN_TOKEN?: string;
   DISCOVER_MIN_STARS?: string;
+  DISCOVER_CRON_ENABLED?: string;
   DISCOVER_CRON_QUERY?: string;
   DISCOVER_CRON_PAGES?: string;
   DISCOVER_CRON_PER_PAGE?: string;
   DISCOVER_CRON_DELAY_MS?: string;
+  REPO_METRICS_REFRESH_LIMIT?: string;
+  CATALOG_REPO_INDEX_PREFIX?: string;
+  CATALOG_REPO_SCAN_BATCH?: string;
+  CATALOG_SCAN_CONCURRENCY?: string;
+  CATALOG_SCAN_DELAY_MS?: string;
+  CATALOG_MAX_SKILLS_PER_REPO?: string;
+  CATALOG_ENRICH_META?: string;
+  CATALOG_SCAN_MAX_DURATION_MS?: string;
+  CATALOG_SCAN_MAX_BATCHES?: string;
+  CATALOG_FETCH_README?: string;
 }

@@ -23,6 +23,7 @@ import {
   ExternalLink,
   Trophy,
   Github,
+  Library,
   Rocket,
   User,
   Menu,
@@ -78,6 +79,7 @@ export function AppLayout(): JSX.Element {
               <TopNavLink to="/getting-started" icon={Rocket}>Get Started</TopNavLink>
               <TopNavLink to="/skills" icon={Compass}>Skills</TopNavLink>
               <TopNavLink to="/skillsets" icon={Layers}>Skillsets</TopNavLink>
+              <TopNavLink to="/catalog" icon={Library}>Catalog</TopNavLink>
               <TopNavLink to="/leaderboard" icon={Trophy}>Top</TopNavLink>
               <TopNavLink to="/linked" icon={Github}>Submit</TopNavLink>
               <TopNavLink to="/publish" icon={Upload}>Publish</TopNavLink>
@@ -184,6 +186,7 @@ export function AppLayout(): JSX.Element {
             { to: "/getting-started", icon: Rocket, label: "Started" },
             { to: "/skills", icon: Compass, label: "Explore" },
             { to: "/skillsets", icon: Layers, label: "Sets" },
+            { to: "/catalog", icon: Library, label: "Catalog" },
             { to: "/leaderboard", icon: Trophy, label: "Top" },
           ].map((item) => (
             <NavLink

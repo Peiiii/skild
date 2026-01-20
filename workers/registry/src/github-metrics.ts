@@ -6,9 +6,27 @@ export type GithubRepoMetrics = {
   updatedAt: string;
 };
 
-export async function fetchRepo(env: Env, repo: string): Promise<GithubRepoMetrics | null> {
+export type GithubRepoInfo = {
+  repo: string;
+  stars: number;
+  forks: number;
+  updatedAt: string;
+  pushedAt: string | null;
+  createdAt: string | null;
+  defaultBranch: string;
+  description: string;
+  homepage: string | null;
+  licenseSpdx: string | null;
+  topics: string[];
+  htmlUrl: string;
+};
+
+export async function fetchRepoInfo(env: Env, repo: string): Promise<GithubRepoInfo | null> {
   const token = (env.GITHUB_TOKEN || "").trim();
-  const headers: Record<string, string> = { "User-Agent": "skild-registry" };
+  const headers: Record<string, string> = {
+    "User-Agent": "skild-registry",
+    Accept: "application/vnd.github+json",
+  };
   if (token) headers.Authorization = `Bearer ${token}`;
 
   const res = await fetch(`https://api.github.com/repos/${repo}`, { headers });
@@ -16,10 +34,50 @@ export async function fetchRepo(env: Env, repo: string): Promise<GithubRepoMetri
   if (!res.ok) {
     throw new Error(`GitHub API error ${res.status}: ${await res.text()}`);
   }
-  const json = (await res.json()) as { stargazers_count?: number; updated_at?: string };
+  const json = (await res.json()) as {
+    stargazers_count?: number;
+    forks_count?: number;
+    updated_at?: string;
+    pushed_at?: string;
+    created_at?: string;
+    default_branch?: string;
+    description?: string;
+    homepage?: string | null;
+    html_url?: string;
+    license?: { spdx_id?: string | null } | null;
+    topics?: string[];
+  };
   const stars = Number(json.stargazers_count ?? 0);
+  const forks = Number(json.forks_count ?? 0);
   const updatedAt = json.updated_at || new Date().toISOString();
-  return { repo, stars, updatedAt };
+  const pushedAt = json.pushed_at || null;
+  const createdAt = json.created_at || null;
+  const defaultBranch = json.default_branch || "main";
+  const description = json.description || "";
+  const homepage = json.homepage ?? null;
+  const htmlUrl = json.html_url || `https://github.com/${repo}`;
+  const licenseSpdx = json.license?.spdx_id ?? null;
+  const topics = Array.isArray(json.topics) ? json.topics.filter(t => typeof t === "string") : [];
+  return {
+    repo,
+    stars,
+    forks,
+    updatedAt,
+    pushedAt,
+    createdAt,
+    defaultBranch,
+    description,
+    homepage,
+    licenseSpdx,
+    topics,
+    htmlUrl,
+  };
+}
+
+export async function fetchRepo(env: Env, repo: string): Promise<GithubRepoMetrics | null> {
+  const info = await fetchRepoInfo(env, repo);
+  if (!info) return null;
+  return { repo: info.repo, stars: info.stars, updatedAt: info.updatedAt };
 }
 
 export async function refreshRepoMetrics(
