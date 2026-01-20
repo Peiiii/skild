@@ -50,6 +50,7 @@ export function CatalogCategoryPage(): JSX.Element {
     (id: string) => categoryLabelById.get(id) ?? formatCategoryLabel(id) ?? id,
     [categoryLabelById],
   );
+  const visibleCategories = React.useMemo(() => categories.filter(item => (item.total ?? 0) > 0), [categories]);
 
   React.useEffect(() => {
     let active = true;
@@ -159,7 +160,7 @@ export function CatalogCategoryPage(): JSX.Element {
 
       <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.2em] text-brand-forest/40 font-bold">
         <span>Browse</span>
-        {categories.map(item => (
+        {visibleCategories.map(item => (
           <Link
             key={item.id}
             to={`/catalog/category/${encodeURIComponent(item.id)}`}

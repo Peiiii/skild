@@ -303,7 +303,7 @@ async function classifyCatalogCategoryAi(
 
 export async function tagCatalogSkillCategories(
   env: Env,
-  options?: { limit?: number; delayMs?: number; force?: boolean; repo?: string | null; skillId?: string | null },
+  options?: { limit?: number; delayMs?: number; force?: boolean; repo?: string | null; skillId?: string | null; category?: string | null },
 ): Promise<CatalogCategoryTaggingResult> {
   const batchSize = parseEnvInt(env.CATALOG_TAGGING_BATCH_SIZE, 10, 1, 200);
   const delayMs = parseEnvInt(env.CATALOG_TAGGING_DELAY_MS, 0, 0, 3000);
@@ -321,6 +321,7 @@ export async function tagCatalogSkillCategories(
     force: options?.force,
     repo: options?.repo ?? null,
     skillId: options?.skillId ?? null,
+    category: options?.category ?? null,
   });
   let tagged = 0;
   for (const candidate of candidates) {

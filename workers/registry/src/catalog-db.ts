@@ -525,12 +525,13 @@ export async function listCatalogCategories(env: Env): Promise<CatalogCategoryIt
 
 export async function listCatalogSkillsForCategoryTagging(
   env: Env,
-  input: { limit?: number; force?: boolean; repo?: string | null; skillId?: string | null },
+  input: { limit?: number; force?: boolean; repo?: string | null; skillId?: string | null; category?: string | null },
 ): Promise<CatalogSkillCategoryCandidate[]> {
   const safeLimit = Math.min(Math.max(input.limit ?? 50, 1), 200);
   const force = Boolean(input.force);
   const repo = (input.repo || "").trim();
   const skillId = (input.skillId || "").trim();
+  const category = (input.category || "").trim().toLowerCase();
 
   const clauses: string[] = [
     "s.name IS NOT NULL",
@@ -550,6 +551,10 @@ export async function listCatalogSkillsForCategoryTagging(
   if (skillId) {
     clauses.push("s.id = ?");
     params.push(skillId);
+  }
+  if (category) {
+    clauses.push("COALESCE(NULLIF(s.category, ''), 'other') = ?");
+    params.push(category);
   }
 
   const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";

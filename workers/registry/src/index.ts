@@ -724,12 +724,13 @@ app.post("/admin/catalog/scan-repo", async (c) => {
 app.post("/admin/catalog/tag-categories", async (c) => {
   try {
     requireAdmin(c);
-    const body = (await c.req.json<{ limit?: number; delayMs?: number; force?: boolean; repo?: string; skillId?: string }>().catch(() => ({}))) as {
+    const body = (await c.req.json<{ limit?: number; delayMs?: number; force?: boolean; repo?: string; skillId?: string; category?: string }>().catch(() => ({}))) as {
       limit?: number;
       delayMs?: number;
       force?: boolean;
       repo?: string;
       skillId?: string;
+      category?: string;
     };
     const result = await tagCatalogSkillCategories(c.env, {
       limit: body.limit,
@@ -737,6 +738,7 @@ app.post("/admin/catalog/tag-categories", async (c) => {
       force: body.force,
       repo: body.repo,
       skillId: body.skillId,
+      category: body.category,
     });
     return c.json({ ok: true, ...result });
   } catch (e) {
@@ -1419,8 +1421,23 @@ async function runCatalogCategoryTagging(env: Env): Promise<void> {
   const batchSize = parseEnvInt(env.CATALOG_TAGGING_BATCH_SIZE, 10, 1, 200);
   const delayMs = parseEnvInt(env.CATALOG_TAGGING_DELAY_MS, 0, 0, 3000);
   const result = await tagCatalogSkillCategories(env, { limit: batchSize, delayMs });
-  if (result.tagged > 0 || result.errors.length > 0) {
-    console.log("catalog_category_tagging", result);
+  const remaining = Math.max(batchSize - result.scanned, 0);
+  let otherResult = { scanned: 0, tagged: 0, errors: [] as string[] };
+  if (remaining > 0) {
+    otherResult = await tagCatalogSkillCategories(env, {
+      limit: remaining,
+      delayMs,
+      force: true,
+      category: "other",
+    });
+  }
+  if (result.tagged > 0 || otherResult.tagged > 0 || result.errors.length > 0 || otherResult.errors.length > 0) {
+    console.log("catalog_category_tagging", {
+      scanned: result.scanned + otherResult.scanned,
+      tagged: result.tagged + otherResult.tagged,
+      errors: [...result.errors, ...otherResult.errors],
+      retaggedOther: otherResult.tagged,
+    });
   }
 }
 
