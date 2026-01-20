@@ -6,6 +6,8 @@ export type SkillFrontmatter = {
   dependencies?: string[];
 };
 
+type BlockMode = "literal" | "folded";
+
 function normalizeScalar(value: string): string {
   let out = value.trim();
   if (!out) return "";
@@ -40,6 +42,43 @@ function parseBoolean(value: string): boolean | null {
   return null;
 }
 
+function isBlockIndicator(value: string): BlockMode | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const first = trimmed[0];
+  if (first === "|") return "literal";
+  if (first === ">") return "folded";
+  return null;
+}
+
+function countIndent(line: string): number {
+  let count = 0;
+  for (const ch of line) {
+    if (ch === " " || ch === "\t") count += 1;
+    else break;
+  }
+  return count;
+}
+
+function finalizeBlock(mode: BlockMode, lines: string[]): string {
+  if (lines.length === 0) return "";
+  if (mode === "literal") return lines.join("\n").trimEnd();
+
+  let out = "";
+  let pendingBlank = false;
+  for (const line of lines) {
+    if (line === "") {
+      out += "\n";
+      pendingBlank = true;
+      continue;
+    }
+    if (out && !pendingBlank) out += " ";
+    out += line;
+    pendingBlank = false;
+  }
+  return out.trimEnd();
+}
+
 export function parseSkillFrontmatter(content: string): SkillFrontmatter | null {
   const trimmed = content.trimStart();
   if (!trimmed.startsWith("---")) return null;
@@ -52,8 +91,50 @@ export function parseSkillFrontmatter(content: string): SkillFrontmatter | null 
   const result: SkillFrontmatter = {};
   const lines = block.split(/\r?\n/);
   let currentKey: string | null = null;
+  let blockKey: "name" | "description" | null = null;
+  let blockMode: BlockMode | null = null;
+  let blockIndent: number | null = null;
+  let blockLines: string[] = [];
 
-  for (const rawLine of lines) {
+  function flushBlock(): void {
+    if (!blockKey || !blockMode) return;
+    const value = finalizeBlock(blockMode, blockLines).trim();
+    if (value) {
+      if (blockKey === "name") result.name = value;
+      if (blockKey === "description") result.description = value;
+    }
+    blockKey = null;
+    blockMode = null;
+    blockIndent = null;
+    blockLines = [];
+  }
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const rawLine = lines[i] ?? "";
+
+    if (blockMode) {
+      const trimmedLine = rawLine.trimEnd();
+      if (trimmedLine === "") {
+        blockLines.push("");
+        continue;
+      }
+      const indent = countIndent(rawLine);
+      if (blockIndent === null) {
+        if (indent === 0) {
+          flushBlock();
+          i -= 1;
+          continue;
+        }
+        blockIndent = indent;
+      } else if (indent < blockIndent) {
+        flushBlock();
+        i -= 1;
+        continue;
+      }
+      blockLines.push(rawLine.slice(blockIndent));
+      continue;
+    }
+
     const line = rawLine.trimEnd();
     if (!line || line.trim().startsWith("#")) continue;
 
@@ -74,6 +155,16 @@ export function parseSkillFrontmatter(content: string): SkillFrontmatter | null 
     const key = match[1] || "";
     const value = match[2] ?? "";
     currentKey = key;
+    if (key === "name" || key === "description") {
+      const block = isBlockIndicator(value);
+      if (block) {
+        blockKey = key;
+        blockMode = block;
+        blockIndent = null;
+        blockLines = [];
+        continue;
+      }
+    }
 
     if (key === "name") {
       const parsed = normalizeScalar(value);
@@ -105,5 +196,6 @@ export function parseSkillFrontmatter(content: string): SkillFrontmatter | null 
     }
   }
 
+  flushBlock();
   return Object.keys(result).length ? result : null;
 }

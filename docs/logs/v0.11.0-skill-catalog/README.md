@@ -13,6 +13,8 @@
 - Console Catalog 页面展示线上结果总量。
 - 新增脚本 `scripts/catalog/build-repo-index.mjs`，用于生成 repo-index 分片。
 - 扫描任务支持开关与限额配置，优先 catalog 扫描并降低 GitHub API 资源占用。
+- 修复 frontmatter 解析，支持 `description: |`/`>` 多行描述。
+- 新增 Admin 重置扫描游标接口，支持全量回扫。
 
 ## 测试 / 验证 / 验收方式
 

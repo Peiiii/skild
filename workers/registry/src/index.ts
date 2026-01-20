@@ -661,6 +661,31 @@ app.post("/admin/catalog/scan-index", async (c) => {
   }
 });
 
+app.post("/admin/catalog/reset-scan", async (c) => {
+  try {
+    requireAdmin(c);
+    const body = (await c.req.json<{ scope?: string }>().catch(() => ({}))) as { scope?: string };
+    const scope = (body.scope || "all").trim().toLowerCase();
+    const resetRepos = scope === "all" || scope === "repos";
+    const resetIndex = scope === "all" || scope === "index";
+
+    let reposCleared = 0;
+    let indexCleared = 0;
+    if (resetRepos) {
+      const result = await c.env.DB.prepare("DELETE FROM catalog_repo_scan_state WHERE id LIKE 'repo:%'").run();
+      reposCleared = Number(result.meta?.changes ?? 0);
+    }
+    if (resetIndex) {
+      const result = await c.env.DB.prepare("DELETE FROM catalog_repo_scan_state WHERE id = 'github-index'").run();
+      indexCleared = Number(result.meta?.changes ?? 0);
+    }
+
+    return c.json({ ok: true, scope, reposCleared, indexCleared });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
 app.post("/admin/catalog/scan-repo", async (c) => {
   try {
     requireAdmin(c);
