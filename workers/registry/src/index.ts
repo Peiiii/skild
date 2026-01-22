@@ -13,6 +13,7 @@ import { buildLinkedInstall, listDiscoverItems, toDiscoverItem, upsertDiscoverIt
 import { getDownloadStats, getLeaderboard, recordDownloadEvent } from "./stats.js";
 import { refreshRepoMetrics } from "./github-metrics.js";
 import { discoverGithubSkills } from "./github-discovery.js";
+import { discoverAwesomeSkills } from "./awesome-discovery.js";
 import { requireAdmin } from "./admin.js";
 import { getCatalogRepo, getCatalogSkillById, listCatalogCategories, listCatalogRepoSkills, listCatalogSkills, toCatalogRepo, toCatalogSkill, toCatalogSkillDetail } from "./catalog-db.js";
 import { readCatalogSnapshot } from "./catalog-storage.js";
@@ -711,10 +712,13 @@ app.post("/admin/catalog/reset-scan", async (c) => {
 app.post("/admin/catalog/scan-repo", async (c) => {
   try {
     requireAdmin(c);
-    const body = (await c.req.json<{ repo?: string }>().catch(() => ({}))) as { repo?: string };
+    const body = (await c.req.json<{ repo?: string; maxSkills?: number }>().catch(() => ({}))) as {
+      repo?: string;
+      maxSkills?: number;
+    };
     const repo = (body.repo || "").trim();
     if (!repo) return errorJson(c as any, "Missing repo.", 400);
-    const result = await scanCatalogRepo(c.env, repo);
+    const result = await scanCatalogRepo(c.env, repo, { maxSkills: body.maxSkills });
     return c.json({ ok: true, ...result });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
@@ -781,6 +785,17 @@ app.post("/admin/discover-github-skills", async (c) => {
       pages: body.pages,
       perPage: body.perPage,
     });
+    return c.json({ ok: true, ...result });
+  } catch (e) {
+    return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
+  }
+});
+
+app.post("/admin/discover-awesome-skills", async (c) => {
+  try {
+    requireAdmin(c);
+    const body = (await c.req.json<{ repos?: string[] }>().catch(() => ({}))) as { repos?: string[] };
+    const result = await discoverAwesomeSkills(c.env, { repos: body.repos });
     return c.json({ ok: true, ...result });
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
@@ -1406,6 +1421,12 @@ async function runGithubDiscovery(env: Env): Promise<void> {
   await discoverGithubSkills(env, { q, pages, perPage, delayMs });
 }
 
+async function runAwesomeDiscovery(env: Env): Promise<void> {
+  const enabled = (env.AWESOME_CRON_ENABLED || "").trim().toLowerCase();
+  if (enabled === "false" || enabled === "0") return;
+  await discoverAwesomeSkills(env);
+}
+
 async function runRepoMetricsRefresh(env: Env): Promise<void> {
   // Refresh top repos seen in discover_items to keep stars fresh.
   const limit = parseEnvInt(env.REPO_METRICS_REFRESH_LIMIT, 200, 0, 500);
@@ -1454,6 +1475,12 @@ export const scheduled = async (_event: unknown, env: Env, ctx: ScheduledCtx): P
         await runGithubDiscovery(env);
       } catch (err) {
         console.error("discover_cron_failed", err instanceof Error ? err.message : String(err));
+      }
+
+      try {
+        await runAwesomeDiscovery(env);
+      } catch (err) {
+        console.error("awesome_discover_failed", err instanceof Error ? err.message : String(err));
       }
 
       try {

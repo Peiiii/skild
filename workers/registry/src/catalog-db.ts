@@ -533,12 +533,7 @@ export async function listCatalogSkillsForCategoryTagging(
   const skillId = (input.skillId || "").trim();
   const category = (input.category || "").trim().toLowerCase();
 
-  const clauses: string[] = [
-    "s.name IS NOT NULL",
-    "s.description IS NOT NULL",
-    "s.installable = 1",
-    "s.usage_artifact = 0",
-  ];
+  const clauses: string[] = ["s.name IS NOT NULL", "s.description IS NOT NULL"];
   const params: Array<string | number> = [];
 
   if (!force) {

@@ -9,6 +9,7 @@
     },
     "scripts": {
         "dev": "node scripts/dev/dev-stack.mjs",
+        "demo:unity": "node scripts/dev/unity-webgl-demo.mjs",
         "dev:smoke": "cross-env SKILD_DEV_SMOKE=1 node scripts/dev/dev-stack.mjs",
         "dev:web": "pnpm --filter web dev",
         "dev:cli": "pnpm --filter ./packages/cli dev",

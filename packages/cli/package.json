@@ -1,6 +1,6 @@
 {
     "name": "skild",
-    "version": "0.10.16",
+    "version": "0.10.17",
     "description": "The npm for Agent Skills — Discover, install, manage, and publish AI Agent Skills with ease.",
     "type": "module",
     "main": "./dist/index.js",
@@ -8,7 +8,7 @@
         "skild": "dist/index.js"
     },
     "scripts": {
-        "build": "tsup src/index.ts src/ui/interactive-tree-prompt.ts --format esm --dts --clean --silent",
+        "build": "pnpm -C ../core build && tsup src/index.ts src/ui/interactive-tree-prompt.ts --format esm --dts --clean --silent",
         "dev": "tsup src/index.ts --format esm --watch",
         "prepack": "pnpm build",
         "prepublishOnly": "pnpm build",

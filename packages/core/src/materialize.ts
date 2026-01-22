@@ -13,8 +13,15 @@ function ensureInstallableDir(sourcePath: string): void {
   }
 }
 
-async function cloneRemote(degitSrc: string, targetPath: string): Promise<void> {
-  const emitter = degit(degitSrc, { force: true, verbose: false });
+type DegitCloneMode = 'tar' | 'git';
+
+function resetTargetDir(targetPath: string): void {
+  removeDir(targetPath);
+  fs.mkdirSync(targetPath, { recursive: true });
+}
+
+async function cloneRemote(degitSrc: string, targetPath: string, mode: DegitCloneMode): Promise<void> {
+  const emitter = degit(degitSrc, { force: true, verbose: false, mode });
   await emitter.clone(targetPath);
 }
 
@@ -25,18 +32,33 @@ function isMissingRefError(error: unknown): boolean {
 }
 
 async function cloneRemoteWithFallback(degitSrc: string, targetPath: string): Promise<string> {
-  try {
-    await cloneRemote(degitSrc, targetPath);
-    return degitSrc;
-  } catch (error) {
-    if (!degitSrc.includes('#') || !isMissingRefError(error)) {
-      throw error;
+  const fallbackSrc = degitSrc.includes('#') ? stripSourceRef(degitSrc) : degitSrc;
+  const candidates: Array<{ src: string; mode: DegitCloneMode }> = [
+    { src: degitSrc, mode: 'git' },
+  ];
+  if (fallbackSrc !== degitSrc) {
+    candidates.push({ src: fallbackSrc, mode: 'git' });
+  }
+  candidates.push({ src: degitSrc, mode: 'tar' });
+  if (fallbackSrc !== degitSrc) {
+    candidates.push({ src: fallbackSrc, mode: 'tar' });
+  }
+
+  let lastError: unknown;
+  for (const candidate of candidates) {
+    try {
+      resetTargetDir(targetPath);
+      await cloneRemote(candidate.src, targetPath, candidate.mode);
+      return candidate.src;
+    } catch (error) {
+      lastError = error;
+      if (candidate.src === degitSrc && isMissingRefError(error)) {
+        continue;
+      }
     }
   }
 
-  const fallbackSrc = stripSourceRef(degitSrc);
-  await cloneRemote(fallbackSrc, targetPath);
-  return fallbackSrc;
+  throw lastError;
 }
 
 export async function materializeSourceToDir(input: {

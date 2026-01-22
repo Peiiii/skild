@@ -18,6 +18,8 @@ export interface Env {
   DISCOVER_CRON_PAGES?: string;
   DISCOVER_CRON_PER_PAGE?: string;
   DISCOVER_CRON_DELAY_MS?: string;
+  AWESOME_REPOS?: string;
+  AWESOME_CRON_ENABLED?: string;
   REPO_METRICS_REFRESH_LIMIT?: string;
   DASHSCOPE_API_KEY?: string;
   DASHSCOPE_MODEL?: string;

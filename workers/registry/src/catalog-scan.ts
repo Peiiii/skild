@@ -331,7 +331,7 @@ async function loadRepoScanState(env: Env, repo: string): Promise<{ hasState: bo
   };
 }
 
-async function scanRepo(env: Env, entry: RepoIndexEntry): Promise<RepoScanResult> {
+async function scanRepo(env: Env, entry: RepoIndexEntry, options: { maxSkills?: number } = {}): Promise<RepoScanResult> {
   const repo = normalizeRepo(entry.repo);
   const now = new Date().toISOString();
   const errors: Array<{ repo: string; error: string }> = [];
@@ -480,7 +480,10 @@ async function scanRepo(env: Env, entry: RepoIndexEntry): Promise<RepoScanResult
     }
   }
 
-  const maxSkills = parseEnvInt(env.CATALOG_MAX_SKILLS_PER_REPO, 200, 1, 1000);
+  const requestedMaxSkills = options.maxSkills;
+  const maxSkills = Number.isFinite(requestedMaxSkills)
+    ? Math.min(Math.max(Number(requestedMaxSkills), 1), 200)
+    : parseEnvInt(env.CATALOG_MAX_SKILLS_PER_REPO, 200, 1, 1000);
   const cursorOffset = await loadRepoSkillCursor(env, repo, treeResult.sha, skillDirs.skillDirs.length);
   const limitedDirs = skillDirs.skillDirs.slice(cursorOffset, cursorOffset + maxSkills);
   let discovered = 0;
@@ -835,10 +838,10 @@ export async function scanCatalogIndexBatch(
   return { repos: scanned, skills, errors };
 }
 
-export async function scanCatalogRepo(env: Env, repo: string): Promise<RepoScanResult> {
+export async function scanCatalogRepo(env: Env, repo: string, options: { maxSkills?: number } = {}): Promise<RepoScanResult> {
   const normalized = normalizeRepo(repo);
   const entry: RepoIndexEntry = { repo: normalized };
-  return scanRepo(env, entry);
+  return scanRepo(env, entry, options);
 }
 
 export async function ingestCatalogIndexPart(

@@ -1,5 +1,13 @@
 # skild
 
+## 0.10.17
+
+### Patch Changes
+
+- Improve GitHub install reliability by preferring git clone with tarball fallback.
+- Updated dependencies
+  - @skild/core@0.10.17
+
 ## 0.10.16
 
 ### Patch Changes
