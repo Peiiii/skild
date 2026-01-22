@@ -1,6 +1,6 @@
 import React from 'react';
-import { DiscoverPage } from './DiscoverPage';
+import { Navigate } from 'react-router-dom';
 
 export function SkillsetsPage(): JSX.Element {
-  return <DiscoverPage mode="skillsets" />;
+  return <Navigate to="/skills?type=skillset" replace />;
 }

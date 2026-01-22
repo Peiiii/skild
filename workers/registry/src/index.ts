@@ -555,7 +555,8 @@ app.get("/discover", async (c) => {
     const cursor = rawCursor;
     const sort = (c.req.query("sort") || "").trim() || null;
     const skillset = parseOptionalBoolean(c.req.query("skillset"));
-    const page = await listDiscoverItems(c.env, { q, limit, cursor, sort, skillset });
+    const category = (c.req.query("category") || "").trim() || null;
+    const page = await listDiscoverItems(c.env, { q, limit, cursor, sort, skillset, category });
     return c.json({
       ok: true,
       items: page.rows.map((r) => toDiscoverItem(r)),

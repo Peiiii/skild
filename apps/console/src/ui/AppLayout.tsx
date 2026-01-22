@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   Compass,
-  Layers,
   Upload,
   LayoutDashboard,
   Package,
@@ -23,7 +22,6 @@ import {
   ExternalLink,
   Trophy,
   Github,
-  Library,
   Rocket,
   User,
   Menu,
@@ -77,9 +75,7 @@ export function AppLayout(): JSX.Element {
           <div className="flex items-center gap-4 lg:gap-6">
             <nav className="hidden lg:flex items-center lg:gap-4 xl:gap-6 border-r border-border/40 lg:pr-4 xl:pr-8 lg:mr-1 xl:mr-2 last:border-0 last:pr-0 last:mr-0">
               <TopNavLink to="/getting-started" icon={Rocket}>Get Started</TopNavLink>
-              <TopNavLink to="/skills" icon={Compass}>Skills</TopNavLink>
-              <TopNavLink to="/skillsets" icon={Layers}>Skillsets</TopNavLink>
-              <TopNavLink to="/catalog" icon={Library}>Catalog</TopNavLink>
+              <TopNavLink to="/skills" icon={Compass}>Discover</TopNavLink>
               <TopNavLink to="/leaderboard" icon={Trophy}>Top</TopNavLink>
               <TopNavLink to="/linked" icon={Github}>Submit</TopNavLink>
               <TopNavLink to="/publish" icon={Upload}>Publish</TopNavLink>
@@ -184,9 +180,7 @@ export function AppLayout(): JSX.Element {
         <div className="mx-auto max-w-md bg-white/80 backdrop-blur-xl border border-brand-forest/10 rounded-[32px] shadow-2xl shadow-brand-forest/20 flex items-center justify-around p-2">
           {[
             { to: "/getting-started", icon: Rocket, label: "Started" },
-            { to: "/skills", icon: Compass, label: "Explore" },
-            { to: "/skillsets", icon: Layers, label: "Sets" },
-            { to: "/catalog", icon: Library, label: "Catalog" },
+            { to: "/skills", icon: Compass, label: "Discover" },
             { to: "/leaderboard", icon: Trophy, label: "Top" },
           ].map((item) => (
             <NavLink

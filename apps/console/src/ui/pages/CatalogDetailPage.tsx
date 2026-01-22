@@ -119,7 +119,7 @@ export function CatalogDetailPage(): JSX.Element {
         {skill.licenseSpdx && <Badge variant="secondary" className="text-xs">{skill.licenseSpdx}</Badge>}
         {skill.starsTotal != null && <Badge variant="secondary" className="text-xs">{skill.starsTotal} ★</Badge>}
         {skill.category && (
-          <Link to={`/catalog/category/${encodeURIComponent(skill.category)}`}>
+          <Link to={`/skills?category=${encodeURIComponent(skill.category)}`}>
             <Badge variant="outline" className="text-xs">Category: {formatCategoryLabel(skill.category) || skill.category}</Badge>
           </Link>
         )}

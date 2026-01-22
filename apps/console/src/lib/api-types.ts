@@ -105,7 +105,7 @@ export type SkillsListResponse =
   | ApiError;
 
 export interface DiscoverItem {
-  type: 'registry' | 'linked';
+  type: 'registry' | 'linked' | 'catalog';
   sourceId: string;
   alias?: string | null;
   title: string;
@@ -114,6 +114,10 @@ export interface DiscoverItem {
   install: string;
   publisherHandle: string | null;
   skillset?: boolean;
+  category?: string | null;
+  hasRisk?: boolean;
+  usageArtifact?: boolean;
+  installable?: boolean;
   source: { repo: string | null; path: string | null; ref: string | null; url: string | null } | null;
   discoverAt: string;
   createdAt: string;

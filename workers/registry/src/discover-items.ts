@@ -2,7 +2,7 @@ import type { Env } from "./env.js";
 import { formatInstallSpec } from "./github-utils.js";
 import type { LinkedItemRow } from "./linked-items.js";
 
-export type DiscoverItemType = "registry" | "linked";
+export type DiscoverItemType = "registry" | "linked" | "catalog";
 export type DiscoverSort = "updated" | "new" | "downloads_7d" | "downloads_30d" | "stars" | "stars_30d";
 
 export interface DiscoverItemRow {
@@ -19,6 +19,10 @@ export interface DiscoverItemRow {
   source_path: string | null;
   source_ref: string | null;
   source_url: string | null;
+  category: string | null;
+  has_risk: number | null;
+  usage_artifact: number | null;
+  installable: number | null;
   discover_at: string;
   created_at: string;
   updated_at: string;
@@ -39,6 +43,10 @@ export interface DiscoverItem {
   install: string;
   publisherHandle: string | null;
   skillset: boolean;
+  category?: string | null;
+  hasRisk?: boolean;
+  usageArtifact?: boolean;
+  installable?: boolean;
   source: {
     repo: string | null;
     path: string | null;
@@ -130,13 +138,13 @@ function decodeCursor(
   }
   if (parts.length === 3) {
     const [discoverAt, typeRaw, sourceId] = parts;
-    const type = typeRaw === "registry" || typeRaw === "linked" ? typeRaw : null;
+    const type = typeRaw === "registry" || typeRaw === "linked" || typeRaw === "catalog" ? typeRaw : null;
     if (!discoverAt || !type || !sourceId) return null;
     return { sortValue: discoverAt, discoverAt, id: `${type}:${sourceId}` };
   }
   if (parts.length < 4) return null;
   const [sortValue, discoverAt, typeRaw, sourceId] = parts;
-  const type = typeRaw === "registry" || typeRaw === "linked" ? typeRaw : null;
+  const type = typeRaw === "registry" || typeRaw === "linked" || typeRaw === "catalog" ? typeRaw : null;
   if (!sortValue || !discoverAt || !type || !sourceId) return null;
   return { sortValue, discoverAt, id: `${type}:${sourceId}` };
 }
@@ -157,9 +165,12 @@ export function buildLinkedInstall(input: { repo: string; path: string | null; r
 
 export function toDiscoverItem(row: DiscoverItemRow): DiscoverItem {
   const install =
-    row.type === "linked" && row.source_repo
+    (row.type === "linked" || row.type === "catalog") && row.source_repo
       ? buildLinkedInstall({ repo: row.source_repo, path: row.source_path, ref: row.source_ref })
       : row.install;
+  const hasRisk = row.has_risk == null ? undefined : row.has_risk === 1;
+  const usageArtifact = row.usage_artifact == null ? undefined : row.usage_artifact === 1;
+  const installable = row.installable == null ? undefined : row.installable === 1;
   return {
     type: row.type,
     sourceId: row.source_id,
@@ -170,8 +181,12 @@ export function toDiscoverItem(row: DiscoverItemRow): DiscoverItem {
     install,
     publisherHandle: row.publisher_handle,
     skillset: row.skillset === 1,
+    category: row.category ?? null,
+    hasRisk,
+    usageArtifact,
+    installable,
     source:
-      row.type === "linked"
+      row.type === "linked" || row.type === "catalog"
         ? {
             repo: row.source_repo,
             path: row.source_path,
@@ -256,13 +271,14 @@ export async function upsertDiscoverItemForLinkedItem(env: Env, input: {
 
 export async function listDiscoverItems(
   env: Env,
-  input: { q?: string; limit?: number; cursor?: string | null; sort?: string | null; skillset?: boolean | null },
+  input: { q?: string; limit?: number; cursor?: string | null; sort?: string | null; skillset?: boolean | null; category?: string | null },
 ): Promise<DiscoverItemsPage> {
   const q = (input.q ?? "").trim().toLowerCase();
   const limit = Math.min(Math.max(input.limit ?? 20, 1), 50);
   const sort = resolveSort(input.sort);
   const cursor = decodeCursor(input.cursor ?? null, sort);
   const skillsetFilter = input.skillset ?? null;
+  const categoryFilter = (input.category ?? "").trim().toLowerCase() || null;
   const minStars = getMinStars(env);
 
   const clauses: string[] = [];
@@ -271,14 +287,19 @@ export async function listDiscoverItems(
   if (q) {
     const like = `%${q}%`;
     clauses.push(
-      "(title LIKE ? OR description LIKE ? OR tags_json LIKE ? OR source_repo LIKE ? OR source_id LIKE ? OR alias LIKE ?)",
+      "(title LIKE ? OR description LIKE ? OR tags_json LIKE ? OR source_repo LIKE ? OR source_id LIKE ? OR alias LIKE ? OR category LIKE ?)",
     );
-    params.push(like, like, like, like, like, like);
+    params.push(like, like, like, like, like, like, like);
   }
 
   if (skillsetFilter !== null) {
     clauses.push("skillset = ?");
     params.push(skillsetFilter ? 1 : 0);
+  }
+
+  if (categoryFilter) {
+    clauses.push("LOWER(category) = ?");
+    params.push(categoryFilter);
   }
 
   const today = new Date();
@@ -290,21 +311,34 @@ export async function listDiscoverItems(
     .toISOString()
     .slice(0, 10);
 
+  const baseUnionSql =
+    "SELECT d.type, d.source_id, d.title, d.description, d.tags_json, d.install, d.publisher_handle, d.skillset, d.source_repo, d.source_path, d.source_ref, d.source_url, " +
+    "NULL AS category, NULL AS has_risk, NULL AS usage_artifact, NULL AS installable, d.discover_at, d.created_at, d.updated_at " +
+    "FROM discover_items d " +
+    "UNION ALL " +
+    "SELECT 'catalog' AS type, s.id AS source_id, COALESCE(NULLIF(s.name, ''), s.path) AS title, COALESCE(s.description, '') AS description, " +
+    "COALESCE(NULLIF(s.final_tags_json, ''), NULLIF(s.auto_tags_json, ''), s.tags_json, '[]') AS tags_json, '' AS install, NULL AS publisher_handle, 0 AS skillset, " +
+    "s.repo AS source_repo, s.path AS source_path, s.source_ref AS source_ref, s.source_url AS source_url, s.category AS category, s.has_risk AS has_risk, s.usage_artifact AS usage_artifact, s.installable AS installable, " +
+    "s.last_seen AS discover_at, s.created_at AS created_at, s.updated_at AS updated_at " +
+    "FROM catalog_skills s WHERE s.installable = 1";
+
   const baseSql =
-    "SELECT d.*, COALESCE(s.alias, li.alias) AS alias, " +
+    "SELECT base.*, COALESCE(s.alias, li.alias) AS alias, " +
     "COALESCE(dt.downloads, 0) AS downloads_total, " +
     "COALESCE(d7.downloads, 0) AS downloads_7d, " +
     "COALESCE(d30.downloads, 0) AS downloads_30d, " +
-    "rm.stars_total AS stars_total, rm.stars_delta_30d AS stars_30d " +
-    "FROM discover_items d " +
-    "LEFT JOIN skills s ON s.name = d.source_id AND d.type = 'registry' " +
-    "LEFT JOIN linked_items li ON li.id = d.source_id AND d.type = 'linked' " +
-    "LEFT JOIN download_total dt ON dt.entity_type = d.type AND dt.entity_id = d.source_id " +
+    "COALESCE(rm.stars_total, cr.stars_total) AS stars_total, " +
+    "COALESCE(rm.stars_delta_30d, 0) AS stars_30d " +
+    `FROM (${baseUnionSql}) base ` +
+    "LEFT JOIN skills s ON s.name = base.source_id AND base.type = 'registry' " +
+    "LEFT JOIN linked_items li ON li.id = base.source_id AND base.type = 'linked' " +
+    "LEFT JOIN download_total dt ON dt.entity_type = base.type AND dt.entity_id = base.source_id " +
     "LEFT JOIN (SELECT entity_type, entity_id, SUM(downloads) AS downloads FROM download_daily WHERE day >= ? AND day <= ? GROUP BY entity_type, entity_id) d7 " +
-    "  ON d7.entity_type = d.type AND d7.entity_id = d.source_id " +
+    "  ON d7.entity_type = base.type AND d7.entity_id = base.source_id " +
     "LEFT JOIN (SELECT entity_type, entity_id, SUM(downloads) AS downloads FROM download_daily WHERE day >= ? AND day <= ? GROUP BY entity_type, entity_id) d30 " +
-    "  ON d30.entity_type = d.type AND d30.entity_id = d.source_id " +
-    "LEFT JOIN repo_metrics rm ON rm.repo = d.source_repo";
+    "  ON d30.entity_type = base.type AND d30.entity_id = base.source_id " +
+    "LEFT JOIN repo_metrics rm ON rm.repo = base.source_repo " +
+    "LEFT JOIN catalog_repos cr ON cr.repo = base.source_repo AND base.type = 'catalog'";
 
   const baseParams: Array<string | number> = [start7d, endDay, start30d, endDay];
 
@@ -318,8 +352,8 @@ export async function listDiscoverItems(
   const filterClauses = [...clauses];
   const filterParams = [...params];
 
-  // Filter low-star linked items (registry items不受影响)
-  filterClauses.push("(type != 'linked' OR COALESCE(stars_total, 0) >= ?)");
+  // Filter low-star external items (registry items不受影响)
+  filterClauses.push("(type = 'registry' OR COALESCE(stars_total, 0) >= ?)");
   filterParams.push(minStars);
 
   // Build sort-projected subquery so we can reuse sort_value in WHERE safely

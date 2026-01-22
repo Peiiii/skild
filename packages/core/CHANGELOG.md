@@ -1,5 +1,11 @@
 # @skild/core
 
+## 0.10.18
+
+### Patch Changes
+
+- Use the unified discover index for CLI search results.
+
 ## 0.10.17
 
 ### Patch Changes

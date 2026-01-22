@@ -88,7 +88,7 @@ export function GettingStartedPage(): JSX.Element {
                         </div>
                     </Link>
                     <Link
-                        to="/skillsets"
+                        to="/skills?type=skillset"
                         className="flex items-center gap-3 p-4 rounded-[16px] bg-brand-forest/[0.02] border border-brand-forest/5 hover:bg-brand-forest/[0.05] hover:border-brand-forest/10 transition-all group"
                     >
                         <Layers className="h-5 w-5 text-brand-forest group-hover:text-brand-eco transition-colors" />

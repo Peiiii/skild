@@ -5,7 +5,6 @@ import { SignupPage } from './ui/pages/SignupPage';
 import { TokenNewPage } from './ui/pages/TokenNewPage';
 import { PublishPage } from './ui/pages/PublishPage';
 import { SkillsPage } from './ui/pages/SkillsPage';
-import { SkillsetsPage } from './ui/pages/SkillsetsPage';
 import { SkillDetailPage } from './ui/pages/SkillDetailPage';
 import { SkillManagePage } from './ui/pages/SkillManagePage';
 import { VerifyEmailPage } from './ui/pages/VerifyEmailPage';
@@ -23,9 +22,8 @@ import { LinkedItemNewPage } from './ui/pages/LinkedItemNewPage';
 import { LinkedItemManagePage } from './ui/pages/LinkedItemManagePage';
 import { LeaderboardPage } from './ui/pages/LeaderboardPage';
 import { GettingStartedPage } from './ui/pages/GettingStartedPage';
-import { CatalogPage } from './ui/pages/CatalogPage';
 import { CatalogDetailPage } from './ui/pages/CatalogDetailPage';
-import { CatalogCategoryPage } from './ui/pages/CatalogCategoryPage';
+import { CatalogCategoryRedirect } from './ui/pages/CatalogCategoryRedirect';
 
 export const router = createBrowserRouter([
   {
@@ -42,15 +40,15 @@ export const router = createBrowserRouter([
       { path: 'publish', element: <PublishPage /> },
       { path: 'getting-started', element: <GettingStartedPage /> },
       { path: 'skills', element: <SkillsPage /> },
-      { path: 'skillsets', element: <SkillsetsPage /> },
+      { path: 'skillsets', element: <Navigate to="/skills?type=skillset" replace /> },
       { path: 'skills/:scope/:skill', element: <SkillDetailPage /> },
       { path: 'skills/:scope/:skill/manage', element: <RequireAuth><SkillManagePage /></RequireAuth> },
       { path: 'linked', element: <LinkedItemsPage /> },
       { path: 'linked/new', element: <RequireAuth><LinkedItemNewPage /></RequireAuth> },
       { path: 'linked/:id', element: <LinkedItemDetailPage /> },
       { path: 'linked/:id/manage', element: <RequireAuth><LinkedItemManagePage /></RequireAuth> },
-      { path: 'catalog', element: <CatalogPage /> },
-      { path: 'catalog/category/:slug', element: <CatalogCategoryPage /> },
+      { path: 'catalog', element: <Navigate to="/skills" replace /> },
+      { path: 'catalog/category/:slug', element: <CatalogCategoryRedirect /> },
       { path: 'catalog/:id', element: <CatalogDetailPage /> },
       { path: 'leaderboard', element: <LeaderboardPage /> },
       { path: 'me', element: <RequireAuth><MePage /></RequireAuth> },

@@ -1,21 +1,14 @@
 import React from 'react';
-import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { canonicalToRoute, listDiscoverItems } from '@/lib/api';
 import type { DiscoverItem } from '@/lib/api-types';
-import { SkillsetBadge } from '@/components/skillset-badge';
-import { isSkillsetFlag } from '@/lib/skillset';
-import { normalizeAlias, preferredDisplayName, preferredInstallCommand } from '@/lib/install';
-import { cn } from '@/lib/utils';
+import { preferredInstallCommand } from '@/lib/install';
 import { HttpError } from '@/lib/http';
-import { formatRelativeTime } from '@/lib/time';
 import { Button } from '@/components/ui/button';
 import { PageLoading } from '@/components/PageLoading';
-import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
 import {
-  Search,
   Clock,
   Download,
   Calendar,
@@ -31,13 +24,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { PageHero } from '@/components/ui/page-hero';
+import { formatCategoryLabel } from './catalog/catalog-utils';
 import { SearchBar } from '@/components/ui/search-bar';
-import { CodeBlock } from '@/components/ui/code-block';
 import { SkillCard } from '@/components/ui/skill-card';
 
-export type DiscoverMode = 'skills' | 'skillsets';
-
-export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
+export function DiscoverPage(): JSX.Element {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [queryInput, setQueryInput] = React.useState(params.get('q') || '');
@@ -51,13 +42,18 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
   const [currentSort, setCurrentSort] = React.useState(params.get('sort') || 'downloads_7d');
 
-  const skillsetOnly = props.mode === 'skillsets';
+  const typeFilter = (params.get('type') || '').trim().toLowerCase();
+  const categoryFilter = (params.get('category') || '').trim();
+  const skillsetOnly = typeFilter === 'skillset';
 
   async function runSearch(q: string, sort = currentSort): Promise<void> {
     setBusy(true);
     setError(null);
     try {
-      const res = await listDiscoverItems(q, null, 20, sort, { skillset: skillsetOnly ? true : undefined });
+      const res = await listDiscoverItems(q, null, 20, sort, {
+        skillset: skillsetOnly ? true : undefined,
+        category: categoryFilter || null,
+      });
       if (!res.ok) {
         setError(res.error);
         setItems([]);
@@ -84,7 +80,10 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
     setLoadingMore(true);
     setError(null);
     try {
-      const res = await listDiscoverItems(query, nextCursor, 20, currentSort, { skillset: skillsetOnly ? true : undefined });
+      const res = await listDiscoverItems(query, nextCursor, 20, currentSort, {
+        skillset: skillsetOnly ? true : undefined,
+        category: categoryFilter || null,
+      });
       if (!res.ok) {
         setError(res.error);
         return;
@@ -121,10 +120,15 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
     }, 1500);
   }
 
+  const queryParam = params.get('q') || '';
+
   React.useEffect(() => {
-    void runSearch(params.get('q') || '');
+    const q = queryParam;
+    setQueryInput(q);
+    setQuery(q);
+    void runSearch(q);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [typeFilter, categoryFilter, queryParam]);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
@@ -149,6 +153,23 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
     void runSearch(query, s);
   }
 
+  function setTypeFilter(next: 'all' | 'skillset'): void {
+    setParams(p => {
+      const newParams = new URLSearchParams(p);
+      if (next === 'skillset') newParams.set('type', 'skillset');
+      else newParams.delete('type');
+      return newParams;
+    });
+  }
+
+  function clearCategory(): void {
+    setParams(p => {
+      const newParams = new URLSearchParams(p);
+      newParams.delete('category');
+      return newParams;
+    });
+  }
+
   const sortLabels: Record<string, string> = {
     downloads_7d: 'Trending (7d)',
     updated: 'Recently Updated',
@@ -156,10 +177,10 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
     downloads_30d: 'Popular (30d)',
   };
 
-  const title = skillsetOnly ? 'Discover Skillsets' : 'Discover Skills';
+  const title = 'Discover';
   const subtitle = skillsetOnly
     ? 'Skillsets are curated packs that can install multiple skills in one command.'
-    : 'Search and explore skills from both the official registry and the GitHub community.';
+    : 'Search and explore skills from the registry, curated GitHub sources, and the auto-index.';
 
   return (
     <div className="space-y-8">
@@ -212,44 +233,78 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row items-center gap-4">
-        <SearchBar
-          value={queryInput}
-          onChange={setQueryInput}
-          onSubmit={onSubmit}
-          placeholder={skillsetOnly ? 'Search skillsets by name…' : 'Search skills by name, repository, or author…'}
-        />
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <SearchBar
+            value={queryInput}
+            onChange={setQueryInput}
+            onSubmit={onSubmit}
+            placeholder={skillsetOnly ? 'Search skillsets by name…' : 'Search skills by name, repository, or author…'}
+            className="flex-1 min-w-[260px]"
+          />
 
-        <div className="flex-shrink-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2 border-brand-forest/10 bg-brand-forest/5 hover:bg-brand-forest/10 rounded-full h-14 px-8 shadow-sm transition-all hover:shadow-lg">
-                <ArrowUpDown className="h-4 w-4" />
-                <span className="text-xs font-bold uppercase tracking-widest">{sortLabels[currentSort] || 'Sort'}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-white shadow-2xl shadow-brand-forest/20 border-brand-forest/10">
-              <DropdownMenuLabel>Sort by</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onSortChange('downloads_7d')} className="gap-2">
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                <span>Trending (7d)</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onSortChange('updated')} className="gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span>Recently Updated</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onSortChange('new')} className="gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>Newest Arrived</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onSortChange('downloads_30d')} className="gap-2">
-                <Download className="h-4 w-4 text-muted-foreground" />
-                <span>Popular (30d)</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant={skillsetOnly ? 'ghost' : 'secondary'}
+              className="h-9 px-4 rounded-full text-xs font-bold uppercase tracking-widest"
+              onClick={() => setTypeFilter('all')}
+            >
+              All
+            </Button>
+            <Button
+              type="button"
+              variant={skillsetOnly ? 'secondary' : 'ghost'}
+              className="h-9 px-4 rounded-full text-xs font-bold uppercase tracking-widest"
+              onClick={() => setTypeFilter('skillset')}
+            >
+              Skillsets
+            </Button>
+          </div>
+
+          <div className="flex-shrink-0">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2 border-brand-forest/10 bg-brand-forest/5 hover:bg-brand-forest/10 rounded-full h-14 px-8 shadow-sm transition-all hover:shadow-lg">
+                  <ArrowUpDown className="h-4 w-4" />
+                  <span className="text-xs font-bold uppercase tracking-widest">{sortLabels[currentSort] || 'Sort'}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-white shadow-2xl shadow-brand-forest/20 border-brand-forest/10">
+                <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => onSortChange('downloads_7d')} className="gap-2">
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                  <span>Trending (7d)</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSortChange('updated')} className="gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span>Recently Updated</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSortChange('new')} className="gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span>Newest Arrived</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onSortChange('downloads_30d')} className="gap-2">
+                  <Download className="h-4 w-4 text-muted-foreground" />
+                  <span>Popular (30d)</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
+
+        {categoryFilter && (
+          <div className="flex items-center gap-2 text-xs text-brand-forest/60">
+            <span>Category:</span>
+            <Badge variant="outline" className="text-[10px] uppercase tracking-[0.2em]">
+              {formatCategoryLabel(categoryFilter) || categoryFilter}
+            </Badge>
+            <Button type="button" variant="ghost" className="h-7 px-2 text-xs" onClick={clearCategory}>
+              Clear
+            </Button>
+          </div>
+        )}
       </div>
 
       {error && (
@@ -292,11 +347,15 @@ export function DiscoverPage(props: { mode: DiscoverMode }): JSX.Element {
                 thirtyDays: item.downloads30d,
               }}
               tags={item.tags}
+              category={item.category ? { id: item.category, label: formatCategoryLabel(item.category) } : null}
+              hasRisk={item.hasRisk}
+              usageArtifact={item.usageArtifact}
               currentSort={currentSort}
               onCopyInstall={() => void copyInstall(item)}
               isCopied={copiedId === id}
               href={(() => {
                 const isLinked_ = item.type === 'linked';
+                if (item.type === 'catalog') return `/catalog/${encodeURIComponent(item.sourceId)}`;
                 if (isLinked_) return `/linked/${encodeURIComponent(item.sourceId)}`;
                 const route = canonicalToRoute(item.sourceId);
                 return route ? `/skills/${route.scope}/${encodeURIComponent(route.skill)}` : undefined;

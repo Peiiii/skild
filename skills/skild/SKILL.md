@@ -24,7 +24,7 @@ Use this skill when:
 
 ## Agent Search & Discovery (Skild Index)
 
-When an agent needs to find Skills from the Skild index, use the Registry API:
+When an agent needs to find Skills from the Skild index (registry + linked + auto catalog), use the Registry API:
 
 ```bash
 # Unified discovery (registry + linked skills)
@@ -39,6 +39,7 @@ curl "https://registry.skild.sh/resolve?alias=<alias>"
 - Use the returned `install` string directly (quotes may appear when a `#ref` is required).
 - If you need to browse linked items only:
   - `https://registry.skild.sh/linked-items?limit=20`
+- CLI `skild search` uses the same unified index.
 
 ## Agent Workflow (Recommended)
 

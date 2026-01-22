@@ -133,7 +133,7 @@ export function SkillCard({
                 <div className="flex flex-wrap items-center gap-2 -mt-2">
                     {category && (
                         <Link
-                            to={`/catalog/category/${encodeURIComponent(category.id)}`}
+                            to={`/skills?category=${encodeURIComponent(category.id)}`}
                             className="inline-flex"
                             onClick={(e) => e.stopPropagation()}
                         >

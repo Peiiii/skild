@@ -123,7 +123,7 @@ export async function searchRegistrySkills(
   limit = 50
 ): Promise<Array<{ name: string; description?: string; targets_json?: string; created_at?: string; updated_at?: string }>> {
   const q = query.trim();
-  const url = new URL(`${registryUrl}/skills`);
+  const url = new URL(`${registryUrl}/discover`);
   if (q) url.searchParams.set('q', q);
   url.searchParams.set('limit', String(Math.min(Math.max(limit, 1), 100)));
 
@@ -132,11 +132,16 @@ export async function searchRegistrySkills(
     const text = await res.text().catch(() => '');
     throw new SkildError('REGISTRY_RESOLVE_FAILED', `Failed to search skills (${res.status}). ${text}`.trim());
   }
-  const json = (await res.json()) as { ok: boolean; skills: any[] };
-  if (!json?.ok || !Array.isArray(json.skills)) {
-    throw new SkildError('REGISTRY_RESOLVE_FAILED', 'Invalid registry response for /skills.');
+  const json = (await res.json()) as { ok: boolean; rows?: any[] };
+  if (!json?.ok || !Array.isArray(json.rows)) {
+    throw new SkildError('REGISTRY_RESOLVE_FAILED', 'Invalid registry response for /discover.');
   }
-  return json.skills as any;
+  return json.rows.map((row) => ({
+    name: String(row.alias || row.title || '').trim(),
+    description: typeof row.description === 'string' ? row.description : undefined,
+    created_at: row.createdAt,
+    updated_at: row.updatedAt,
+  })) as any;
 }
 
 export async function resolveRegistryAlias(

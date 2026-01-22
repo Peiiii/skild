@@ -325,7 +325,7 @@ export async function listDiscoverItems(
   cursor?: string | null,
   limit = 20,
   sort = 'updated',
-  options?: { skillset?: boolean }
+  options?: { skillset?: boolean; category?: string | null }
 ): Promise<DiscoverListResponse> {
   const base = getRegistryUrl();
   const params = new URLSearchParams();
@@ -334,6 +334,7 @@ export async function listDiscoverItems(
   params.set('limit', String(limit));
   params.set('sort', sort);
   if (options?.skillset !== undefined) params.set('skillset', options.skillset ? '1' : '0');
+  if (options?.category) params.set('category', options.category);
 
   const url =
     base.startsWith('http://') || base.startsWith('https://')
