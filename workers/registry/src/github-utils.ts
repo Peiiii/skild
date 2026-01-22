@@ -19,6 +19,15 @@ export function normalizeRef(ref: string | null | undefined): string | null {
   return value;
 }
 
+const DEFAULT_BRANCH_REFS = new Set(["main", "master"]);
+
+function normalizeInstallRef(ref: string | null): string | null {
+  if (!ref) return null;
+  const lower = ref.toLowerCase();
+  if (DEFAULT_BRANCH_REFS.has(lower)) return null;
+  return ref;
+}
+
 export function buildGithubUrl(input: { repo: string; path: string | null; ref: string | null }): string {
   const ref = input.ref ?? "main";
   const path = input.path ? `/${input.path}` : "";
@@ -27,8 +36,15 @@ export function buildGithubUrl(input: { repo: string; path: string | null; ref: 
 
 export function buildDegitSpec(input: { repo: string; path: string | null; ref: string | null }): string {
   const path = input.path ? `/${input.path}` : "";
-  const ref = input.ref ? `#${input.ref}` : "";
+  const refValue = normalizeInstallRef(input.ref);
+  const ref = refValue ? `#${refValue}` : "";
   return `${input.repo}${path}${ref}`;
+}
+
+export function formatInstallSpec(input: { repo: string; path: string | null; ref: string | null }): string {
+  const spec = buildDegitSpec(input);
+  if (/#/.test(spec) || /\s/.test(spec)) return `"${spec}"`;
+  return spec;
 }
 
 export function normalizeGithubSource(input: {

@@ -15,7 +15,7 @@ Principles
 
 - Zero invasion: do not modify upstream `SKILL.md`; depend on upstream GitHub directories only.
 - Quality first: curated packs should install cleanly (has `SKILL.md` + valid frontmatter whenever possible).
-- Stable identifiers: prefer degit shorthand with explicit `#ref` when known (e.g. `#main`, `#master`).
+- Stable identifiers: prefer degit shorthand; only add `#ref` for non-default branches (default branch omits `#ref`).
 - Marketing-first UX: every pack has a memorable alias and a single-line install command.
 - Maintenance-friendly: keep packs small and purposeful (avoid “dump everything” unless it is explicitly the point).
 
@@ -71,4 +71,3 @@ Next iteration ideas
 - Automate validation: CI job that materializes each dependency and fails on missing `SKILL.md`.
 - Add “curation metadata” per pack (tags, target platforms, maintainer, last verified).
 - Add “Featured Skillsets” JSON manifest served by registry for the website/hub to render dynamically.
-

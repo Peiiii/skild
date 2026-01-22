@@ -1,7 +1,7 @@
 ---
 name: skild
 description: Skill package manager for AI Agents — install, manage, and publish Agent Skills.
-version: 0.2.8
+version: 0.2.9
 author: Peiiii
 license: MIT
 tags:
@@ -21,6 +21,31 @@ Use this skill when:
 - Managing installed Skills (list, update, uninstall)
 - Publishing Skills to share with the community
 - Searching or discovering new Skills
+
+## Agent Search & Discovery (Skild Index)
+
+When an agent needs to find Skills from the Skild index, use the Registry API:
+
+```bash
+# Unified discovery (registry + linked skills)
+curl "https://registry.skild.sh/discover?q=<query>&limit=20"
+
+# Resolve a short alias (optional)
+curl "https://registry.skild.sh/resolve?alias=<alias>"
+```
+
+**Notes:**
+- Prefer `alias` if present; it provides the shortest install command.
+- Use the returned `install` string directly (quotes may appear when a `#ref` is required).
+- If you need to browse linked items only:
+  - `https://registry.skild.sh/linked-items?limit=20`
+
+## Agent Workflow (Recommended)
+
+1) Search via `/discover` and shortlist results by description/tags.  
+2) Confirm with the user and pick the best match.  
+3) Install using the provided `install` command (or alias).  
+4) Manage using `skild list / info / update / uninstall / sync`.
 
 ## Prerequisites
 

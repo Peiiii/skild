@@ -1,6 +1,6 @@
 import type { Env } from "./env.js";
 import { assertHandle } from "./validate.js";
-import { buildDegitSpec, buildGithubUrl, normalizePath, normalizeRef, normalizeRepo } from "./github-utils.js";
+import { buildGithubUrl, formatInstallSpec, normalizePath, normalizeRef, normalizeRepo } from "./github-utils.js";
 
 export type LinkedItemSourceProvider = "github";
 
@@ -172,7 +172,7 @@ function resolveSourceInput(input: {
 
 export function buildInstallCommand(source: { provider: LinkedItemSourceProvider; repo: string; path: string | null; ref: string | null; url: string | null }): string {
   if (source.provider !== "github") throw new Error("Unsupported provider.");
-  return `skild install "${buildDegitSpec({ repo: source.repo, path: source.path, ref: source.ref })}"`;
+  return `skild install ${formatInstallSpec({ repo: source.repo, path: source.path, ref: source.ref })}`;
 }
 
 export function normalizeLinkedSource(input: {

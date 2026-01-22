@@ -1,4 +1,5 @@
 import type { Env } from "./env.js";
+import { formatInstallSpec } from "./github-utils.js";
 import type { LinkedItemRow } from "./linked-items.js";
 
 export type DiscoverItemType = "registry" | "linked";
@@ -151,12 +152,14 @@ function buildRegistryInstall(name: string): string {
 }
 
 export function buildLinkedInstall(input: { repo: string; path: string | null; ref: string | null }): string {
-  const path = input.path ? `/${input.path}` : "";
-  const ref = input.ref ? `#${input.ref}` : "";
-  return `skild install "${input.repo}${path}${ref}"`;
+  return `skild install ${formatInstallSpec({ repo: input.repo, path: input.path, ref: input.ref })}`;
 }
 
 export function toDiscoverItem(row: DiscoverItemRow): DiscoverItem {
+  const install =
+    row.type === "linked" && row.source_repo
+      ? buildLinkedInstall({ repo: row.source_repo, path: row.source_path, ref: row.source_ref })
+      : row.install;
   return {
     type: row.type,
     sourceId: row.source_id,
@@ -164,7 +167,7 @@ export function toDiscoverItem(row: DiscoverItemRow): DiscoverItem {
     title: row.title,
     description: row.description,
     tags: parseTags(row.tags_json),
-    install: row.install,
+    install,
     publisherHandle: row.publisher_handle,
     skillset: row.skillset === 1,
     source:
