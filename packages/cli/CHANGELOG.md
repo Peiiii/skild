@@ -1,5 +1,13 @@
 # skild
 
+## 0.10.19
+
+### Patch Changes
+
+- Add `--skill` to target a specific skill from multi-skill sources.
+- Updated dependencies
+  - @skild/core@0.10.19
+
 ## 0.10.18
 
 ### Patch Changes

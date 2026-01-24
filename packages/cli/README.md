@@ -108,6 +108,7 @@ skild install ./path/to/my-skill
 |--------|-------------|
 | `-t, --target <platform>` | Target platform (default: interactive prompt) |
 | `--all` | Install to all platforms |
+| `--skill <path-or-name>` | Pick a single skill when the source repo/folder contains multiple skills |
 | `--local` | Install to project directory instead of global |
 | `--force` | Overwrite existing skill |
 | `-y, --yes` | Skip confirmation prompts |

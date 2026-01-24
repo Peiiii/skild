@@ -39,6 +39,7 @@ export interface InstallCommandOptions {
   target?: Platform | string;
   all?: boolean;
   recursive?: boolean;
+  skill?: string;
   yes?: boolean;
   depth?: number | string;
   scanDepth?: number | string;
@@ -126,6 +127,41 @@ function getInstalledPlatforms(scope: InstallScope): Platform[] {
 function getPlatformPromptList(scope: InstallScope): Platform[] {
   const installed = getInstalledPlatforms(scope);
   return installed.length > 0 ? installed : [...PLATFORMS];
+}
+
+function normalizeSkillSelector(input: string): string {
+  const trimmed = input.trim();
+  if (!trimmed) return '';
+
+  const normalized = trimmed
+    .replace(/\\/g, '/')
+    .replace(/^\.\/+/, '')
+    .replace(/^\/+|\/+$/g, '')
+    .toLowerCase();
+
+  return normalized || '.';
+}
+
+function skillMatchesSelector(skill: DiscoveredSkillInstall, selector: string): boolean {
+  if (!selector) return false;
+
+  const relPath = normalizeSkillSelector(skill.relPath || '.');
+  const relPathNoSkillsPrefix = relPath.startsWith('skills/') ? relPath.slice('skills/'.length) : relPath;
+  const relBase = relPath.split('/').pop() || relPath;
+
+  if (selector === relPath || selector === relPathNoSkillsPrefix || selector === relBase) return true;
+
+  const displayName = skill.displayName?.trim().toLowerCase();
+  if (displayName && displayName === selector) return true;
+
+  const suggested = skill.suggestedSource ? normalizeSkillSelector(stripSourceRef(skill.suggestedSource)) : '';
+  if (suggested) {
+    const suggestedBase = suggested.split('/').pop() || suggested;
+    const suggestedTail = suggested.split('/').slice(-2).join('/');
+    if (selector === suggested || selector === suggestedBase || selector === suggestedTail) return true;
+  }
+
+  return false;
 }
 
 function asDiscoveredSkills(
@@ -387,10 +423,42 @@ async function discoverSkills(ctx: InstallContext): Promise<boolean> {
 // ============================================================================
 
 async function promptSelections(ctx: InstallContext): Promise<boolean> {
-  const { discoveredSkills, isSingleSkill, jsonOnly, interactive, yes, options } = ctx;
+  const { jsonOnly, interactive, yes, options } = ctx;
+  const skillSelector = typeof options.skill === 'string' ? normalizeSkillSelector(options.skill) : '';
+
+  if (!ctx.isSingleSkill && skillSelector) {
+    if (!ctx.discoveredSkills || ctx.discoveredSkills.length === 0) {
+      const message = 'No skills discovered to match --skill.';
+      if (jsonOnly) printJson({ ok: false, error: 'SKILL_NOT_FOUND', message, source: ctx.source, resolvedSource: ctx.resolvedSource });
+      else console.error(chalk.red(message));
+      process.exitCode = 1;
+      return false;
+    }
+
+    const matches = ctx.discoveredSkills.filter(s => skillMatchesSelector(s, skillSelector));
+    if (matches.length === 0) {
+      const available = ctx.discoveredSkills.slice(0, 10).map(s => s.relPath);
+      const message = `Skill "${options.skill}" not found in source. Available: ${available.join(', ')}`;
+      if (jsonOnly) printJson({ ok: false, error: 'SKILL_NOT_FOUND', message, source: ctx.source, resolvedSource: ctx.resolvedSource, available });
+      else console.error(chalk.red(message));
+      process.exitCode = 1;
+      return false;
+    }
+    if (matches.length > 1) {
+      const matched = matches.map(s => s.relPath).join(', ');
+      const message = `Skill selector "${options.skill}" is ambiguous. Matches: ${matched}. Please use a more specific path.`;
+      if (jsonOnly) printJson({ ok: false, error: 'SKILL_AMBIGUOUS', message, source: ctx.source, resolvedSource: ctx.resolvedSource, matches: matches.map(s => s.relPath) });
+      else console.error(chalk.red(message));
+      process.exitCode = 1;
+      return false;
+    }
+
+    ctx.selectedSkills = [matches[0]!];
+    ctx.isSingleSkill = true;
+  }
 
   // Single skill: just prompt for platforms if needed
-  if (isSingleSkill) {
+  if (ctx.isSingleSkill) {
     if (ctx.needsPlatformPrompt) {
       if (ctx.spinner) ctx.spinner.stop();
       const selectedPlatforms = await promptPlatformsInteractive({
@@ -411,12 +479,12 @@ async function promptSelections(ctx: InstallContext): Promise<boolean> {
   }
 
   // Multiple skills discovered
-  if (!discoveredSkills || discoveredSkills.length === 0) {
+  if (!ctx.discoveredSkills || ctx.discoveredSkills.length === 0) {
     return false;
   }
 
   // Check max skills limit
-  if (discoveredSkills.length > ctx.maxSkills) {
+  if (ctx.discoveredSkills.length > ctx.maxSkills) {
     const message = `Found more than ${ctx.maxSkills} skills. Increase --max-skills to proceed.`;
     if (jsonOnly) printJson({ ok: false, error: 'TOO_MANY_SKILLS', message, source: ctx.source, resolvedSource: ctx.resolvedSource, maxSkills: ctx.maxSkills });
     else console.error(chalk.red(message));
@@ -427,7 +495,7 @@ async function promptSelections(ctx: InstallContext): Promise<boolean> {
   // Non-interactive mode without --recursive
   if (!options.recursive && !yes) {
     if (jsonOnly) {
-      const foundOutput = discoveredSkills.map(({ relPath, suggestedSource }) => ({ relPath, suggestedSource }));
+      const foundOutput = ctx.discoveredSkills.map(({ relPath, suggestedSource }) => ({ relPath, suggestedSource }));
       printJson({
         ok: false,
         error: 'MULTI_SKILL_SOURCE',
@@ -442,9 +510,9 @@ async function promptSelections(ctx: InstallContext): Promise<boolean> {
 
     if (ctx.spinner) ctx.spinner.stop();
 
-    const headline = discoveredSkills.length === 1
+    const headline = ctx.discoveredSkills.length === 1
       ? `No SKILL.md found at root. Found 1 skill.\n`
-      : `No SKILL.md found at root. Found ${discoveredSkills.length} skills.\n`;
+      : `No SKILL.md found at root. Found ${ctx.discoveredSkills.length} skills.\n`;
     console.log(chalk.yellow(headline));
 
     if (!interactive) {
@@ -460,16 +528,16 @@ async function promptSelections(ctx: InstallContext): Promise<boolean> {
 
     // Don't show headline again if we just showed it above
     if (options.recursive) {
-      const headline = discoveredSkills.length === 1
+      const headline = ctx.discoveredSkills.length === 1
         ? `No SKILL.md found at root. Found 1 skill.\n`
-        : `No SKILL.md found at root. Found ${discoveredSkills.length} skills.\n`;
+        : `No SKILL.md found at root. Found ${ctx.discoveredSkills.length} skills.\n`;
       console.log(chalk.yellow(headline));
     }
 
     // Step 1: Select skills
     const selected = ctx.markdownTree
-      ? await promptSkillsTreeInteractive(discoveredSkills, ctx.markdownTree, { defaultAll: true })
-      : await promptSkillsInteractive(discoveredSkills, { defaultAll: true });
+      ? await promptSkillsTreeInteractive(ctx.discoveredSkills, ctx.markdownTree, { defaultAll: true })
+      : await promptSkillsInteractive(ctx.discoveredSkills, { defaultAll: true });
     if (!selected) {
       console.log(chalk.red('No skills selected.'));
       process.exitCode = 1;
@@ -496,7 +564,7 @@ async function promptSelections(ctx: InstallContext): Promise<boolean> {
     if (ctx.spinner) ctx.spinner.start();
   } else {
     // Auto-select all
-    ctx.selectedSkills = discoveredSkills;
+    ctx.selectedSkills = ctx.discoveredSkills;
   }
 
   return true;

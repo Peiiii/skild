@@ -42,6 +42,7 @@ program
     .option('-t, --target <platform>', `Target platform: ${PLATFORMS.join(', ')}`)
     .option('--all', `Install to all platforms: ${PLATFORMS.join(', ')}`)
     .option('--recursive', 'If source is a multi-skill directory/repo, install all discovered skills')
+    .option('--skill <path-or-name>', 'Select a single skill when the source contains multiple skills')
     .option('-y, --yes', 'Skip confirmation prompts (assume yes)')
     .option('--depth <n>', 'Max markdown recursion depth (default: 0)', '0')
     .option('--scan-depth <n>', 'Max directory depth to scan for SKILL.md (default: 6)', '6')
@@ -50,7 +51,7 @@ program
     .option('-f, --force', 'Overwrite existing installation')
     .option('--registry <url>', 'Registry base URL (default: https://registry.skild.sh)')
     .option('--json', 'Output JSON')
-    .action(async (source: string, options: { target?: string; local?: boolean }) => {
+    .action(async (source: string, options: any) => {
         await install(source, options as any);
     });
 
