@@ -1,5 +1,17 @@
 # skild
 
+## 0.10.21
+
+### Patch Changes
+
+- Show all platforms in install prompt and default-select installed ones.
+
+## 0.10.20
+
+### Patch Changes
+
+- Improve install output for single-skill multi-platform installs.
+
 ## 0.10.19
 
 ### Patch Changes

@@ -125,8 +125,8 @@ function getInstalledPlatforms(scope: InstallScope): Platform[] {
 }
 
 function getPlatformPromptList(scope: InstallScope): Platform[] {
-  const installed = getInstalledPlatforms(scope);
-  return installed.length > 0 ? installed : [...PLATFORMS];
+  void scope;
+  return [...PLATFORMS];
 }
 
 function normalizeSkillSelector(input: string): string {
@@ -461,9 +461,11 @@ async function promptSelections(ctx: InstallContext): Promise<boolean> {
   if (ctx.isSingleSkill) {
     if (ctx.needsPlatformPrompt) {
       if (ctx.spinner) ctx.spinner.stop();
+      const installedPlatforms = getInstalledPlatforms(ctx.scope);
       const selectedPlatforms = await promptPlatformsInteractive({
-        defaultAll: true,
+        defaultAll: installedPlatforms.length === 0,
         platforms: getPlatformPromptList(ctx.scope),
+        installedPlatforms,
       });
       if (!selectedPlatforms) {
         console.log(chalk.red('No platforms selected.'));
@@ -547,9 +549,11 @@ async function promptSelections(ctx: InstallContext): Promise<boolean> {
 
     // Step 2: Select platforms
     if (ctx.needsPlatformPrompt) {
+      const installedPlatforms = getInstalledPlatforms(ctx.scope);
       const selectedPlatforms = await promptPlatformsInteractive({
-        defaultAll: true,
+        defaultAll: installedPlatforms.length === 0,
         platforms: getPlatformPromptList(ctx.scope),
+        installedPlatforms,
       });
       if (!selectedPlatforms) {
         console.log(chalk.red('No platforms selected.'));
@@ -669,6 +673,7 @@ function reportResults(ctx: InstallContext): void {
     : targets.length === 1
       ? targets[0]
       : `${targets.length} platforms`;
+  const isMultiTarget = targets.length > 1;
 
   if (errors.length === 0 && (results.length > 0 || skipped.length > 0)) {
     const displayName = results[0]?.canonicalName || results[0]?.name || ctx.source;
@@ -687,7 +692,9 @@ function reportResults(ctx: InstallContext): void {
       spinner?.succeed(
         isMultiSkill
           ? `Installed ${chalk.green(skillCount)} skill${skillCount > 1 ? 's' : ''} → ${chalk.dim(platformsLabel)}`
-          : `Installed ${chalk.green(displayName)} → ${chalk.dim(results[0]?.installDir || platformsLabel)}`
+          : isMultiTarget
+            ? `Installed ${chalk.green(displayName)} → ${chalk.dim(platformsLabel)}`
+            : `Installed ${chalk.green(displayName)} → ${chalk.dim(results[0]?.installDir || platformsLabel)}`
       );
     }
   } else if (errors.length > 0) {
@@ -723,6 +730,15 @@ function reportResults(ctx: InstallContext): void {
       }
       console.log(chalk.dim(`    ... and ${uniqueSkillNames.length - 8} more`));
     }
+  } else if (!isMultiSkill && isMultiTarget && results.length > 0) {
+    console.log();
+    const byPlatform = new Map<Platform, InstallRecord>();
+    for (const r of results) byPlatform.set(r.platform, r);
+    for (const platform of targets) {
+      const record = byPlatform.get(platform);
+      if (!record) continue;
+      console.log(`  ${chalk.green('✓')} ${chalk.cyan(platform)} → ${chalk.dim(record.installDir)}`);
+    }
   } else if (!isMultiSkill && targets.length === 1 && results[0]) {
     const record = results[0];
     if (!record.hasSkillMd) {
@@ -756,11 +772,17 @@ function reportResults(ctx: InstallContext): void {
       bySkill.set(s.skillName, platforms);
     }
 
-    for (const [skillName] of [...bySkill.entries()].slice(0, 5)) {
-      console.log(chalk.dim(`    • ${skillName}`));
-    }
-    if (bySkill.size > 5) {
-      console.log(chalk.dim(`    ... and ${bySkill.size - 5} more`));
+    const onlySkill = bySkill.size === 1 ? [...bySkill.entries()][0] : null;
+    if (onlySkill && isMultiTarget) {
+      const [skillName, platforms] = onlySkill;
+      console.log(chalk.dim(`    • ${skillName} → ${platforms.join(', ')}`));
+    } else {
+      for (const [skillName] of [...bySkill.entries()].slice(0, 5)) {
+        console.log(chalk.dim(`    • ${skillName}`));
+      }
+      if (bySkill.size > 5) {
+        console.log(chalk.dim(`    ... and ${bySkill.size - 5} more`));
+      }
     }
     console.log(chalk.dim(`\n  💡 Reinstall with: ${chalk.cyan(`skild install ${ctx.source} --force`)}`));
   }

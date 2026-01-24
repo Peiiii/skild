@@ -356,10 +356,14 @@ export async function promptSkillsTreeInteractive(
 }
 
 export async function promptPlatformsInteractive(
-  options: { defaultAll?: boolean; platforms?: Platform[] } = {}
+  options: { defaultAll?: boolean; platforms?: Platform[]; installedPlatforms?: Platform[] } = {}
 ): Promise<Platform[] | null> {
   const platforms = options.platforms && options.platforms.length > 0 ? options.platforms : PLATFORMS;
   const platformItems = platforms.map(p => ({ platform: p }));
+  const installedSet = new Set(options.installedPlatforms ?? []);
+  const defaultSelected = installedSet.size > 0
+    ? new Set(platforms.flatMap((p, idx) => (installedSet.has(p) ? [idx] : [])))
+    : undefined;
 
   const selectedIndices = await interactiveTreeSelect(platformItems, {
     title: 'Select target platforms',
@@ -368,11 +372,15 @@ export async function promptPlatformsInteractive(
     formatNode: (node, selection, isCursor, maxWidth) => {
       const displayName =
         node.name === 'All Platforms' ? node.name : PLATFORM_DISPLAY[node.name as Platform] || node.name;
+      const installedSuffix =
+        node.name !== 'All Platforms' && installedSet.has(node.name as Platform) ? ' [installed]' : '';
       return formatTreeNode({ ...node, name: displayName }, selection, isCursor, maxWidth, {
+        suffixText: installedSuffix,
         hintText: buildSpaceHint(node, selection),
       });
     },
     defaultAll: options.defaultAll !== false,
+    defaultSelected,
   });
 
   if (!selectedIndices) return null;
@@ -428,4 +436,3 @@ export async function promptSyncTargetsInteractive(
   enqueuePostPromptLog(chalk.green(`\n✓ Syncing ${selected.length} target(s): ${chalk.cyan(summary)}\n`));
   return selected;
 }
-
