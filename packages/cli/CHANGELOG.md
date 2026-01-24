@@ -1,5 +1,13 @@
 # skild
 
+## 0.10.22
+
+### Patch Changes
+
+- Make install records portable by omitting machine-specific install paths.
+- Updated dependencies
+  - @skild/core@0.10.22
+
 ## 0.10.21
 
 ### Patch Changes

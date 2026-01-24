@@ -72,6 +72,10 @@ export interface InstallRecord {
   sourceType: SourceType;
   installedAt: string;
   updatedAt?: string;
+  /**
+   * Derived at runtime from platform/scope/name.
+   * Stored install records omit this field to avoid machine-specific paths.
+   */
   installDir: string;
   contentHash: string;
   hasSkillMd: boolean;
@@ -103,7 +107,7 @@ export interface LockEntry {
   registryUrl?: string;
   installedAt: string;
   updatedAt?: string;
-  installDir: string;
+  installDir?: string;
   contentHash: string;
 }
 
