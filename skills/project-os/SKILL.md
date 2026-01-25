@@ -1,7 +1,7 @@
 ---
 name: project-os
 description: AI project OS for autonomous loop, automated orchestration, and rule-driven execution.
-version: 0.1.1
+version: 0.1.2
 author: Peiiii
 license: MIT
 tags:
@@ -31,7 +31,25 @@ tags:
 - 想把一套严格交付流程迁移到其他项目。
 - 需要在团队内统一验证/冒烟/发布规范。
 
-## 快速落地
+## 启用方式（必须先初始化才生效）
+
+本 Skill 安装后不会自动生效，首次使用时需要初始化；初始化完成后规则与流程才会被执行。
+
+## 初始化流程（首次使用）
+
+1) 用户安装本 Skill 并开始与 agent 对话。  
+2) agent 检测到目标项目尚未初始化（如缺少 `AGENTS.md`/`commands`/`docs/logs`）。  
+3) agent 主动提示初始化必要性与影响，并请求确认。  
+4) 用户确认后，agent 自动完成初始化并反馈结果。  
+
+## 初始化会做什么
+
+- 生成/更新 `AGENTS.md`（若已存在，则合并而非覆盖）
+- 生成/更新 `commands/commands.md`
+- 生成/更新 `docs/logs` 与 `docs/workflows`
+- 保证规则、指令索引、日志制度完整落地
+
+## 手动初始化（仅作为兜底）
 
 将本 Skill 的模板复制到目标项目根目录（若已有文件，需合并而非覆盖）：
 
