@@ -27,6 +27,7 @@
     "degit": "^2.8.4",
     "js-yaml": "^4.1.0",
     "semver": "^7.6.3",
+    "simple-git": "^3.27.0",
     "tar": "^7.4.3"
   },
   "devDependencies": {

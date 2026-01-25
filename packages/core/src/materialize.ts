@@ -2,6 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import degit from 'degit';
+import simpleGit from 'simple-git';
 import type { SourceType } from './types.js';
 import { classifySource, extractSkillName, resolveLocalPath, stripSourceRef, toDegitPath } from './source.js';
 import { copyDir, createTempDir, isDirEmpty, isDirectory, removeDir } from './fs.js';
@@ -18,6 +19,102 @@ type DegitCloneMode = 'tar' | 'git';
 function resetTargetDir(targetPath: string): void {
   removeDir(targetPath);
   fs.mkdirSync(targetPath, { recursive: true });
+}
+
+type GitCloneSpec = {
+  url: string;
+  ref?: string;
+  subpath?: string;
+};
+
+function splitSourceRef(source: string): { base: string; ref?: string } {
+  const [base, ref] = source.split('#', 2);
+  return { base, ref: ref?.trim() || undefined };
+}
+
+function parseGitCloneSpec(source: string): GitCloneSpec | null {
+  const trimmed = source.trim();
+  if (!trimmed) return null;
+  if (resolveLocalPath(trimmed)) return null;
+
+  const { base, ref } = splitSourceRef(trimmed);
+
+  const githubTreeWithPathMatch = base.match(/github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.+)/);
+  if (githubTreeWithPathMatch) {
+    const [, owner, repo, branch, subpath] = githubTreeWithPathMatch;
+    return { url: `https://github.com/${owner}/${repo}.git`, ref: branch, subpath };
+  }
+
+  const githubTreeMatch = base.match(/github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)$/);
+  if (githubTreeMatch) {
+    const [, owner, repo, branch] = githubTreeMatch;
+    return { url: `https://github.com/${owner}/${repo}.git`, ref: branch };
+  }
+
+  const githubRepoMatch = base.match(/github\.com\/([^/]+)\/([^/]+)/);
+  if (githubRepoMatch) {
+    const [, owner, repoRaw] = githubRepoMatch;
+    const repo = repoRaw.replace(/\.git$/, '');
+    return { url: `https://github.com/${owner}/${repo}.git`, ref };
+  }
+
+  const gitlabTreeWithPathMatch = base.match(/gitlab\.com\/([^/]+)\/([^/]+)\/-\/tree\/([^/]+)\/(.+)/);
+  if (gitlabTreeWithPathMatch) {
+    const [, owner, repo, branch, subpath] = gitlabTreeWithPathMatch;
+    return { url: `https://gitlab.com/${owner}/${repo}.git`, ref: branch, subpath };
+  }
+
+  const gitlabTreeMatch = base.match(/gitlab\.com\/([^/]+)\/([^/]+)\/-\/tree\/([^/]+)$/);
+  if (gitlabTreeMatch) {
+    const [, owner, repo, branch] = gitlabTreeMatch;
+    return { url: `https://gitlab.com/${owner}/${repo}.git`, ref: branch };
+  }
+
+  const gitlabRepoMatch = base.match(/gitlab\.com\/([^/]+)\/([^/]+)/);
+  if (gitlabRepoMatch) {
+    const [, owner, repoRaw] = gitlabRepoMatch;
+    const repo = repoRaw.replace(/\.git$/, '');
+    return { url: `https://gitlab.com/${owner}/${repo}.git`, ref };
+  }
+
+  const shorthandMatch = base.match(/^([^/]+)\/([^/]+)(?:\/(.+))?$/);
+  if (shorthandMatch && !base.includes(':') && !base.startsWith('.') && !base.startsWith('/')) {
+    const [, owner, repo, subpath] = shorthandMatch;
+    return { url: `https://github.com/${owner}/${repo}.git`, ref, subpath };
+  }
+
+  if (/^(https?:|git@|ssh:)/i.test(base)) {
+    return { url: base, ref };
+  }
+
+  return null;
+}
+
+async function cloneWithGit(spec: GitCloneSpec, targetPath: string): Promise<string> {
+  const cloneOptions = spec.ref ? ['--depth', '1', '--branch', spec.ref] : ['--depth', '1'];
+  const git = simpleGit();
+
+  if (!spec.subpath) {
+    resetTargetDir(targetPath);
+    await git.clone(spec.url, targetPath, cloneOptions);
+    return spec.url;
+  }
+
+  const tempRoot = createTempDir(path.join(os.tmpdir(), 'skild-git'), extractSkillName(spec.url));
+  try {
+    await git.clone(spec.url, tempRoot, cloneOptions);
+    const resolvedSubpath = path.resolve(tempRoot, spec.subpath);
+    const resolvedRoot = path.resolve(tempRoot);
+    if (!resolvedSubpath.startsWith(`${resolvedRoot}${path.sep}`)) {
+      throw new SkildError('INVALID_SOURCE', `Subpath escapes repository root: ${spec.subpath}`, { subpath: spec.subpath });
+    }
+    ensureInstallableDir(resolvedSubpath);
+    resetTargetDir(targetPath);
+    copyDir(resolvedSubpath, targetPath);
+    return spec.url;
+  } finally {
+    removeDir(tempRoot);
+  }
 }
 
 async function cloneRemote(degitSrc: string, targetPath: string, mode: DegitCloneMode): Promise<void> {
@@ -82,6 +179,16 @@ export async function materializeSourceToDir(input: {
     ensureInstallableDir(localPath);
     copyDir(localPath, targetDir);
     return { sourceType: 'local', materializedFrom: localPath };
+  }
+
+  const gitSpec = parseGitCloneSpec(input.source);
+  if (gitSpec) {
+    try {
+      const materializedFrom = await cloneWithGit(gitSpec, targetDir);
+      return { sourceType, materializedFrom };
+    } catch {
+      // Fall back to degit path below.
+    }
   }
 
   const degitPath = toDegitPath(input.source);
