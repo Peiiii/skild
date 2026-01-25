@@ -36,17 +36,25 @@ import TerminalEntry from "./TerminalEntry.astro";
             <!-- Animation Group 2: List -->
             <div class="space-y-2 pt-4">
                 <TerminalEntry type="command">skild list</TerminalEntry>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1">
+                <div class="pl-6 text-[12px] space-y-1">
+                    <div class="flex gap-4 border-b border-white/5 pb-1 text-white/40">
+                        <span class="w-32">Skill</span>
+                        <span class="w-16 text-center">Claude</span>
+                        <span class="w-16 text-center">Cursor</span>
+                        <span class="w-16 text-center">Copilot</span>
+                    </div>
                     {[
-                        ["@anthropics/pdf", "v1.2.0"],
-                        ["@anthropics/search", "v0.1.1"],
-                        ["@peiiii/writer", "v2.4.5"],
-                        ["@peiiii/ui-pro", "v1.0.2"]
-                    ].map(([name, ver]) => (
-                        <TerminalEntry type="data" class="flex justify-between border-b border-white/5 pb-1">
-                            <span>{name}</span>
-                            <span class="text-brand-eco/40">{ver}</span>
-                        </TerminalEntry>
+                        ["prd", "✓", "✓", "✓"],
+                        ["project-os", "✓", "✓", "✓"],
+                        ["ralph", "✓", "✓", "✓"],
+                        ["ui-ux-pro-max", "✓", "✓", "✓"]
+                    ].map(([name, ...status]) => (
+                        <div class="flex gap-4">
+                            <span class="w-32 text-cyan-400">{name}</span>
+                            {status.map((s) => (
+                                <span class="w-16 text-center text-green-400">{s}</span>
+                            ))}
+                        </div>
                     ))}
                 </div>
             </div>

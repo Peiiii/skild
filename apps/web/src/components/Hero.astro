@@ -12,11 +12,23 @@
     </h1>
 
     <p
-        class="text-base md:text-lg lg:text-xl text-brand-forest/70 max-w-3xl mx-auto mb-8 leading-relaxed font-medium"
+        class="text-base md:text-lg lg:text-xl text-brand-forest/70 max-w-3xl mx-auto mb-6 leading-relaxed font-medium"
     >
         The unified package manager for AI Agent Skills.<br class="hidden md:inline" />
         One command to install, manage, and share capabilities across all major tools.
     </p>
+
+    <!-- Quick Install -->
+    <div class="flex items-center justify-center gap-3 mb-8">
+        <div class="bg-[#0A0A08] rounded-xl px-6 py-3 font-mono text-sm md:text-base text-white flex items-center gap-3 shadow-lg">
+            <span class="text-brand-eco/60">$</span>
+            <code id="npm-install-cmd">npm i -g skild</code>
+            <button id="hero-copy-btn" class="opacity-40 hover:opacity-100 transition-opacity p-1 ml-2">
+                <svg id="hero-copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <svg id="hero-check-icon" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+        </div>
+    </div>
 
     <!-- CTA Buttons -->
     <div
@@ -83,5 +95,27 @@
     </a>
 
 
-
 </section>
+
+<script>
+    const heroCopyBtn = document.getElementById('hero-copy-btn');
+    const npmInstallCmd = document.getElementById('npm-install-cmd');
+    const heroCopyIcon = document.getElementById('hero-copy-icon');
+    const heroCheckIcon = document.getElementById('hero-check-icon');
+    
+    if (heroCopyBtn && npmInstallCmd && heroCopyIcon && heroCheckIcon) {
+        heroCopyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(npmInstallCmd.textContent || '');
+                heroCopyIcon.classList.add('hidden');
+                heroCheckIcon.classList.remove('hidden');
+                setTimeout(() => {
+                    heroCopyIcon.classList.remove('hidden');
+                    heroCheckIcon.classList.add('hidden');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        });
+    }
+</script>
