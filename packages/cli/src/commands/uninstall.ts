@@ -7,7 +7,7 @@ import {
   type Platform,
 } from '@skild/core';
 import { createSpinner } from '../utils/logger.js';
-import { formatTargetLabel, formatTargetSummary, resolveTargetSelection } from '../utils/target-selection.js';
+import { formatTargetLabel, formatTargetSummary, hasInstalledSkill, resolveTargetSelection } from '../utils/target-selection.js';
 
 export interface UninstallCommandOptions {
   target?: Platform | string;
@@ -21,16 +21,21 @@ export async function uninstall(skill: string, options: UninstallCommandOptions 
   const canonical = skill.trim();
   const resolvedName = canonical.startsWith('@') && canonical.includes('/') ? canonicalNameToInstallDirName(canonical) : canonical;
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY);
-  const selection = await resolveTargetSelection(options, interactive);
+  const selection = await resolveTargetSelection(options, interactive, resolvedName);
   if (!selection) return;
 
   const { platforms, scopes } = selection;
   const spinner = createSpinner(`Uninstalling ${chalk.cyan(canonical)}...`);
   const errors: Array<{ platform: Platform; scope: InstallScope; error: string }> = [];
+  const skipped: Array<{ platform: Platform; scope: InstallScope }> = [];
 
   try {
     for (const scope of scopes) {
       for (const platform of platforms) {
+        if (!hasInstalledSkill(platform, scope, resolvedName)) {
+          skipped.push({ platform, scope });
+          continue;
+        }
         spinner.text = `Uninstalling ${chalk.cyan(canonical)} from ${chalk.dim(platform)} (${scope})...`;
         try {
           uninstallSkill(resolvedName, {
@@ -49,6 +54,9 @@ export async function uninstall(skill: string, options: UninstallCommandOptions 
     const targetSummary = formatTargetSummary(platforms, scopes);
     if (errors.length === 0) {
       spinner.succeed(`Uninstalled ${chalk.green(canonical)} → ${chalk.dim(targetSummary)}.`);
+      if (skipped.length > 0) {
+        console.log(chalk.dim(`\n  Skipped ${skipped.length} target(s) with no installed skill.`));
+      }
       return;
     }
 

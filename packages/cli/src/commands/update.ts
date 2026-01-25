@@ -8,7 +8,7 @@ import {
   type Platform,
 } from '@skild/core';
 import { createSpinner } from '../utils/logger.js';
-import { formatTargetLabel, formatTargetSummary, resolveTargetSelection } from '../utils/target-selection.js';
+import { formatTargetLabel, formatTargetSummary, hasInstalledSkill, resolveTargetSelection } from '../utils/target-selection.js';
 
 export interface UpdateCommandOptions {
   target?: Platform | string;
@@ -21,17 +21,22 @@ export async function update(skill: string | undefined, options: UpdateCommandOp
   const label = skill ? skill : 'all skills';
   const resolvedName = skill && skill.trim().startsWith('@') && skill.includes('/') ? canonicalNameToInstallDirName(skill.trim()) : skill;
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY) && !options.json;
-  const selection = await resolveTargetSelection(options, interactive);
+  const selection = await resolveTargetSelection(options, interactive, resolvedName || undefined);
   if (!selection) return;
 
   const { platforms, scopes } = selection;
   const spinner = createSpinner(`Updating ${chalk.cyan(label)}...`);
   const results: InstallRecord[] = [];
   const errors: Array<{ platform: Platform; scope: InstallScope; error: string }> = [];
+  const skipped: Array<{ platform: Platform; scope: InstallScope }> = [];
 
   try {
     for (const scope of scopes) {
       for (const platform of platforms) {
+        if (resolvedName && !hasInstalledSkill(platform, scope, resolvedName)) {
+          skipped.push({ platform, scope });
+          continue;
+        }
         spinner.text = `Updating ${chalk.cyan(label)} on ${chalk.dim(platform)} (${scope})...`;
         try {
           const updated = await updateSkill(resolvedName, { platform, scope });
@@ -47,7 +52,7 @@ export async function update(skill: string | undefined, options: UpdateCommandOp
       if (errors.length === 0 && platforms.length === 1 && scopes.length === 1) {
         console.log(JSON.stringify(results, null, 2));
       } else {
-        console.log(JSON.stringify({ ok: errors.length === 0, platforms, scopes, results, errors }, null, 2));
+        console.log(JSON.stringify({ ok: errors.length === 0, platforms, scopes, results, errors, skipped }, null, 2));
       }
       process.exitCode = errors.length ? 1 : 0;
       return;
@@ -56,6 +61,9 @@ export async function update(skill: string | undefined, options: UpdateCommandOp
     const targetSummary = formatTargetSummary(platforms, scopes);
     if (errors.length === 0) {
       spinner.succeed(`Updated ${chalk.green(results.length.toString())} skill(s) → ${chalk.dim(targetSummary)}.`);
+      if (skipped.length > 0) {
+        console.log(chalk.dim(`\n  Skipped ${skipped.length} target(s) with no installed skill.`));
+      }
       return;
     }
 

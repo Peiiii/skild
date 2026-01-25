@@ -1,5 +1,11 @@
 # @skild/core
 
+## 0.11.0
+
+### Minor Changes
+
+- Prefer git clone for remote installs with fallback to degit, and add interactive platform/scope selection for update/uninstall.
+
 ## 0.10.22
 
 ### Patch Changes

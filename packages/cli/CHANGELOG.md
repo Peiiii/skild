@@ -1,5 +1,22 @@
 # skild
 
+## 0.11.1
+
+### Patch Changes
+
+- Improve update/uninstall target selection to only prompt installed platforms, move scope selection last, and skip missing targets.
+
+## 0.11.0
+
+### Minor Changes
+
+- Prefer git clone for remote installs with fallback to degit, and add interactive platform/scope selection for update/uninstall.
+
+### Patch Changes
+
+- Updated dependencies
+  - @skild/core@0.11.0
+
 ## 0.10.22
 
 ### Patch Changes
