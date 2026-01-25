@@ -1,0 +1,25 @@
+---
+interface Props {
+	type?: "command" | "step" | "success" | "data" | "comment" | "error";
+	class?: string;
+}
+
+const { type = "step", class: className = "" } = Astro.props;
+
+const styles = {
+	command: "text-white flex gap-3",
+	step: "text-brand-eco/70 font-bold flex items-center gap-2 pl-6",
+	success: "text-brand-eco font-bold flex items-center gap-2 pl-6",
+	data: "text-brand-eco/70 pl-6", // Unified with step for consistency
+	comment: "text-white/30 italic pl-6",
+	error: "text-red-400 pl-6 font-bold"
+};
+---
+
+<div class:list={[styles[type], className]}>
+	{type === "command" && <span class="text-brand-eco/60 font-bold">$</span>}
+	{type === "step" && <span class="animate-pulse">●</span>}
+	{type === "success" && <span class="font-bold">✔</span>}
+    {type === "error" && <span>✘</span>}
+	<slot />
+</div>

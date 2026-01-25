@@ -1,70 +1,84 @@
 ---
-
+import TerminalEntry from "./TerminalEntry.astro";
 ---
 
 <section id="features" class="max-w-7xl mx-auto px-6 py-32">
-    <div class="text-center mb-20 reveal">
-        <span class="inline-block px-4 py-1.5 rounded-full bg-brand-eco/10 text-brand-forest text-sm font-semibold mb-6">Capabilities</span>
-        <h2 class="text-4xl md:text-5xl font-serif font-bold text-brand-forest mb-6">Powering a unified AI ecosystem</h2>
-        <p class="text-brand-forest/60 max-w-2xl mx-auto text-lg mb-8">One tool to bridge all major platforms. Build once, deploy across your favorite agents.</p>
-        
-        <!-- Platforms Row -->
-        <div class="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 text-brand-forest/30 text-xs font-bold uppercase tracking-[0.3em]">
-            <span>Claude</span>
-            <span>Codex</span>
-            <span>Windsurf</span>
-            <span>OpenCode</span>
-            <span>Copilot</span>
-            <span>Antigravity</span>
-        </div>
+    <div class="text-center mb-24 reveal">
+        <span class="inline-block px-4 py-1.5 rounded-full bg-brand-eco/10 text-brand-forest text-sm font-bold mb-6 uppercase tracking-widest">The Toolkit</span>
+        <h2 class="text-4xl md:text-5xl font-serif font-bold text-brand-forest mb-6">Everything you need to manage skills</h2>
+        <p class="text-brand-forest/60 max-w-2xl mx-auto text-lg">A familiar, npm-inspired workflow designed for the next generation of AI developers.</p>
     </div>
 
-
-    <div class="grid md:grid-cols-3 gap-8 reveal">
-        <!-- Multi-platform -->
-        <div
-            class="bg-white rounded-[32px] p-10 border border-brand-forest/5 hover:border-brand-eco/20 transition-all hover:-translate-y-2 duration-300 shadow-sm"
-        >
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-12 h-12 bg-brand-eco/10 rounded-2xl flex items-center justify-center shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+    <!-- Core Commands Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-32 reveal">
+        {[
+            { cmd: "install", desc: "Get and equip skills instantly" },
+            { cmd: "list", desc: "View all your equipped capabilities" },
+            { cmd: "update", desc: "Keep all skills at the latest version" },
+            { cmd: "uninstall", desc: "Remove skills you no longer need" },
+            { cmd: "sync", desc: "Fix missing skills across platforms" },
+            { cmd: "publish", desc: "Share your own skills with the world" }
+        ].map((item) => (
+            <div class="bg-[#F9F9F2] p-8 rounded-[32px] border border-brand-forest/5 hover:border-brand-eco transition-all group cursor-default">
+                <div class="font-mono text-brand-eco font-bold text-lg mb-3">
+                    <span class="opacity-30 mr-1">$</span>skild {item.cmd}
                 </div>
-                <h3 class="text-2xl font-serif font-bold text-brand-forest">Multi-platform</h3>
+                <p class="text-sm text-brand-forest/60 font-medium leading-relaxed">{item.desc}</p>
             </div>
-            <p class="text-brand-forest/60 leading-relaxed">
-                Claude, Codex, Windsurf, OpenCode, Copilot, and Antigravity — one tool manages
-                all. Seamlessly switch between platforms with a single flag.
-            </p>
+        ))}
+    </div>
+
+    <!-- Scenarios Section -->
+    <div class="grid md:grid-cols-2 gap-16 items-center reveal">
+        <div class="space-y-8">
+            <h3 class="text-3xl md:text-4xl font-serif font-bold text-brand-forest leading-tight">
+                Built for individuals,<br />Trusted by teams.
+            </h3>
+            <div class="space-y-6">
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 bg-brand-eco rounded-xl flex items-center justify-center shrink-0">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-brand-forest mb-1">Standardize Capabilities</h4>
+                        <p class="text-sm text-brand-forest/50">Ensure every developer and agent in your team has the exact same skill versions.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 bg-brand-eco rounded-xl flex items-center justify-center shrink-0">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-brand-forest mb-1">Rapid Prototyping</h4>
+                        <p class="text-sm text-brand-forest/50">Equip new abilities in seconds without manual configuration or complex env setup.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 bg-brand-eco rounded-xl flex items-center justify-center shrink-0">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-brand-forest mb-1">Multi-tool Sync</h4>
+                        <p class="text-sm text-brand-forest/50">One command to sync skills between Claude, Cursor, and your favorite IDEs.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <!-- Skillsets -->
-        <div
-            class="bg-white rounded-[32px] p-10 border border-brand-forest/5 hover:border-brand-eco/20 transition-all hover:-translate-y-2 duration-300 shadow-sm"
-        >
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-12 h-12 bg-brand-eco/10 rounded-2xl flex items-center justify-center shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        
+        <div class="bg-brand-forest p-1 rounded-[40px] shadow-2xl shadow-brand-forest/20 group overflow-hidden">
+            <div class="bg-[#12120F] rounded-[38px] p-10 overflow-hidden relative">
+                <div class="absolute -right-20 -top-20 w-64 h-64 bg-brand-eco/20 rounded-full blur-[80px] group-hover:bg-brand-eco/30 transition-all duration-700"></div>
+                <div class="font-mono text-xs md:text-[13px] space-y-4 relative z-10">
+                    <TerminalEntry type="comment"># Onboarding new team member...</TerminalEntry>
+                    <TerminalEntry type="command">skild sync</TerminalEntry>
+                    <div class="space-y-1">
+                        <TerminalEntry type="step">@anthropics/pdf → Cursor... DONE</TerminalEntry>
+                        <TerminalEntry type="step">@anthropics/search → Cursor... DONE</TerminalEntry>
+                        <TerminalEntry type="step">@peiiii/writer → Copilot... DONE</TerminalEntry>
+                    </div>
+                    <TerminalEntry type="success">Done: 3 synced / 0 skipped / 0 failed</TerminalEntry>
                 </div>
-                <h3 class="text-2xl font-serif font-bold text-brand-forest">Skillsets</h3>
             </div>
-            <p class="text-brand-forest/60 leading-relaxed">
-                Bundle multiple skills into logical toolkits. Install entire domain-specific capabilities (Design, Dev, Office) with one command.
-            </p>
-        </div>
-
-        <!-- npm-like -->
-        <div
-            class="bg-white rounded-[32px] p-10 border border-brand-forest/5 hover:border-brand-eco/20 transition-all hover:-translate-y-2 duration-300 shadow-sm"
-        >
-            <div class="flex items-center gap-4 mb-6">
-                <div class="w-12 h-12 bg-brand-eco/10 rounded-2xl flex items-center justify-center shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2D5A27" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.89 2.16L5 7.39l7.89 5.23 7.89-5.23-7.89-5.23zM5 14.11v5.27l7.89 5.22L20.78 19.38v-5.27M5 7.39v5.27l7.89 5.22 7.89-5.22v-5.27"></path></svg>
-                </div>
-                <h3 class="text-2xl font-serif font-bold text-brand-forest">npm-like</h3>
-            </div>
-            <p class="text-brand-forest/60 leading-relaxed">
-                Familiar commands like <code class="bg-brand-eco/5 px-1.5 py-0.5 rounded text-brand-forest">install</code>, <code class="bg-brand-eco/5 px-1.5 py-0.5 rounded text-brand-forest">publish</code>, and <code class="bg-brand-eco/5 px-1.5 py-0.5 rounded text-brand-forest">search</code>. Built for developers.
-            </p>
         </div>
     </div>
 </section>

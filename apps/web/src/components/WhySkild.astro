@@ -1,96 +1,61 @@
+---
+import TerminalEntry from "./TerminalEntry.astro";
+---
+
 <section
     id="why-skild"
-    class="max-w-6xl mx-auto px-6 py-32 border-t border-white/5"
+    class="max-w-6xl mx-auto px-6 py-32 border-t border-brand-forest/5"
 >
     <div class="text-center mb-16 reveal">
-        <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-6">
-            Why <span class="text-gradient">skild</span>?
+        <h2 class="text-4xl md:text-5xl font-serif font-bold text-brand-forest mb-6">
+            Why <span class="text-brand-eco italic">skild</span>?
         </h2>
-        <p class="text-xl text-white/50 max-w-2xl mx-auto">
-            Stop manually cloning, copying, and configuring. One command does it
-            all.
+        <p class="text-lg text-brand-forest/60 max-w-2xl mx-auto">
+            Stop manually cloning, copying, and configuring. Transform a 15-minute setup into a 15-second command.
         </p>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-8 reveal">
+    <div class="grid md:grid-cols-2 gap-12 reveal">
         <!-- Before -->
         <div
-            class="rounded-2xl border border-white/10 bg-white/[0.02] p-8 space-y-6"
+            class="rounded-[32px] border border-brand-forest/5 bg-white p-10 space-y-8 shadow-sm"
         >
-            <div class="flex items-center gap-3 mb-4">
-                <span class="text-2xl">😫</span>
-                <h3 class="text-xl font-bold text-white/60">Before skild</h3>
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-brand-forest/60 underline decoration-red-500/20">Legacy Workflow</h3>
             </div>
-            <div class="space-y-4 font-mono text-sm">
-                <div
-                    class="p-3 rounded-lg bg-black/40 border border-white/5 text-white/40"
-                >
-                    <span class="text-red-400/60">$</span> git clone https://github.com/.../skill
-                </div>
-                <div
-                    class="p-3 rounded-lg bg-black/40 border border-white/5 text-white/40"
-                >
-                    <span class="text-red-400/60">$</span> cp -r skill ~/.claude/skills/
-                </div>
-                <div
-                    class="p-3 rounded-lg bg-black/40 border border-white/5 text-white/40"
-                >
-                    <span class="text-red-400/60">$</span> # repeat for each skill...
-                </div>
-                <div
-                    class="p-3 rounded-lg bg-black/40 border border-white/5 text-white/40"
-                >
-                    <span class="text-red-400/60">$</span> # different path for Codex / Windsurf / OpenCode?
-                    🤯
+            <div class="space-y-4 font-mono text-xs md:text-[13px]">
+                <div class="p-5 rounded-xl bg-brand-forest/[0.02] border border-brand-forest/5 space-y-2">
+                    <TerminalEntry type="command" class="text-brand-forest/60">git clone https://github.com/...</TerminalEntry>
+                    <TerminalEntry type="command" class="text-brand-forest/60">mkdir -p ~/.claude/skills/</TerminalEntry>
+                    <TerminalEntry type="command" class="text-brand-forest/60">cp -r skill ~/.claude/skills/</TerminalEntry>
+                    <TerminalEntry type="comment" class="text-brand-forest/40"># Platform specific configuration? 🤯</TerminalEntry>
                 </div>
             </div>
-            <p class="text-sm text-white/30 italic">
-                Manual, error-prone, platform-specific
-            </p>
         </div>
 
         <!-- After -->
         <div
-            class="rounded-2xl border border-indigo-500/30 bg-indigo-500/5 p-8 space-y-6 relative overflow-hidden"
+            class="rounded-[40px] border border-brand-eco/20 bg-brand-eco/[0.02] p-10 space-y-8 relative overflow-hidden group shadow-xl shadow-brand-eco/5"
         >
-            <div
-                class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 blur-3xl"
-            >
-            </div>
+            <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-brand-eco/10 rounded-full blur-[80px] group-hover:bg-brand-eco/20 transition-all duration-700"></div>
             <div class="relative">
-                <div class="flex items-center gap-3 mb-4">
-                    <span class="text-2xl">✨</span>
-                    <h3 class="text-xl font-bold text-indigo-300">
-                        With skild
-                    </h3>
-                </div>
-                <div class="space-y-4 font-mono text-sm">
-                    <div
-                        class="p-4 rounded-lg bg-black/60 border border-indigo-500/30 text-indigo-300 shadow-lg shadow-indigo-500/10"
-                    >
-                        <span class="text-emerald-400">$</span> skild install claude-office
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-10 h-10 rounded-xl bg-brand-eco flex items-center justify-center">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
-                    <div
-                        class="p-3 rounded-lg bg-black/40 border border-emerald-500/20 text-emerald-400/80 flex items-center gap-2"
-                    >
-                        <svg
-                            class="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Installed a skillset to ~/.claude/skills
+                    <h3 class="text-xl font-bold text-brand-forest italic">Skild Workflow</h3>
+                </div>
+                <div class="space-y-4 font-mono text-xs md:text-[13px]">
+                    <div class="p-5 rounded-2xl bg-[#12120F] border border-brand-eco/20 shadow-lg shadow-brand-eco/10 space-y-3">
+                        <TerminalEntry type="command">skild install anthropics/skills</TerminalEntry>
+                        <TerminalEntry type="success">Installed 24 skills cross-platform</TerminalEntry>
                     </div>
                 </div>
-                <p class="text-sm text-indigo-300/60 mt-6">
-                    Works with Claude, Codex, Windsurf, OpenCode, Copilot, Antigravity —
-                    instantly.
+                <p class="text-sm text-brand-forest/50 mt-8 font-medium italic">
+                    Automated, platform-agnostic, and version-controlled.
                 </p>
             </div>
         </div>

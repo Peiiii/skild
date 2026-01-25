@@ -4,83 +4,74 @@
 
 <section
     id="how-it-works"
-    class="max-w-4xl mx-auto px-6 py-32"
+    class="max-w-5xl mx-auto px-6 py-32"
 >
-    <div class="text-center mb-16 reveal">
+    <div class="text-center mb-20 reveal">
         <h2 class="text-4xl md:text-5xl font-serif font-bold text-brand-forest mb-6">
             Get skilled in <span class="italic text-brand-eco">30 seconds</span>
         </h2>
-        <p class="text-brand-forest/60 max-w-xl mx-auto text-lg font-medium">Equipping your agents is as simple as running a single command. Built for speed and efficiency.</p>
+        <p class="text-brand-forest/60 max-w-xl mx-auto text-lg">Equipping your agents is as simple as running a single command. Built for speed, scale, and trust.</p>
     </div>
 
-    <div class="reveal">
-        <div
-            class="bg-white rounded-[40px] p-8 md:p-12 border border-brand-forest/5 shadow-2xl shadow-brand-forest/5 space-y-10"
-        >
-            <!-- Step 1 -->
-            <div class="flex items-start gap-6 group">
-                <div class="w-12 h-12 rounded-full bg-brand-eco/10 flex items-center justify-center text-brand-forest font-serif font-bold text-xl shrink-0 group-hover:bg-brand-forest group-hover:text-white transition-colors duration-300">
-                    1
-                </div>
-                <div>
-                    <h4 class="text-xl font-serif font-bold text-brand-forest mb-2">Install the CLI</h4>
-                    <p class="text-brand-forest/50 mb-4">Start by installing our command-line interface globally via npm.</p>
-                    <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-brand-forest border border-brand-forest/5 flex items-center justify-between">
-                        <code id="install-cmd">npm install -g skild</code>
-                        <button 
-                            id="copy-btn"
-                            class="opacity-30 hover:opacity-100 transition-opacity cursor-pointer p-1 rounded hover:bg-brand-forest/10"
-                            title="Copy to clipboard"
-                        >
-                            <svg id="copy-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                            <svg id="check-icon" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </button>
-                    </div>
+    <div class="grid md:grid-cols-3 gap-12 reveal">
+        <!-- Step 1 -->
+        <div class="space-y-6">
+            <div class="w-12 h-12 rounded-full bg-brand-eco/10 flex items-center justify-center text-brand-forest font-serif font-bold text-xl">1</div>
+            <div>
+                <h4 class="text-xl font-bold text-brand-forest mb-3">Install the CLI</h4>
+                <p class="text-brand-forest/50 text-sm leading-relaxed mb-4">Start by installing the skild command-line interface globally via npm.</p>
+                <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-[13px] text-brand-forest border border-brand-forest/5 flex items-center justify-between">
+                    <code id="install-cmd">npm i -g skild</code>
+                    <button id="copy-btn" class="opacity-30 hover:opacity-100 transition-opacity p-1">
+                        <svg id="copy-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <svg id="check-icon" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <!-- Step 2 -->
-            <div class="flex items-start gap-6 group">
-                <div class="w-12 h-12 rounded-full bg-brand-eco/10 flex items-center justify-center text-brand-forest font-serif font-bold text-xl shrink-0 group-hover:bg-brand-forest group-hover:text-white transition-colors duration-300">
-                    2
-                </div>
-                <div class="flex-1">
-                    <h4 class="text-xl font-serif font-bold text-brand-forest mb-2">Equip any skill</h4>
-                    <p class="text-brand-forest/50 mb-4">Choose from thousands of skills on the Skild Hub and install them instantly. Multiple sources supported.</p>
-                    <div class="space-y-3">
-                        <!-- From GitHub -->
-                        <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-brand-forest border border-brand-forest/5">
-                            <div class="text-[10px] text-brand-forest/40 font-bold uppercase tracking-widest mb-1.5 font-sans">From GitHub</div>
-                            <code class="text-sm">skild install [username]/[repo]</code>
-                        </div>
-                        <!-- From Registry -->
-                        <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-brand-forest border border-brand-forest/5">
-                            <div class="text-[10px] text-brand-forest/40 font-bold uppercase tracking-widest mb-1.5 font-sans">From Registry</div>
-                            <code class="text-sm">skild install @[publisher]/[skill]</code>
-                        </div>
-                        <!-- By Alias -->
-                        <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-brand-forest border border-brand-forest/5">
-                            <div class="text-[10px] text-brand-forest/40 font-bold uppercase tracking-widest mb-1.5 font-sans">By Alias</div>
-                            <code class="text-sm">skild install [alias]</code>
-                        </div>
-                    </div>
+        <!-- Step 2 -->
+        <div class="space-y-6">
+            <div class="w-12 h-12 rounded-full bg-brand-eco/10 flex items-center justify-center text-brand-forest font-serif font-bold text-xl">2</div>
+            <div>
+                <h4 class="text-xl font-bold text-brand-forest mb-3">Equip Core Skills</h4>
+                <p class="text-brand-forest/50 text-sm leading-relaxed mb-4">Install official skill packs or community favorite tools instantly.</p>
+                <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-[13px] text-brand-forest border border-brand-forest/5">
+                    <code>skild install anthropics/skills</code>
                 </div>
             </div>
+        </div>
 
-            <!-- Step 3 -->
-            <div class="flex items-start gap-6 group">
-                <div class="w-12 h-12 rounded-full bg-brand-eco text-white flex items-center justify-center font-serif font-bold text-xl shrink-0">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                </div>
-                <div class="flex-1">
-                    <h4 class="text-xl font-serif font-bold text-brand-forest mb-2">Done</h4>
-                    <p class="text-brand-forest/50 mb-4">Your agent is now equipped with new capabilities. Ready to work.</p>
-                    <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-brand-forest border border-brand-forest/5">
-                        <div class="text-[10px] text-brand-forest/40 font-bold uppercase tracking-widest mb-1.5 font-sans">View installed skills</div>
-                        <code class="text-sm">skild list</code>
-                    </div>
+        <!-- Step 3 -->
+        <div class="space-y-6">
+            <div class="w-12 h-12 rounded-full bg-brand-eco/10 flex items-center justify-center text-brand-forest font-serif font-bold text-xl">3</div>
+            <div>
+                <h4 class="text-xl font-bold text-brand-forest mb-3">Stay Updated</h4>
+                <p class="text-brand-forest/50 text-sm leading-relaxed mb-4">One command to keep all your agent's capabilities fresh and synced.</p>
+                <div class="bg-brand-forest/5 rounded-2xl p-4 font-mono text-[13px] text-brand-forest border border-brand-forest/5">
+                    <code>skild update</code>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Trust Points Bar -->
+    <div class="mt-32 pt-16 border-t border-brand-forest/5 grid grid-cols-2 md:grid-cols-4 gap-8 text-center reveal">
+        <div>
+            <div class="text-2xl font-serif font-bold text-brand-forest mb-1">Versioned</div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-brand-forest/30">Traceable & Safe</div>
+        </div>
+        <div>
+            <div class="text-2xl font-serif font-bold text-brand-forest mb-1">Cross-Tool</div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-brand-forest/30">Unified Config</div>
+        </div>
+        <div>
+            <div class="text-2xl font-serif font-bold text-brand-forest mb-1">Team Ready</div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-brand-forest/30">Shared Environments</div>
+        </div>
+        <div>
+            <div class="text-2xl font-serif font-bold text-brand-forest mb-1">Extensible</div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-brand-forest/30">Publish with Ease</div>
         </div>
     </div>
 </section>
@@ -95,17 +86,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (copyBtn && installCmd) {
         copyBtn.addEventListener('click', async () => {
             try {
-                await navigator.clipboard.writeText(installCmd.textContent || 'npm install -g skild');
-                // Show check icon
+                await navigator.clipboard.writeText(installCmd.textContent || 'npm i -g skild');
                 copyIcon?.classList.add('hidden');
                 checkIcon?.classList.remove('hidden');
-                copyBtn.classList.add('text-brand-eco');
-                
-                // Reset after 2 seconds
                 setTimeout(() => {
                     copyIcon?.classList.remove('hidden');
                     checkIcon?.classList.add('hidden');
-                    copyBtn.classList.remove('text-brand-eco');
                 }, 2000);
             } catch (err) {
                 console.error('Failed to copy:', err);

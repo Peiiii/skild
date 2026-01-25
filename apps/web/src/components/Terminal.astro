@@ -1,210 +1,90 @@
 ---
-
+import TerminalEntry from "./TerminalEntry.astro";
 ---
 
-<div class="max-w-6xl mx-auto mb-4">
-    <!-- Terminal Grid -->
-    <div class="grid md:grid-cols-2 gap-3">
-        <!-- Terminal 1: Skillsets (Main feature) -->
+<div class="max-w-4xl mx-auto mb-4 px-4">
+    <!-- Main Terminal Window -->
+    <div
+        class="bg-[#0A0A08] rounded-2xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] border border-brand-forest/20 text-left font-mono relative group"
+    >
+        <!-- Top Bar -->
         <div
-            class="bg-[#12120F] rounded-xl overflow-hidden shadow-2xl shadow-brand-forest/10 border border-brand-forest/20 text-left font-mono"
+            class="flex items-center gap-3 px-6 h-12 border-b border-white/5 bg-white/[0.02]"
         >
+            <div class="flex gap-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-[#FF5F56]/80"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]/80"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-[#27C93F]/80"></div>
+            </div>
             <div
-                class="flex items-center gap-2 px-4 h-8 border-b border-white/5 bg-white/[0.03]"
+                class="flex-1 text-[9px] text-center text-brand-eco/30 font-bold uppercase tracking-[0.4em]"
             >
-                <div class="flex gap-1">
-                    <div class="w-2 h-2 rounded-full bg-[#FF5F56]/90"></div>
-                    <div class="w-2 h-2 rounded-full bg-[#FFBD2E]/90"></div>
-                    <div class="w-2 h-2 rounded-full bg-[#27C93F]/90"></div>
-                </div>
-                <div
-                    class="flex-1 text-[9px] text-center text-brand-eco font-bold uppercase tracking-widest opacity-60"
-                >
-                    🎁 SKILLSETS
-                </div>
+                Terminal — skild cli
             </div>
-            <div class="p-4 text-[12px] leading-snug space-y-1">
-                <div class="flex gap-2">
-                    <span class="text-white/20">#</span>
-                    <span class="text-white/20"
-                        >Install from registry alias</span
-                    >
-                </div>
-                <div class="flex gap-3">
-                    <span class="text-cyan-400 font-bold">$</span>
-                    <span class="text-white">skild install superpowers</span>
-                </div>
-                <div class="flex gap-2 mt-2">
-                    <span class="text-white/20">#</span>
-                    <span class="text-white/20"
-                        >Install entire repo (all skills)</span
-                    >
-                </div>
-                <div class="flex gap-3">
-                    <span class="text-cyan-400 font-bold">$</span>
-                    <span class="text-white"
-                        >skild install anthropics/skills</span
-                    >
-                </div>
-                <div class="flex gap-3">
-                    <span class="text-cyan-400 font-bold">$</span>
-                    <span class="text-white truncate"
-                        >skild install github.com/anthropics/skills</span
-                    >
-                </div>
-                <div class="mt-1 text-brand-eco text-[10px] font-bold">
-                    ✔ Discovered and installed 20+ skills
-                </div>
-            </div>
+            <div class="w-10"></div>
         </div>
 
-        <!-- Terminal 2: Multi-platform -->
-        <div
-            class="bg-[#12120F] rounded-xl overflow-hidden shadow-2xl shadow-brand-forest/10 border border-brand-forest/20 text-left font-mono"
-        >
-            <div
-                class="flex items-center gap-2 px-4 h-8 border-b border-white/5 bg-white/[0.03]"
-            >
-                <div class="flex gap-1">
-                    <div class="w-2 h-2 rounded-full bg-[#FF5F56]/90"></div>
-                    <div class="w-2 h-2 rounded-full bg-[#FFBD2E]/90"></div>
-                    <div class="w-2 h-2 rounded-full bg-[#27C93F]/90"></div>
-                </div>
-                <div
-                    class="flex-1 text-[9px] text-center text-brand-eco font-bold uppercase tracking-widest opacity-60"
-                >
-                    🌐 MULTI-PLATFORM
-                </div>
+        <!-- Terminal Content -->
+        <div class="p-8 md:p-10 text-[13px] md:text-[14px] leading-relaxed space-y-5">
+            <!-- Animation Group 1: Install -->
+            <div class="space-y-2 animate-fade-in">
+                <TerminalEntry type="command">skild install anthropics/skills</TerminalEntry>
+                <TerminalEntry type="step">Discovered 24 skills from anthropics/skills</TerminalEntry>
+                <TerminalEntry type="success">Installed 24 skills → all platforms</TerminalEntry>
             </div>
-            <div class="p-4 text-[12px] leading-snug space-y-1">
-                <div class="flex gap-2">
-                    <span class="text-white/20">#</span>
-                    <span class="text-white/20">Single platform</span>
-                </div>
-                <div class="flex gap-3">
-                    <span class="text-cyan-400 font-bold">$</span>
-                    <span class="text-white"
-                        >skild install pdf <span class="text-brand-eco"
-                            >-t antigravity</span
-                        ></span
-                    >
-                </div>
-                <div class="flex gap-2 mt-2">
-                    <span class="text-white/20">#</span>
-                    <span class="text-white/20">All platforms at once</span>
-                </div>
-                <div class="flex gap-3">
-                    <span class="text-cyan-400 font-bold">$</span>
-                    <span class="text-white"
-                        >skild install pdf <span
-                            class="text-brand-eco italic font-bold">--all</span
-                        ></span
-                    >
-                </div>
-                <div class="mt-1 text-brand-eco text-[10px] font-bold">
-                    ✔ Installed to claude, codex, copilot, antigravity...
-                </div>
-            </div>
-        </div>
 
-        <!-- Terminal 3: Multiple sources -->
-        <div
-            class="bg-[#12120F] rounded-xl overflow-hidden shadow-2xl shadow-brand-forest/10 border border-brand-forest/20 text-left font-mono"
-        >
-            <div
-                class="flex items-center gap-2 px-4 h-8 border-b border-white/5 bg-white/[0.03]"
-            >
-                <div class="flex gap-1">
-                    <div class="w-2 h-2 rounded-full bg-[#FF5F56]/90"></div>
-                    <div class="w-2 h-2 rounded-full bg-[#FFBD2E]/90"></div>
-                    <div class="w-2 h-2 rounded-full bg-[#27C93F]/90"></div>
-                </div>
-                <div
-                    class="flex-1 text-[9px] text-center text-brand-eco font-bold uppercase tracking-widest opacity-60"
-                >
-                    🔗 MULTIPLE SOURCES
-                </div>
-            </div>
-            <div class="p-4 text-[12px] leading-snug space-y-1">
-                <div class="flex gap-2">
-                    <span class="text-white/20">#</span>
-                    <span class="text-white/20">GitHub shorthand</span>
-                </div>
-                <div class="flex gap-3">
-                    <span class="text-cyan-400 font-bold">$</span>
-                    <span class="text-white"
-                        >skild install anthropics/skills/skills/pdf</span
-                    >
-                </div>
-                <div class="flex gap-2 mt-2">
-                    <span class="text-white/20">#</span>
-                    <span class="text-white/20">Full GitHub URL</span>
-                </div>
-                <div class="flex gap-3">
-                    <span class="text-cyan-400 font-bold">$</span>
-                    <span class="text-white truncate"
-                        >skild install github.com/anthropics/skills/xlsx</span
-                    >
-                </div>
-                <div class="flex gap-2 mt-2">
-                    <span class="text-white/20">#</span>
-                    <span class="text-white/20">Registry</span>
-                </div>
-                <div class="flex gap-3">
-                    <span class="text-cyan-400 font-bold">$</span>
-                    <span class="text-white"
-                        >skild install @peiiii/skild</span
-                    >
+            <!-- Animation Group 2: List -->
+            <div class="space-y-2 pt-4">
+                <TerminalEntry type="command">skild list</TerminalEntry>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-1">
+                    {[
+                        ["@anthropics/pdf", "v1.2.0"],
+                        ["@anthropics/search", "v0.1.1"],
+                        ["@peiiii/writer", "v2.4.5"],
+                        ["@peiiii/ui-pro", "v1.0.2"]
+                    ].map(([name, ver]) => (
+                        <TerminalEntry type="data" class="flex justify-between border-b border-white/5 pb-1">
+                            <span>{name}</span>
+                            <span class="text-brand-eco/40">{ver}</span>
+                        </TerminalEntry>
+                    ))}
                 </div>
             </div>
-        </div>
 
-        <!-- Terminal 4: Publish workflow -->
-        <div
-            class="bg-[#12120F] rounded-xl overflow-hidden shadow-2xl shadow-brand-forest/10 border border-brand-forest/20 text-left font-mono"
-        >
-            <div
-                class="flex items-center gap-2 px-4 h-8 border-b border-white/5 bg-white/[0.03]"
-            >
-                <div class="flex gap-1">
-                    <div class="w-2 h-2 rounded-full bg-[#FF5F56]/90"></div>
-                    <div class="w-2 h-2 rounded-full bg-[#FFBD2E]/90"></div>
-                    <div class="w-2 h-2 rounded-full bg-[#27C93F]/90"></div>
-                </div>
-                <div
-                    class="flex-1 text-[9px] text-center text-brand-eco font-bold uppercase tracking-widest opacity-60"
-                >
-                    📦 PUBLISH & SHARE
-                </div>
+            <!-- Animation Group 3: Update -->
+            <div class="space-y-2 pt-4">
+                <TerminalEntry type="command">skild update</TerminalEntry>
+                <TerminalEntry type="step">Checking for updates...</TerminalEntry>
+                <TerminalEntry type="success">Updated 4 skill(s).</TerminalEntry>
             </div>
-            <div class="p-4 text-[12px] leading-snug space-y-1">
-                <div class="flex gap-3">
-                    <span class="text-cyan-400 font-bold">$</span>
-                    <span class="text-white">skild init my-skill</span>
-                </div>
-                <div class="flex gap-3">
-                    <span class="text-cyan-400 font-bold">$</span>
-                    <span class="text-white"
-                        >skild publish <span class="text-brand-eco"
-                            >--alias my-skill</span
-                        ></span
-                    >
-                </div>
-                <div class="mt-2 text-brand-eco flex items-center gap-2 font-bold">
-                    <span>✔</span>
-                    <span>Published @you/my-skill</span>
-                </div>
-                <div class="text-white/20 text-[9px] mt-2 pt-2 border-t border-white/[0.05]">
-                    <p>
-                        Anyone can now: <span class="bg-white/5 px-1 py-0.5 rounded text-white italic"
-                            >skild install my-skill</span
-                        >
-                    </p>
-                </div>
+
+            <!-- Cursor -->
+            <div class="flex gap-3 pt-2">
+                <span class="text-brand-eco/60 font-bold">$</span>
+                <span class="w-2 h-4 bg-brand-eco/60 animate-blink"></span>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .animate-blink {
+        animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+        from, to { opacity: 1; }
+        50% { opacity: 0; }
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
 
 
 
