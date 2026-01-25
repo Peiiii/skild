@@ -78,8 +78,9 @@ program
     .command('uninstall <skill>')
     .alias('rm')
     .description('Uninstall a Skill')
-    .option('-t, --target <platform>', `Target platform: ${PLATFORMS.join(', ')}`, 'claude')
-    .option('-l, --local', 'Use project-level directory instead of global')
+    .option('-t, --target <platform>', `Target platform: ${PLATFORMS.join(', ')}`)
+    .option('-l, --local', 'Target project-level directory (can combine with --global)')
+    .option('-g, --global', 'Target global directory (can combine with --local)')
     .option('-f, --force', 'Uninstall even if metadata is missing')
     .option('--with-deps', 'Uninstall dependencies that are only required by this skill')
     .action(async (skill: string, options: any) => uninstall(skill, options));
@@ -88,8 +89,9 @@ program
     .command('update [skill]')
     .alias('up')
     .description('Update one or all installed Skills')
-    .option('-t, --target <platform>', `Target platform: ${PLATFORMS.join(', ')}`, 'claude')
-    .option('-l, --local', 'Use project-level directory instead of global')
+    .option('-t, --target <platform>', `Target platform: ${PLATFORMS.join(', ')}`)
+    .option('-l, --local', 'Target project-level directory (can combine with --global)')
+    .option('-g, --global', 'Target global directory (can combine with --local)')
     .option('--json', 'Output JSON')
     .action(async (skill: string | undefined, options: any) => update(skill, options));
 

@@ -113,6 +113,16 @@ skild install ./path/to/my-skill
 | `--force` | Overwrite existing skill |
 | `-y, --yes` | Skip confirmation prompts |
 
+## 🔄 Update / Uninstall
+
+If you do not pass `--target`, `skild update` and `skild uninstall` will prompt you to select target platforms (default: all). You can also choose scope:
+
+| Option | Description |
+|--------|-------------|
+| `-t, --target <platform>` | Target platform |
+| `-l, --local` | Target project-level scope |
+| `-g, --global` | Target global scope |
+
 ## 🎯 Supported Platforms
 
 | Platform | Global Path |

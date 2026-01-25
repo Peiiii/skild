@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import type { Platform } from '@skild/core';
+import type { InstallScope, Platform } from '@skild/core';
 import { PLATFORMS } from '@skild/core';
 import {
   enqueuePostPromptLog,
@@ -51,6 +51,11 @@ const PLATFORM_DISPLAY: Record<Platform, string> = {
   opencode: 'OpenCode',
   cursor: 'Cursor',
   windsurf: 'Windsurf',
+};
+
+const SCOPE_DISPLAY: Record<InstallScope, string> = {
+  global: 'Global (home)',
+  project: 'Project (cwd)',
 };
 
 function createTreeNode(
@@ -162,6 +167,18 @@ function buildPlatformTree(items: { platform: Platform }[]): TreeNode {
   for (let i = 0; i < items.length; i++) {
     const platform = items[i]!.platform;
     allNode.children.push(createTreeNode(platform, platform, 2, true, [i]));
+    allNode.leafIndices.push(i);
+  }
+
+  return wrapWithRoot(allNode);
+}
+
+function buildScopeTree(items: { scope: InstallScope }[]): TreeNode {
+  const allNode = createTreeNode('all', 'All Scopes', 1, false);
+
+  for (let i = 0; i < items.length; i++) {
+    const scope = items[i]!.scope;
+    allNode.children.push(createTreeNode(scope, scope, 2, true, [i]));
     allNode.leafIndices.push(i);
   }
 
@@ -361,7 +378,7 @@ export async function promptPlatformsInteractive(
   const platforms = options.platforms && options.platforms.length > 0 ? options.platforms : PLATFORMS;
   const platformItems = platforms.map(p => ({ platform: p }));
   const installedSet = new Set(options.installedPlatforms ?? []);
-  const defaultSelected = installedSet.size > 0
+  const defaultSelected = options.defaultAll === false && installedSet.size > 0
     ? new Set(platforms.flatMap((p, idx) => (installedSet.has(p) ? [idx] : [])))
     : undefined;
 
@@ -390,6 +407,42 @@ export async function promptPlatformsInteractive(
   enqueuePostPromptLog(
     chalk.green(
       `\n✓ Installing to ${selected.length} platform${selected.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`
+    )
+  );
+  return selected;
+}
+
+export async function promptScopesInteractive(
+  options: { defaultAll?: boolean; scopes?: InstallScope[] } = {}
+): Promise<InstallScope[] | null> {
+  const scopes: InstallScope[] = options.scopes && options.scopes.length > 0
+    ? options.scopes
+    : ['global', 'project'];
+  const scopeItems = scopes.map(scope => ({ scope }));
+
+  const selectedIndices = await interactiveTreeSelect(scopeItems, {
+    title: 'Select target scopes',
+    subtitle: '↑↓ navigate • Space toggle • Enter confirm',
+    buildTree: buildScopeTree,
+    formatNode: (node, selection, isCursor, maxWidth) => {
+      const displayScope = node.name as InstallScope;
+      const displayName = node.name === 'All Scopes'
+        ? node.name
+        : SCOPE_DISPLAY[displayScope] || node.name;
+      return formatTreeNode({ ...node, name: displayName }, selection, isCursor, maxWidth, {
+        hintText: buildSpaceHint(node, selection),
+      });
+    },
+    defaultAll: options.defaultAll !== false,
+  });
+
+  if (!selectedIndices) return null;
+
+  const selected = selectedIndices.map(i => scopes[i]!);
+  const names = selected.map(scope => SCOPE_DISPLAY[scope] || scope);
+  enqueuePostPromptLog(
+    chalk.green(
+      `\n✓ Selected ${selected.length} scope${selected.length > 1 ? 's' : ''}: ${chalk.cyan(names.join(', '))}\n`
     )
   );
   return selected;
