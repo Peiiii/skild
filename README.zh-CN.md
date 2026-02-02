@@ -101,16 +101,6 @@ skild push owner/repo --dir ./my-skill  # 上传 Skill 到 Git 仓库
 skild sync                 # 自动发现跨平台缺失并同步（树形选择）
 ```
 
-## ✨ 创建 Skills
-
-```bash
-skild init my-skill        # 创建新的 Skill 项目
-cd my-skill
-skild validate .           # 校验结构
-```
-
-准备分享了？请参考 **[发布 Skills](./docs/publishing.zh-CN.md)** 完整指南。
-
 ## 🔄 跨平台同步
 
 让多个工具保持一致：
@@ -125,6 +115,16 @@ skild sync pdf web-scraper --to codex,cursor
 # 非交互全量同步，覆盖已安装
 skild sync --yes --force
 ```
+
+## ✨ 创建 Skills
+
+```bash
+skild init my-skill        # 创建新的 Skill 项目
+cd my-skill
+skild validate .           # 校验结构
+```
+
+准备分享了？请参考 **[发布 Skills](./docs/publishing.zh-CN.md)** 完整指南。
 
 
 

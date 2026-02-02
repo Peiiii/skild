@@ -133,16 +133,6 @@ skild push owner/repo --dir ./my-skill  # Push a Skill to a Git repo
 skild sync                 # Auto-detect and sync missing installs across platforms (tree prompt)
 ```
 
-## ✨ Create Skills
-
-```bash
-skild init my-skill        # Create a new Skill project
-cd my-skill
-skild validate .           # Validate structure
-```
-
-Ready to share? See **[Publishing Skills](./docs/publishing-skills.md)** for the complete guide.
-
 ## 🔄 Cross-platform Sync
 
 Keep multiple tools in lockstep:
@@ -157,6 +147,16 @@ skild sync pdf web-scraper --to codex,cursor
 # Non-interactive, overwrite existing
 skild sync --yes --force
 ```
+
+## ✨ Create Skills
+
+```bash
+skild init my-skill        # Create a new Skill project
+cd my-skill
+skild validate .           # Validate structure
+```
+
+Ready to share? See **[Publishing Skills](./docs/publishing-skills.md)** for the complete guide.
 
 
 

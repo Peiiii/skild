@@ -13,6 +13,7 @@
 - GitHub README Quick Start 仅保留最小命令，功能细节下沉到后文。
 - GitHub README Quick Start 加入首页终端中的核心命令（install/list/update/push）。
 - GitHub README 命令总览顺序优化（validate/ sync/ extract/search 排序调整）。
+- GitHub README 章节顺序调整：同步章节前置，创建章节后置以对齐命令顺序。
 
 ## 功能说明
 
