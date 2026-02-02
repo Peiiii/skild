@@ -121,6 +121,24 @@ skild update pdf
 skild uninstall pdf
 ```
 
+## Push Skills to a Git Repo
+
+```bash
+# Remote repo (default)
+skild push owner/repo --dir ./path/to/skill
+skild push https://github.com/owner/repo.git --dir ./path/to/skill
+
+# Local repo (explicit)
+skild push /abs/path/to/repo --dir ./path/to/skill --local
+
+# Customize target path / branch / commit message
+skild push owner/repo --dir ./path/to/skill --path skills/demo --branch main --message "update demo skill"
+```
+
+Notes:
+- Default target path: `skills/<skill-name>` (from `SKILL.md` frontmatter.name).
+- Use `--local` or explicit path prefix (`./`, `/`, `~/`, `file://`) for local repositories.
+
 ### Sync Skills Across Platforms
 
 Auto-discover missing installs across platforms, then select what to sync (tree view: All → Platform → Skill):

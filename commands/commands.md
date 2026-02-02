@@ -27,3 +27,14 @@
   - 自动发现“缺失技能 × 目标平台”矩阵，默认全选；TTY 下提供“全部→平台→技能”的树形选择
   - 复用已安装内容（非 registry 源时复制源目录；registry 保持同版本安装）
   - JSON 模式输出同步结果（成功/跳过/失败）
+
+## push
+
+- **名称**：`skild push`
+- **用途**：将本地 skill 目录上传/更新到指定 Git 仓库路径（不经过 registry）。
+- **输入格式**：`skild push <repo> [--dir <path>] [--path <path>] [--branch <branch>] [--message <text>] [--local]`
+- **输出/期望行为**：
+  - 校验本地 SKILL.md 与 frontmatter
+  - 克隆仓库并将 skill 写入目标路径（默认 `skills/<skill-name>`）
+  - 默认将 `<repo>` 视为远程（`owner/repo` 或 Git URL）；本地路径请用 `--local` 或 `./path`/`/abs/path`
+  - 若无变更则提示并退出；有变更则提交并 push

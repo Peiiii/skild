@@ -111,6 +111,9 @@ importers:
       remark-parse:
         specifier: ^11.0.0
         version: 11.0.0
+      simple-git:
+        specifier: ^3.27.0
+        version: 3.30.0
       string-width:
         specifier: ^8.1.0
         version: 8.1.0

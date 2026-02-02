@@ -22,6 +22,7 @@ import { publish } from './commands/publish.js';
 import { search } from './commands/search.js';
 import { extractGithubSkills } from './commands/extract-github-skills.js';
 import { sync } from './commands/sync.js';
+import { push } from './commands/push.js';
 import { PLATFORMS } from '@skild/core';
 
 const require = createRequire(import.meta.url);
@@ -156,6 +157,16 @@ program
     .option('--registry <url>', 'Registry base URL (defaults to saved login)')
     .option('--json', 'Output JSON')
     .action(async (options: any) => publish(options));
+
+program
+    .command('push <repo>')
+    .description('Upload/update a Skill directory to a Git repository')
+    .option('--dir <path>', 'Skill directory (defaults to cwd)')
+    .option('--path <path>', 'Target path inside repo (defaults to skills/<skill-name>)')
+    .option('--branch <branch>', 'Target branch (defaults to repo default)')
+    .option('--message <text>', 'Custom commit message')
+    .option('--local', 'Treat <repo> as a local path (default: remote)')
+    .action(async (repo: string, options: any) => push(repo, options));
 
 program
     .command('search <query>')

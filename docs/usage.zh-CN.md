@@ -78,6 +78,24 @@ skild update pdf -t codex --local
 skild uninstall pdf -t codex --local
 ```
 
+### 上传到 Git 仓库（push）
+
+```bash
+# 远程仓库（默认）
+skild push owner/repo --dir ./path/to/skill
+skild push https://github.com/owner/repo.git --dir ./path/to/skill
+
+# 本地仓库（显式）
+skild push /abs/path/to/repo --dir ./path/to/skill --local
+
+# 指定路径 / 分支 / 提交信息
+skild push owner/repo --dir ./path/to/skill --path skills/demo --branch main --message "update demo skill"
+```
+
+说明：
+- 默认目标路径：`skills/<skill-name>`（来自 `SKILL.md` 的 frontmatter.name）。
+- 本地仓库需 `--local` 或显式路径前缀（`./`、`/`、`~/`、`file://`）。
+
 ### 跨平台同步（sync）
 
 自动汇总所有平台的安装，计算“缺失技能 × 目标平台”，TTY 下以树形结构（全部→平台→技能）选择要补齐的项目：
