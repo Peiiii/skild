@@ -1,0 +1,193 @@
+---
+const popularSkills = [
+    {
+        name: "vercel-react-best-practices",
+        repo: "vercel-labs/agent-skills",
+        rank: 1,
+    },
+    {
+        name: "find-skills",
+        repo: "vercel-labs/skills",
+        rank: 2,
+    },
+    {
+        name: "web-design-guidelines",
+        repo: "vercel-labs/agent-skills",
+        rank: 3,
+    },
+    {
+        name: "remotion-best-practices",
+        repo: "remotion-dev/skills",
+        rank: 4,
+    },
+    {
+        name: "frontend-design",
+        repo: "anthropics/skills",
+        rank: 5,
+    },
+    {
+        name: "agent-browser",
+        repo: "vercel-labs/agent-browser",
+        rank: 6,
+    },
+    {
+        name: "skill-creator",
+        repo: "anthropics/skills",
+        rank: 7,
+    },
+    {
+        name: "vercel-composition-patterns",
+        repo: "vercel-labs/agent-skills",
+        rank: 8,
+    },
+    {
+        name: "vercel-react-native-skills",
+        repo: "vercel-labs/agent-skills",
+        rank: 9,
+    },
+    {
+        name: "browser-use",
+        repo: "browser-use/browser-use",
+        rank: 10,
+    },
+    {
+        name: "ui-ux-pro-max",
+        repo: "nextlevelbuilder/ui-ux-pro-max-skill",
+        rank: 11,
+    },
+];
+---
+
+<div
+    class="h-full bg-[#0A0A08] rounded-2xl overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] border border-brand-forest/20 text-left font-mono relative group flex flex-col"
+>
+    <!-- Top Bar -->
+    <div
+        class="flex items-center gap-3 px-6 h-12 border-b border-white/5 bg-white/[0.02] shrink-0"
+    >
+        <div class="flex gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-[#FF5F56]/80"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]/80"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-[#27C93F]/80"></div>
+        </div>
+        <div
+            class="flex-1 text-[9px] text-center text-brand-eco/30 font-bold uppercase tracking-[0.4em]"
+        >
+            Trending Skills
+        </div>
+        <div class="w-10"></div>
+    </div>
+
+    <!-- Content -->
+    <div class="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1">
+        <div class="space-y-4">
+            {
+                popularSkills.map((skill) => (
+                    <div class="flex items-center justify-between group/item border-b border-white/5 pb-4 last:border-0 hover:bg-white/[0.02] -mx-2 px-3 rounded-xl transition-all duration-300">
+                        <div class="flex items-center gap-4">
+                            <span class="text-[10px] font-bold text-white/20 w-4">
+                                {skill.rank}
+                            </span>
+                            <div class="flex flex-col">
+                                <span class="text-[13px] font-bold text-white group-hover/item:text-brand-eco transition-colors">
+                                    {skill.name}
+                                </span>
+                                <span class="text-[10px] text-white/40 tracking-wider">
+                                    {skill.repo}
+                                </span>
+                            </div>
+                        </div>
+
+                        <button
+                            class="copy-skill-btn opacity-0 group-hover/item:opacity-100 translate-x-2 group-hover/item:translate-x-0 transition-all duration-300 bg-brand-eco/10 hover:bg-brand-eco/20 text-brand-eco text-[10px] font-bold py-1.5 px-3 rounded-full flex items-center gap-2 border border-brand-eco/20 active:scale-95 shadow-lg shadow-brand-eco/5"
+                            data-repo={skill.repo}
+                        >
+                            <svg
+                                class="copy-icon"
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2.5"
+                            >
+                                <rect
+                                    x="9"
+                                    y="9"
+                                    width="13"
+                                    height="13"
+                                    rx="2"
+                                    ry="2"
+                                />
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                            </svg>
+                            <svg
+                                class="check-icon hidden"
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="3"
+                            >
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span class="btn-text">Copy Command</span>
+                        </button>
+                    </div>
+                ))
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    const copyBtns = document.querySelectorAll(".copy-skill-btn");
+
+    copyBtns.forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            const repo = btn.getAttribute("data-repo");
+            const command = `skild install ${repo}`;
+            const btnText = btn.querySelector(".btn-text") as HTMLElement;
+            const copyIcon = btn.querySelector(".copy-icon") as HTMLElement;
+            const checkIcon = btn.querySelector(".check-icon") as HTMLElement;
+
+            try {
+                await navigator.clipboard.writeText(command);
+
+                if (btnText && copyIcon && checkIcon) {
+                    const originalText = btnText.textContent;
+                    btnText.textContent = "Copied!";
+                    copyIcon.classList.add("hidden");
+                    checkIcon.classList.remove("hidden");
+                    btn.classList.add("bg-brand-eco/30");
+
+                    setTimeout(() => {
+                        btnText.textContent = originalText;
+                        copyIcon.classList.remove("hidden");
+                        checkIcon.classList.add("hidden");
+                        btn.classList.remove("bg-brand-eco/30");
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error("Failed to copy command:", err);
+            }
+        });
+    });
+</script>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+</style>

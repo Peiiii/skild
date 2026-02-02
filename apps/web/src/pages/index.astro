@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import Navbar from "../components/Navbar.astro";
 import Hero from "../components/Hero.astro";
 import Terminal from "../components/Terminal.astro";
+import PopularSkills from "../components/PopularSkills.astro";
 import Features from "../components/Features.astro";
 import HowItWorks from "../components/HowItWorks.astro";
 import Waitlist from "../components/Waitlist.astro";
@@ -14,13 +15,13 @@ import Footer from "../components/Footer.astro";
 	<main class="relative z-10 pt-16 md:pt-20">
 		<Hero>
 			<Terminal slot="terminal" />
+			<PopularSkills slot="skills" />
 		</Hero>
 		<Features />
 		<HowItWorks />
 		<Waitlist />
 		<Footer />
 	</main>
-
 </Layout>
 
 <script>
@@ -34,4 +35,3 @@ import Footer from "../components/Footer.astro";
 	}, observerOptions);
 	document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 </script>
-
