@@ -19,25 +19,37 @@ English | **[简体中文](./README.zh-CN.md)**
 
 ## 🚀 Quick Start
 ```bash
-# Install skild
 npm i -g skild
-
-# Install all Skills from  gitHub repo
 skild install anthropics/skills
-
-# Install a Skill from github
-skild install anthropics/skills/skills/pdf
-
-# List installed Skills·
 skild list
+skild update
+skild push owner/repo --dir ./my-skill
 ```
 
-or use npx to install without installing, for example:
-```bash
-npx skild install anthropics/skills
-```
+That's it. Your agent is ready to install and manage skills.
 
-That's it. Your agent now has the `pdf` skill.
+## 🧭 Command Overview
+
+| Command | Description |
+|---------|-------------|
+| `skild install <source>` | Install a Skill (Git URL / local / registry) |
+| `skild list` | List installed Skills |
+| `skild info <skill>` | Show Skill details |
+| `skild update [skill]` | Update installed Skills |
+| `skild sync [skills...]` | Auto-detect missing installs and sync |
+| `skild uninstall <skill>` | Remove a Skill |
+| `skild init <name>` | Create a new Skill project |
+| `skild validate [path\|skill]` | Validate a Skill folder or installed Skill |
+| `skild push <repo>` | Push a Skill to a Git repository |
+| `skild extract-github-skills <source>` | Extract GitHub Skills into a local catalog |
+| `skild search <query>` | Search the registry |
+| `skild signup` | Create a publisher account |
+| `skild login` | Login to registry |
+| `skild whoami` | Show current identity |
+| `skild logout` | Remove credentials |
+| `skild publish` | Publish a Skill to the registry |
+
+Run `skild <command> --help` for full options.
 
 ## 📖 What is this?
 
@@ -146,28 +158,7 @@ skild sync pdf web-scraper --to codex,cursor
 skild sync --yes --force
 ```
 
-## 🛠️ All Commands
 
-| Command | Description |
-|---------|-------------|
-| `skild install <source>` | Install a Skill (Git URL / degit / local / registry) |
-| `skild list` | List installed Skills |
-| `skild info <skill>` | Show Skill details |
-| `skild validate <path>` | Validate a Skill folder |
-| `skild update [skill]` | Update installed Skills |
-| `skild uninstall <skill>` | Remove a Skill |
-| `skild init <name>` | Create a new Skill project |
-| `skild search <query>` | Search the registry |
-| `skild signup` | Create a publisher account |
-| `skild login` | Login to registry |
-| `skild whoami` | Show current identity |
-| `skild logout` | Remove credentials |
-| `skild publish` | Publish a Skill to the registry |
-| `skild push <repo>` | Push a Skill to a Git repository |
-| `skild extract-github-skills <source>` | Extract GitHub Skills into a local catalog |
-| `skild sync [skills...]` | Auto-detect missing installs across platforms and sync (tree selection) |
-
-Run `skild <command> --help` for full options.
 
 ## 📚 Documentation
 

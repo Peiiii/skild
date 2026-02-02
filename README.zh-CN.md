@@ -20,25 +20,37 @@
 ## 🚀 快速开始
 
 ```bash
-# 安装 skild
 npm i -g skild
-
-# 从 GitHub 仓库安装所有 Skills
 skild install anthropics/skills
-
-# 从 GitHub 仓库安装一个 Skill
-skild install anthropics/skills/skills/pdf
-
-# 列出已安装的 Skills
 skild list
+skild update
+skild push owner/repo --dir ./my-skill
 ```
 
-或者使用npx免安装使用，例如
+搞定！你的 Agent 已准备好安装和管理 Skills。
 
-```bash
-npx skild install anthropics/skills
-```
-搞定！你的 Agent 现在拥有了 `pdf` 技能。
+## 🧭 命令总览
+
+| 命令 | 描述 |
+|------|------|
+| `skild install <source>` | 安装 Skill（Git URL / 本地 / Registry） |
+| `skild list` | 列出已安装 Skills |
+| `skild info <skill>` | 查看 Skill 详情 |
+| `skild update [skill]` | 更新已安装 Skills |
+| `skild sync [skills...]` | 自动发现缺失并同步 |
+| `skild uninstall <skill>` | 卸载 Skill |
+| `skild init <name>` | 创建新的 Skill 项目 |
+| `skild validate [path\|skill]` | 校验 Skill 目录或已安装 Skill |
+| `skild push <repo>` | 上传 Skill 到 Git 仓库 |
+| `skild extract-github-skills <source>` | 从 GitHub 导出 Skills 目录树 |
+| `skild search <query>` | 在 registry 搜索 |
+| `skild signup` | 创建 registry 发布者账号 |
+| `skild login` | 登录 registry |
+| `skild whoami` | 查看当前 registry 身份 |
+| `skild logout` | 清除登录信息 |
+| `skild publish` | 发布 Skill 到 registry |
+
+提示：可用 `skild <命令> --help` 查看完整参数。
 ## 📖 什么是 Agent Skills？
 
 [Agent Skills](https://agentskills.io) 是 Anthropic 发布的开放标准，用于为 AI Agent 扩展专业知识和工作流。**skild** 是这些 Skills 的包管理器 — 可以理解为 AI Agent 的 npm。
@@ -114,28 +126,7 @@ skild sync pdf web-scraper --to codex,cursor
 skild sync --yes --force
 ```
 
-## 🛠️ 所有命令
 
-| 命令 | 描述 |
-|------|------|
-| `skild install <source>` | 安装 Skill（Git URL / degit 简写 / 本地目录） |
-| `skild list` | 列出已安装的 Skills |
-| `skild info <skill>` | 查看已安装 Skill 详情 |
-| `skild validate [path\|skill]` | 校验 Skill 目录或已安装 Skill |
-| `skild uninstall <skill>` | 卸载 Skill |
-| `skild update [skill]` | 更新单个或全部已安装 Skill |
-| `skild init <name>` | 创建新的 Skill 项目 |
-| `skild signup` | 创建 registry 发布者账号 |
-| `skild login` | 登录 registry（把 token 保存到本地） |
-| `skild whoami` | 查看当前 registry 身份 |
-| `skild logout` | 清除本地登录信息 |
-| `skild search <query>` | 在 registry 搜索 Skills |
-| `skild publish` | 发布 Skill 目录到 registry |
-| `skild push <repo>` | 上传 Skill 到 Git 仓库 |
-| `skild extract-github-skills <source>` | 从 GitHub 导出 Skills 目录树 |
-| `skild sync [skills...]` | 自动发现跨平台缺失并同步（树形选择） |
-
-提示：可以用 `skild <命令> --help` 查看完整参数。
 
 ## 📚 文档
 

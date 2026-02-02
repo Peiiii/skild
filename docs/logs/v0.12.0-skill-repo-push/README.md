@@ -9,7 +9,10 @@
 - 自动校验 SKILL.md、提交并 push；无变更时直接提示。
 - 更新用户使用文档与入口索引（`docs/usage.md`、`docs/usage.zh-CN.md`、`docs/README.md`、`docs/README.zh-CN.md`、`README.md`、`README.zh-CN.md`、`packages/cli/README.md`）。
 - 官网与 Console 增加 `skild push` 的功能入口与示例（Hero/Features/Terminal/Publish 页）。
-- GitHub README 顶部加入 “一眼看懂 / At a glance” 说明区块。
+- GitHub README 结构调整：Quick Start 更贴近官网首页，命令总览前置。
+- GitHub README Quick Start 仅保留最小命令，功能细节下沉到后文。
+- GitHub README Quick Start 加入首页终端中的核心命令（install/list/update/push）。
+- GitHub README 命令总览顺序优化（validate/ sync/ extract/search 排序调整）。
 
 ## 功能说明
 
