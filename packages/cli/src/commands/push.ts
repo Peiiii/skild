@@ -1,6 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { execSync } from 'child_process';
 import simpleGit from 'simple-git';
 import chalk from 'chalk';
 import { SkildError, validateSkillDir } from '@skild/core';
@@ -42,7 +43,9 @@ function resolveRepoSource(raw: string, preferLocal: boolean): { url: string; la
   }
 
   if (/^[^/]+\/[^/]+$/.test(trimmed) && !trimmed.includes(':') && !trimmed.startsWith('http')) {
-    return { url: `https://github.com/${trimmed}.git`, label: trimmed };
+    const preferSsh = hasSshAgentKeys() || Boolean(process.env.GIT_SSH_COMMAND);
+    const url = preferSsh ? `git@github.com:${trimmed}.git` : `https://github.com/${trimmed}.git`;
+    return { url, label: trimmed };
   }
 
   if (/^(https?:|git@|ssh:)/i.test(trimmed) || trimmed.includes('github.com') || trimmed.includes('gitlab.com')) {
@@ -53,6 +56,16 @@ function resolveRepoSource(raw: string, preferLocal: boolean): { url: string; la
     'INVALID_SOURCE',
     `Unsupported repo "${raw}". Use owner/repo, a Git URL, or pass --local for a local path.`
   );
+}
+
+function hasSshAgentKeys(): boolean {
+  if (!process.env.SSH_AUTH_SOCK) return false;
+  try {
+    const out = execSync('ssh-add -L', { stdio: ['ignore', 'pipe', 'ignore'] }).toString();
+    return /ssh-(rsa|ed25519)|ecdsa-/.test(out);
+  } catch {
+    return false;
+  }
 }
 
 function normalizeSkillSegment(name: string, fallback: string): string {

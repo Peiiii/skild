@@ -117,6 +117,7 @@ skild info pdf             # Show Skill details
 skild validate pdf         # Validate Skill structure
 skild update pdf           # Update a Skill
 skild uninstall pdf        # Remove a Skill
+skild push owner/repo --dir ./my-skill  # Push a Skill to a Git repo
 skild sync                 # Auto-detect and sync missing installs across platforms (tree prompt)
 ```
 
@@ -162,6 +163,7 @@ skild sync --yes --force
 | `skild whoami` | Show current identity |
 | `skild logout` | Remove credentials |
 | `skild publish` | Publish a Skill to the registry |
+| `skild push <repo>` | Push a Skill to a Git repository |
 | `skild extract-github-skills <source>` | Extract GitHub Skills into a local catalog |
 | `skild sync [skills...]` | Auto-detect missing installs across platforms and sync (tree selection) |
 

@@ -43,6 +43,7 @@ Your agent is now equipped with new capabilities!
 - **Multiple Sources** — Install from GitHub, the Skild Registry, or local directories
 - **Skillsets** — Install bundles of related skills with one command
 - **Sync** — Keep skills synchronized across all your platforms
+- **Push** — Upload or update skills in a Git repository
 - **Publish** — Share your skills with the community via the registry
 
 ## 📦 Installation
@@ -76,6 +77,7 @@ Requires **Node.js ≥18**.
 | `skild search <query>` | Search the registry |
 | `skild init <name>` | Create a new skill |
 | `skild publish` | Publish to the registry |
+| `skild push <repo>` | Push a skill to a Git repository |
 
 ## 📥 Installing Skills
 

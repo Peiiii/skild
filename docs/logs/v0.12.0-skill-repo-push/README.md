@@ -1,12 +1,13 @@
-# v0.11.8 skill-repo-push
+# v0.12.0 skill-repo-push
 
 ## 迭代完成说明
 
 - 新增 `skild push`：将本地 skill 上传/更新到指定 Git 仓库路径（不经过 registry）。
 - 默认写入 `skills/<skill-name>`，支持自定义 `--path` 与 `--branch`。
 - 默认将 `<repo>` 视为远程（`owner/repo` 或 Git URL）；本地路径可用 `--local` 或显式路径前缀。
+- 对 `owner/repo`：如检测到 SSH agent key，将优先使用 SSH；否则回退到 HTTPS。
 - 自动校验 SKILL.md、提交并 push；无变更时直接提示。
-- 更新用户使用文档（`docs/usage.md`、`docs/usage.zh-CN.md`）。
+- 更新用户使用文档与入口索引（`docs/usage.md`、`docs/usage.zh-CN.md`、`docs/README.md`、`docs/README.zh-CN.md`、`README.md`、`README.zh-CN.md`、`packages/cli/README.md`）。
 
 ## 功能说明
 
@@ -33,7 +34,21 @@
 - `pnpm typecheck`
 - 冒烟（非仓库目录）：
   - `tmpdir="$(mktemp -d)" && git init --bare "$tmpdir/remote.git" >/dev/null && mkdir -p "$tmpdir/skill" && cat > "$tmpdir/skill/SKILL.md" <<'EOF'\n---\nname: demo-skill\ndescription: demo\nversion: 0.0.1\n---\nEOF\nGIT_AUTHOR_NAME=skild GIT_AUTHOR_EMAIL=skild@example.com GIT_COMMITTER_NAME=skild GIT_COMMITTER_EMAIL=skild@example.com node /Users/peiwang/Projects/skild/packages/cli/dist/index.js push "$tmpdir/remote.git" --dir "$tmpdir/skill" --local && git --git-dir "$tmpdir/remote.git" log --oneline -1`
+  - 远程（默认选择 SSH 时）：`tmpdir="$(mktemp -d)" && mkdir -p "$tmpdir/skill" && cat > "$tmpdir/skill/SKILL.md" <<'EOF'\n---\nname: demo-skill-smart\ndescription: demo smart\nversion: 0.0.1\n---\nEOF\nGIT_AUTHOR_NAME=skild GIT_AUTHOR_EMAIL=skild@example.com GIT_COMMITTER_NAME=skild GIT_COMMITTER_EMAIL=skild@example.com node /Users/peiwang/Projects/skild/packages/cli/dist/index.js push Peiiii/skills --dir "$tmpdir/skill"`
 
 ## 发布/部署方式
 
-- 本迭代仅涉及 CLI 代码变更；按 `docs/release.md` 进行版本发布。
+- NPM：
+  - `pnpm release:version`
+  - `pnpm release:publish`
+- 远程 migrations：
+  - `pnpm -C workers/registry exec wrangler d1 migrations apply skild-registry --remote`
+- 部署：
+  - `pnpm deploy:workers`
+  - `pnpm deploy:console`
+  - `pnpm deploy:web`
+- 线上冒烟：
+  - `curl -fsS https://registry.skild.sh/health`
+  - `curl -fsSI https://hub.skild.sh | head -n 5`
+  - `curl -fsSI https://skild.sh | head -n 5`
+  - `pnpm -s dlx skild@0.12.0 -- --help`

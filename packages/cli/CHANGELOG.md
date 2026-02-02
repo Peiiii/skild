@@ -1,5 +1,11 @@
 # skild
 
+## 0.12.0
+
+### Minor Changes
+
+- Add `skild push` for uploading/updating skills in Git repositories with SSH-first detection for `owner/repo`.
+
 ## 0.11.1
 
 ### Patch Changes

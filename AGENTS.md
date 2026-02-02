@@ -62,3 +62,4 @@
 - **no-self-commit-without-request**：除非用户明确要求，否则禁止擅自提交/推送代码。
 - **use-chinese-when-communicating**：与用户交流时使用中文。
 - **complete-all-release-required**：当用户指令包含“完成所有/完成全部”，必须执行完整上线闭环与全流程验证；若无法执行必须明确阻塞原因并记录为未完成。执行方式：按 `docs/processes/npm-release-process.md` + 远程 migrations + 全量 deploy + 线上冒烟；责任人：当次交付 owner。
+- **all-release-means-all-updates**：当用户指令包含“发布所有/发布全部/发布全部更新”等表述时，默认发布本次变更涉及的所有组件（含前端、后端、npm 包、文档站点等）；如有组件未覆盖视为流程缺陷。执行方式：先枚举受影响组件并全部发布/部署；责任人：当次交付 owner。

@@ -138,6 +138,7 @@ skild push owner/repo --dir ./path/to/skill --path skills/demo --branch main --m
 Notes:
 - Default target path: `skills/<skill-name>` (from `SKILL.md` frontmatter.name).
 - Use `--local` or explicit path prefix (`./`, `/`, `~/`, `file://`) for local repositories.
+- For `owner/repo`, skild prefers SSH if an SSH agent key is available; otherwise it falls back to HTTPS.
 
 ### Sync Skills Across Platforms
 

@@ -3,7 +3,7 @@
 - `docs/logs/v0.0.1-mvp/README.md`
 - `docs/logs/v0.1.0-headless/README.md`
 - `docs/logs/v0.2.0-registry/README.md`
-- `docs/logs/v0.11.8-skill-repo-push/README.md`
+- `docs/logs/v0.12.0-skill-repo-push/README.md`
 
 ## 写日志的标准
 

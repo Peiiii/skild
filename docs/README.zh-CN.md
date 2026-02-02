@@ -18,6 +18,7 @@
 
 | 文档 | 说明 |
 |------|------|
+| **[使用文档](./usage.zh-CN.md)** | CLI 端到端使用与工作流 |
 | **[安装 Skills](./installing-skills.zh-CN.md)** | 从 GitHub、本地或 Registry 安装 |
 | **[跨平台同步](./installing-skills.zh-CN.md#%E8%B7%A8%E5%B9%B3%E5%8F%B0%E5%90%8C%E6%AD%A5)** | 自动发现缺失并跨平台同步 |
 | **[Skillsets 指南](./skillsets.zh-CN.md)** | 一键安装多个 Skills |
