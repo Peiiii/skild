@@ -10,14 +10,16 @@ import TerminalEntry from "./TerminalEntry.astro";
     </div>
 
     <!-- Core Commands Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-32 reveal">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mb-32 reveal">
         {[
             { cmd: "install", desc: "Get and equip skills instantly" },
             { cmd: "list", desc: "View all your equipped capabilities" },
             { cmd: "update", desc: "Keep all skills at the latest version" },
             { cmd: "uninstall", desc: "Remove skills you no longer need" },
             { cmd: "sync", desc: "Fix missing skills across platforms" },
-            { cmd: "publish", desc: "Share your own skills with the world" }
+            { cmd: "push", desc: "Update skills in your Git repo" },
+            { cmd: "publish", desc: "Share skills on the registry" },
+            { cmd: "search", desc: "Discover skills in the catalog" }
         ].map((item) => (
             <div class="bg-[#F9F9F2] p-8 rounded-[32px] border border-brand-forest/5 hover:border-brand-eco transition-all group cursor-default">
                 <div class="font-mono text-brand-eco font-bold text-lg mb-3">

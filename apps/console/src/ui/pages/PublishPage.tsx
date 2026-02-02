@@ -90,6 +90,23 @@ Instructions for the AI agent...`}
           </p>
         </div>
 
+        {/* Optional: Push to Git */}
+        <div className="rounded-2xl border border-brand-forest/10 bg-brand-forest/5 p-5 space-y-3">
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary">Registry-free</Badge>
+            <div className="font-serif font-bold text-lg text-brand-forest">Push to a Git repo</div>
+          </div>
+          <p className="text-sm text-brand-forest/60 font-medium">
+            Keep skills in your own repository without publishing to the registry.
+          </p>
+          <CodeBlock copyValue="skild push owner/repo --dir ./path/to/skill">
+            skild push owner/repo --dir ./path/to/skill
+          </CodeBlock>
+          <p className="text-xs text-brand-forest/50 font-medium">
+            Uses SSH when available; add <code className="bg-brand-forest/5 px-1.5 py-0.5 rounded-full text-brand-forest font-bold font-mono">--local</code> for local repos.
+          </p>
+        </div>
+
         {/* Step 5: Install */}
         <div className="space-y-4">
           <div className="flex items-center gap-4">

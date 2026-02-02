@@ -8,6 +8,8 @@
 - 对 `owner/repo`：如检测到 SSH agent key，将优先使用 SSH；否则回退到 HTTPS。
 - 自动校验 SKILL.md、提交并 push；无变更时直接提示。
 - 更新用户使用文档与入口索引（`docs/usage.md`、`docs/usage.zh-CN.md`、`docs/README.md`、`docs/README.zh-CN.md`、`README.md`、`README.zh-CN.md`、`packages/cli/README.md`）。
+- 官网与 Console 增加 `skild push` 的功能入口与示例（Hero/Features/Terminal/Publish 页）。
+- GitHub README 顶部加入 “一眼看懂 / At a glance” 说明区块。
 
 ## 功能说明
 
@@ -35,6 +37,7 @@
 - 冒烟（非仓库目录）：
   - `tmpdir="$(mktemp -d)" && git init --bare "$tmpdir/remote.git" >/dev/null && mkdir -p "$tmpdir/skill" && cat > "$tmpdir/skill/SKILL.md" <<'EOF'\n---\nname: demo-skill\ndescription: demo\nversion: 0.0.1\n---\nEOF\nGIT_AUTHOR_NAME=skild GIT_AUTHOR_EMAIL=skild@example.com GIT_COMMITTER_NAME=skild GIT_COMMITTER_EMAIL=skild@example.com node /Users/peiwang/Projects/skild/packages/cli/dist/index.js push "$tmpdir/remote.git" --dir "$tmpdir/skill" --local && git --git-dir "$tmpdir/remote.git" log --oneline -1`
   - 远程（默认选择 SSH 时）：`tmpdir="$(mktemp -d)" && mkdir -p "$tmpdir/skill" && cat > "$tmpdir/skill/SKILL.md" <<'EOF'\n---\nname: demo-skill-smart\ndescription: demo smart\nversion: 0.0.1\n---\nEOF\nGIT_AUTHOR_NAME=skild GIT_AUTHOR_EMAIL=skild@example.com GIT_COMMITTER_NAME=skild GIT_COMMITTER_EMAIL=skild@example.com node /Users/peiwang/Projects/skild/packages/cli/dist/index.js push Peiiii/skills --dir "$tmpdir/skill"`
+  - Web/Console 文案检查：`tmpdir="$(mktemp -d)" && cp -R /Users/peiwang/Projects/skild/apps/web/dist "$tmpdir/web" && cp -R /Users/peiwang/Projects/skild/apps/console/dist "$tmpdir/console" && (cd "$tmpdir/web" && python3 -m http.server 8173 >/dev/null 2>&1 & echo $! > "$tmpdir/web.pid") && sleep 1 && curl -fsS http://127.0.0.1:8173/index.html | rg -n "skild push" && kill "$(cat "$tmpdir/web.pid")" && (cd "$tmpdir/console" && python3 -m http.server 8174 >/dev/null 2>&1 & echo $! > "$tmpdir/console.pid") && sleep 1 && jsfile="$(rg -n "src=\\\"/assets/.*\\.js\\\"" -o "$tmpdir/console/index.html" | sed -E "s/.*\\\"(\\/assets\\/.*\\.js)\\\".*/\\1/" | head -n 1)" && curl -fsS "http://127.0.0.1:8174${jsfile}" | rg -n "Push to a Git repo" && kill "$(cat "$tmpdir/console.pid")"`
 
 ## 发布/部署方式
 

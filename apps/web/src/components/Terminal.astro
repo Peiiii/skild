@@ -66,6 +66,13 @@ import TerminalEntry from "./TerminalEntry.astro";
                 <TerminalEntry type="success">Updated 4 skill(s).</TerminalEntry>
             </div>
 
+            <!-- Animation Group 4: Push -->
+            <div class="space-y-2 pt-4">
+                <TerminalEntry type="command">skild push owner/repo --dir ./my-skill</TerminalEntry>
+                <TerminalEntry type="step">Uploading to git@github.com:owner/repo.git...</TerminalEntry>
+                <TerminalEntry type="success">Pushed my-skill → skills/my-skill</TerminalEntry>
+            </div>
+
             <!-- Cursor -->
             <div class="flex gap-3 pt-2">
                 <span class="text-brand-eco/60 font-bold">$</span>
@@ -92,7 +99,6 @@ import TerminalEntry from "./TerminalEntry.astro";
         to { opacity: 1; transform: translateY(0); }
     }
 </style>
-
 
 
 
