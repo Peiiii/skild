@@ -89,9 +89,14 @@ const popularSkills = [
                                 {skill.rank}
                             </span>
                             <div class="flex flex-col">
-                                <span class="text-[13px] font-bold text-white group-hover/item:text-brand-eco transition-colors">
+                                <a
+                                    class="text-[13px] font-bold text-white group-hover/item:text-brand-eco transition-colors hover:underline underline-offset-4"
+                                    href={`https://github.com/${skill.repo}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
                                     {skill.name}
-                                </span>
+                                </a>
                                 <span class="text-[10px] text-white/40 tracking-wider">
                                     {skill.repo}
                                 </span>
