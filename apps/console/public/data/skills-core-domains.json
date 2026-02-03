@@ -1,0 +1,929 @@
+{
+  "generatedAt": "2026-02-03T17:16:28.910923+00:00",
+  "source": "https://skills.sh/trending",
+  "domains": [
+    {
+      "id": "agent-workflow",
+      "name": "Agent Discovery & Automation",
+      "focus": "Skill discovery, browser control, and automation workflows that answer: what should I use next?",
+      "skills": [
+        {
+          "source": "vercel-labs/skills",
+          "skillId": "find-skills",
+          "name": "find-skills",
+          "installsAllTime": 95887,
+          "installsTrending": 11227,
+          "skillUrl": "https://skills.sh/vercel-labs/skills/find-skills",
+          "repoUrl": "https://github.com/vercel-labs/skills",
+          "repoStars": 4226,
+          "tags": [
+            "discover",
+            "search",
+            "installation"
+          ],
+          "summary": "This skill helps you discover and install skills from the open agent skills ecosystem.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "vercel-labs/agent-browser",
+          "skillId": "agent-browser",
+          "name": "agent-browser",
+          "installsAllTime": 20606,
+          "installsTrending": 1276,
+          "skillUrl": "https://skills.sh/vercel-labs/agent-browser/agent-browser",
+          "repoUrl": "https://github.com/vercel-labs/agent-browser",
+          "repoStars": 12355,
+          "tags": [
+            "browser",
+            "automation",
+            "web"
+          ],
+          "summary": "Every browser automation follows this pattern:",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "browser-use/browser-use",
+          "skillId": "browser-use",
+          "name": "browser-use",
+          "installsAllTime": 13181,
+          "installsTrending": 2431,
+          "skillUrl": "https://skills.sh/browser-use/browser-use/browser-use",
+          "repoUrl": "https://github.com/browser-use/browser-use",
+          "repoStars": 77681,
+          "tags": [
+            "browser",
+            "workflow",
+            "automation"
+          ],
+          "summary": "The browser-use command provides fast, persistent browser automation. It maintains browser sessions across commands, enabling complex multi-step workflows.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "anthropics/skills",
+          "skillId": "skill-creator",
+          "name": "skill-creator",
+          "installsAllTime": 18141,
+          "installsTrending": 1315,
+          "skillUrl": "https://skills.sh/anthropics/skills/skill-creator",
+          "repoUrl": "https://github.com/anthropics/skills",
+          "repoStars": 61834,
+          "tags": [
+            "skill-authoring",
+            "workflow",
+            "governance"
+          ],
+          "summary": "This skill provides guidance for creating effective skills.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "anthropics/skills",
+          "skillId": "mcp-builder",
+          "name": "mcp-builder",
+          "installsAllTime": 4844,
+          "installsTrending": 349,
+          "skillUrl": "https://skills.sh/anthropics/skills/mcp-builder",
+          "repoUrl": "https://github.com/anthropics/skills",
+          "repoStars": 61834,
+          "tags": [
+            "mcp",
+            "integration",
+            "tools"
+          ],
+          "summary": "Create MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. The quality of an MCP server is measured by how well it enables LLMs to accomplish real-world tasks.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "obra/superpowers",
+          "skillId": "subagent-driven-development",
+          "name": "subagent-driven-development",
+          "installsAllTime": 3284,
+          "installsTrending": 256,
+          "skillUrl": "https://skills.sh/obra/superpowers/subagent-driven-development",
+          "repoUrl": "https://github.com/obra/superpowers",
+          "repoStars": 43191,
+          "tags": [
+            "agents",
+            "collaboration",
+            "workflow"
+          ],
+          "summary": "Execute plan by dispatching fresh subagent per task, with two-stage review after each: spec compliance review first, then code quality review.",
+          "summarySource": "skills.sh"
+        }
+      ]
+    },
+    {
+      "id": "frontend-ui",
+      "name": "Frontend & UI/UX",
+      "focus": "Experience, performance, and maintainability across frontend frameworks and design systems.",
+      "skills": [
+        {
+          "source": "vercel-labs/agent-skills",
+          "skillId": "vercel-react-best-practices",
+          "name": "vercel-react-best-practices",
+          "installsAllTime": 88365,
+          "installsTrending": 4270,
+          "skillUrl": "https://skills.sh/vercel-labs/agent-skills/vercel-react-best-practices",
+          "repoUrl": "https://github.com/vercel-labs/agent-skills",
+          "repoStars": 18694,
+          "tags": [
+            "react",
+            "nextjs",
+            "performance"
+          ],
+          "summary": "Comprehensive performance optimization guide for React and Next.js applications, maintained by Vercel. Contains 57 rules across 8 categories, prioritized by impact to guide automated refactoring and code generation.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "vercel-labs/agent-skills",
+          "skillId": "web-design-guidelines",
+          "name": "web-design-guidelines",
+          "installsAllTime": 67015,
+          "installsTrending": 3337,
+          "skillUrl": "https://skills.sh/vercel-labs/agent-skills/web-design-guidelines",
+          "repoUrl": "https://github.com/vercel-labs/agent-skills",
+          "repoStars": 18694,
+          "tags": [
+            "design",
+            "ui",
+            "ux"
+          ],
+          "summary": "Review files for compliance with Web Interface Guidelines.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "remotion-dev/skills",
+          "skillId": "remotion-best-practices",
+          "name": "remotion-best-practices",
+          "installsAllTime": 62605,
+          "installsTrending": 2576,
+          "skillUrl": "https://skills.sh/remotion-dev/skills/remotion-best-practices",
+          "repoUrl": "https://github.com/remotion-dev/skills",
+          "repoStars": 1270,
+          "tags": [
+            "video",
+            "react",
+            "motion"
+          ],
+          "summary": "Use this skills whenever you are dealing with Remotion code to obtain the domain-specific knowledge.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "anthropics/skills",
+          "skillId": "frontend-design",
+          "name": "frontend-design",
+          "installsAllTime": 35732,
+          "installsTrending": 2376,
+          "skillUrl": "https://skills.sh/anthropics/skills/frontend-design",
+          "repoUrl": "https://github.com/anthropics/skills",
+          "repoStars": 61834,
+          "tags": [
+            "frontend",
+            "design",
+            "usability"
+          ],
+          "summary": "This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic \"AI slop\" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "vercel-labs/agent-skills",
+          "skillId": "vercel-composition-patterns",
+          "name": "vercel-composition-patterns",
+          "installsAllTime": 19280,
+          "installsTrending": 2394,
+          "skillUrl": "https://skills.sh/vercel-labs/agent-skills/vercel-composition-patterns",
+          "repoUrl": "https://github.com/vercel-labs/agent-skills",
+          "repoStars": 18694,
+          "tags": [
+            "component",
+            "architecture",
+            "patterns"
+          ],
+          "summary": "Composition patterns for building flexible, maintainable React components. Avoid boolean prop proliferation by using compound components, lifting state, and composing internals. These patterns make codebases easier for both humans and AI agents to work with as they scale.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+          "skillId": "ui-ux-pro-max",
+          "name": "ui-ux-pro-max",
+          "installsAllTime": 11591,
+          "installsTrending": 1127,
+          "skillUrl": "https://skills.sh/nextlevelbuilder/ui-ux-pro-max-skill/ui-ux-pro-max",
+          "repoUrl": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+          "repoStars": 26787,
+          "tags": [
+            "ui",
+            "ux",
+            "design"
+          ],
+          "summary": "Comprehensive design guide for web and mobile applications. Contains 50+ styles, 97 color palettes, 57 font pairings, 99 UX guidelines, and 25 chart types across 9 technology stacks. Searchable database with priority-based recommendations.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "hyf0/vue-skills",
+          "skillId": "vue-best-practices",
+          "name": "vue-best-practices",
+          "installsAllTime": 4340,
+          "installsTrending": 190,
+          "skillUrl": "https://skills.sh/hyf0/vue-skills/vue-best-practices",
+          "repoUrl": "https://github.com/hyf0/vue-skills",
+          "repoStars": 1300,
+          "tags": [
+            "vue",
+            "frontend",
+            "best-practices"
+          ],
+          "summary": "Vue 3 best practices, common gotchas, and performance optimization.",
+          "summarySource": "skills.sh"
+        }
+      ]
+    },
+    {
+      "id": "mobile-native",
+      "name": "Mobile & Native",
+      "focus": "Mobile UX and native capabilities for React Native and Expo.",
+      "skills": [
+        {
+          "source": "vercel-labs/agent-skills",
+          "skillId": "vercel-react-native-skills",
+          "name": "vercel-react-native-skills",
+          "installsAllTime": 14395,
+          "installsTrending": 1744,
+          "skillUrl": "https://skills.sh/vercel-labs/agent-skills/vercel-react-native-skills",
+          "repoUrl": "https://github.com/vercel-labs/agent-skills",
+          "repoStars": 18694,
+          "tags": [
+            "react-native",
+            "mobile",
+            "best-practices"
+          ],
+          "summary": "Comprehensive best practices for React Native and Expo applications. Contains rules across multiple categories covering performance, animations, UI patterns, and platform-specific optimizations.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "expo/skills",
+          "skillId": "building-native-ui",
+          "name": "building-native-ui",
+          "installsAllTime": 6819,
+          "installsTrending": 300,
+          "skillUrl": "https://skills.sh/expo/skills/building-native-ui",
+          "repoUrl": "https://github.com/expo/skills",
+          "repoStars": 847,
+          "tags": [
+            "expo",
+            "mobile-ui",
+            "native"
+          ],
+          "summary": "Consult these resources as needed:",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "expo/skills",
+          "skillId": "upgrading-expo",
+          "name": "upgrading-expo",
+          "installsAllTime": 4585,
+          "installsTrending": 190,
+          "skillUrl": "https://skills.sh/expo/skills/upgrading-expo",
+          "repoUrl": "https://github.com/expo/skills",
+          "repoStars": 847,
+          "tags": [
+            "expo",
+            "upgrade",
+            "maintenance"
+          ],
+          "summary": "Beta versions use .preview suffix (e.g., 55.0.0-preview.2), published under @next tag.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "expo/skills",
+          "skillId": "native-data-fetching",
+          "name": "native-data-fetching",
+          "installsAllTime": 4554,
+          "installsTrending": 173,
+          "skillUrl": "https://skills.sh/expo/skills/native-data-fetching",
+          "repoUrl": "https://github.com/expo/skills",
+          "repoStars": 847,
+          "tags": [
+            "expo",
+            "data",
+            "networking"
+          ],
+          "summary": "You MUST use this skill for ANY networking work including API requests, data fetching, caching, or network debugging.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "expo/skills",
+          "skillId": "expo-dev-client",
+          "name": "expo-dev-client",
+          "installsAllTime": 4044,
+          "installsTrending": 164,
+          "skillUrl": "https://skills.sh/expo/skills/expo-dev-client",
+          "repoUrl": "https://github.com/expo/skills",
+          "repoStars": 847,
+          "tags": [
+            "expo",
+            "devtools",
+            "debugging"
+          ],
+          "summary": "Use EAS Build to create development clients for testing native code changes on physical devices. Use this for creating custom Expo Go clients for testing branches of your app.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "callstackincubator/agent-skills",
+          "skillId": "react-native-best-practices",
+          "name": "react-native-best-practices",
+          "installsAllTime": 3825,
+          "installsTrending": 136,
+          "skillUrl": "https://skills.sh/callstackincubator/agent-skills/react-native-best-practices",
+          "repoUrl": "https://github.com/callstackincubator/agent-skills",
+          "repoStars": 788,
+          "tags": [
+            "react-native",
+            "architecture",
+            "performance"
+          ],
+          "summary": "Performance optimization guide for React Native applications, covering JavaScript/React, Native (iOS/Android), and bundling optimizations. Based on Callstack's \"Ultimate Guide to React Native Optimization\".",
+          "summarySource": "skills.sh"
+        }
+      ]
+    },
+    {
+      "id": "backend-data",
+      "name": "Backend & Data",
+      "focus": "Databases, auth, and API design to keep backend systems stable and scalable.",
+      "skills": [
+        {
+          "source": "supabase/agent-skills",
+          "skillId": "supabase-postgres-best-practices",
+          "name": "supabase-postgres-best-practices",
+          "installsAllTime": 9916,
+          "installsTrending": 791,
+          "skillUrl": "https://skills.sh/supabase/agent-skills/supabase-postgres-best-practices",
+          "repoUrl": "https://github.com/supabase/agent-skills",
+          "repoStars": 1044,
+          "tags": [
+            "postgres",
+            "database",
+            "supabase"
+          ],
+          "summary": "Comprehensive performance optimization guide for Postgres, maintained by Supabase. Contains rules across 8 categories, prioritized by impact to guide automated query optimization and schema design.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "better-auth/skills",
+          "skillId": "better-auth-best-practices",
+          "name": "better-auth-best-practices",
+          "installsAllTime": 6892,
+          "installsTrending": 428,
+          "skillUrl": "https://skills.sh/better-auth/skills/better-auth-best-practices",
+          "repoUrl": "https://github.com/better-auth/skills",
+          "repoStars": 92,
+          "tags": [
+            "auth",
+            "security",
+            "backend"
+          ],
+          "summary": "Always consult better-auth.com/docs for code examples and latest API.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "wshobson/agents",
+          "skillId": "api-design-principles",
+          "name": "api-design-principles",
+          "installsAllTime": 1990,
+          "installsTrending": 123,
+          "skillUrl": "https://skills.sh/wshobson/agents/api-design-principles",
+          "repoUrl": "https://github.com/wshobson/agents",
+          "repoStars": 27647,
+          "tags": [
+            "api",
+            "design",
+            "backend"
+          ],
+          "summary": "Master REST and GraphQL API design principles to build intuitive, scalable, and maintainable APIs that delight developers and stand the test of time.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "wshobson/agents",
+          "skillId": "postgresql-table-design",
+          "name": "postgresql-table-design",
+          "installsAllTime": 1721,
+          "installsTrending": 103,
+          "skillUrl": "https://skills.sh/wshobson/agents/postgresql-table-design",
+          "repoUrl": "https://github.com/wshobson/agents",
+          "repoStars": 27647,
+          "tags": [
+            "postgres",
+            "schema",
+            "database"
+          ],
+          "summary": "Enable with ALTER TABLE tbl ENABLE ROW LEVEL SECURITY. Create policies: CREATE POLICY user_access ON orders FOR SELECT TO app_users USING (user_id = current_user_id()). Built-in user-based access control at the row level.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "wshobson/agents",
+          "skillId": "sql-optimization-patterns",
+          "name": "sql-optimization-patterns",
+          "installsAllTime": 1398,
+          "installsTrending": 89,
+          "skillUrl": "https://skills.sh/wshobson/agents/sql-optimization-patterns",
+          "repoUrl": "https://github.com/wshobson/agents",
+          "repoStars": 27647,
+          "tags": [
+            "sql",
+            "performance",
+            "database"
+          ],
+          "summary": "Transform slow database queries into lightning-fast operations through systematic optimization, proper indexing, and query plan analysis.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "wshobson/agents",
+          "skillId": "openapi-spec-generation",
+          "name": "openapi-spec-generation",
+          "installsAllTime": 957,
+          "installsTrending": 61,
+          "skillUrl": "https://skills.sh/wshobson/agents/openapi-spec-generation",
+          "repoUrl": "https://github.com/wshobson/agents",
+          "repoStars": 27647,
+          "tags": [
+            "openapi",
+            "api",
+            "documentation"
+          ],
+          "summary": "Comprehensive patterns for creating, maintaining, and validating OpenAPI 3.1 specifications for RESTful APIs.",
+          "summarySource": "skills.sh"
+        }
+      ]
+    },
+    {
+      "id": "devops-infra",
+      "name": "DevOps & Infra",
+      "focus": "Deployment pipelines and infrastructure automation for reliable delivery.",
+      "skills": [
+        {
+          "source": "expo/skills",
+          "skillId": "expo-deployment",
+          "name": "expo-deployment",
+          "installsAllTime": 3951,
+          "installsTrending": 163,
+          "skillUrl": "https://skills.sh/expo/skills/expo-deployment",
+          "repoUrl": "https://github.com/expo/skills",
+          "repoStars": 847,
+          "tags": [
+            "deployment",
+            "expo",
+            "release"
+          ],
+          "summary": "This skill covers deploying Expo applications across all platforms using EAS (Expo Application Services).",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "expo/skills",
+          "skillId": "expo-cicd-workflows",
+          "name": "expo-cicd-workflows",
+          "installsAllTime": 3368,
+          "installsTrending": 125,
+          "skillUrl": "https://skills.sh/expo/skills/expo-cicd-workflows",
+          "repoUrl": "https://github.com/expo/skills",
+          "repoStars": 847,
+          "tags": [
+            "cicd",
+            "automation",
+            "expo"
+          ],
+          "summary": "Help developers write and edit EAS CI/CD workflow YAML files.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "wshobson/agents",
+          "skillId": "github-actions-templates",
+          "name": "github-actions-templates",
+          "installsAllTime": 1303,
+          "installsTrending": 85,
+          "skillUrl": "https://skills.sh/wshobson/agents/github-actions-templates",
+          "repoUrl": "https://github.com/wshobson/agents",
+          "repoStars": 27647,
+          "tags": [
+            "ci",
+            "github-actions",
+            "automation"
+          ],
+          "summary": "Production-ready GitHub Actions workflow patterns for testing, building, and deploying applications.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "wshobson/agents",
+          "skillId": "deployment-pipeline-design",
+          "name": "deployment-pipeline-design",
+          "installsAllTime": 1028,
+          "installsTrending": 55,
+          "skillUrl": "https://skills.sh/wshobson/agents/deployment-pipeline-design",
+          "repoUrl": "https://github.com/wshobson/agents",
+          "repoStars": 27647,
+          "tags": [
+            "pipeline",
+            "delivery",
+            "devops"
+          ],
+          "summary": "Architecture patterns for multi-stage CI/CD pipelines with approval gates and deployment strategies.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "wshobson/agents",
+          "skillId": "terraform-module-library",
+          "name": "terraform-module-library",
+          "installsAllTime": 939,
+          "installsTrending": 53,
+          "skillUrl": "https://skills.sh/wshobson/agents/terraform-module-library",
+          "repoUrl": "https://github.com/wshobson/agents",
+          "repoStars": 27647,
+          "tags": [
+            "terraform",
+            "infra",
+            "iac"
+          ],
+          "summary": "Production-ready Terraform module patterns for AWS, Azure, and GCP infrastructure.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "sickn33/antigravity-awesome-skills",
+          "skillId": "docker-expert",
+          "name": "docker-expert",
+          "installsAllTime": 971,
+          "installsTrending": 77,
+          "skillUrl": "https://skills.sh/sickn33/antigravity-awesome-skills/docker-expert",
+          "repoUrl": "https://github.com/sickn33/antigravity-awesome-skills",
+          "repoStars": 6740,
+          "tags": [
+            "docker",
+            "containers",
+            "devops"
+          ],
+          "summary": "You are an advanced Docker containerization expert with comprehensive, practical knowledge of container optimization, security hardening, multi-stage builds, orchestration patterns, and production deployment strategies based on current industry best practices.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "wshobson/agents",
+          "skillId": "k8s-manifest-generator",
+          "name": "k8s-manifest-generator",
+          "installsAllTime": 827,
+          "installsTrending": 47,
+          "skillUrl": "https://skills.sh/wshobson/agents/k8s-manifest-generator",
+          "repoUrl": "https://github.com/wshobson/agents",
+          "repoStars": 27647,
+          "tags": [
+            "kubernetes",
+            "infra",
+            "automation"
+          ],
+          "summary": "Step-by-step guidance for creating production-ready Kubernetes manifests including Deployments, Services, ConfigMaps, Secrets, and PersistentVolumeClaims.",
+          "summarySource": "skills.sh"
+        }
+      ]
+    },
+    {
+      "id": "quality-testing",
+      "name": "Quality & Testing",
+      "focus": "Testing strategy, TDD, and quality guardrails to reduce regressions.",
+      "skills": [
+        {
+          "source": "anthropics/skills",
+          "skillId": "webapp-testing",
+          "name": "webapp-testing",
+          "installsAllTime": 5181,
+          "installsTrending": 396,
+          "skillUrl": "https://skills.sh/anthropics/skills/webapp-testing",
+          "repoUrl": "https://github.com/anthropics/skills",
+          "repoStars": 61834,
+          "tags": [
+            "testing",
+            "qa",
+            "web"
+          ],
+          "summary": "To test local web applications, write native Python Playwright scripts.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "obra/superpowers",
+          "skillId": "test-driven-development",
+          "name": "test-driven-development",
+          "installsAllTime": 4124,
+          "installsTrending": 324,
+          "skillUrl": "https://skills.sh/obra/superpowers/test-driven-development",
+          "repoUrl": "https://github.com/obra/superpowers",
+          "repoStars": 43191,
+          "tags": [
+            "tdd",
+            "testing",
+            "engineering"
+          ],
+          "summary": "Write the test first. Watch it fail. Write minimal code to pass.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "obra/superpowers",
+          "skillId": "systematic-debugging",
+          "name": "systematic-debugging",
+          "installsAllTime": 4436,
+          "installsTrending": 332,
+          "skillUrl": "https://skills.sh/obra/superpowers/systematic-debugging",
+          "repoUrl": "https://github.com/obra/superpowers",
+          "repoStars": 43191,
+          "tags": [
+            "debugging",
+            "diagnosis",
+            "quality"
+          ],
+          "summary": "Random fixes waste time and create new bugs. Quick patches mask underlying issues.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "softaworks/agent-toolkit",
+          "skillId": "qa-test-planner",
+          "name": "qa-test-planner",
+          "installsAllTime": 3315,
+          "installsTrending": 829,
+          "skillUrl": "https://skills.sh/softaworks/agent-toolkit/qa-test-planner",
+          "repoUrl": "https://github.com/softaworks/agent-toolkit",
+          "repoStars": 421,
+          "tags": [
+            "qa",
+            "planning",
+            "testing"
+          ],
+          "summary": "A comprehensive skill for QA engineers to create test plans, generate manual test cases, build regression test suites, validate designs against Figma, and document bugs effectively.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "wshobson/agents",
+          "skillId": "python-testing-patterns",
+          "name": "python-testing-patterns",
+          "installsAllTime": 1530,
+          "installsTrending": 104,
+          "skillUrl": "https://skills.sh/wshobson/agents/python-testing-patterns",
+          "repoUrl": "https://github.com/wshobson/agents",
+          "repoStars": 27647,
+          "tags": [
+            "python",
+            "testing",
+            "patterns"
+          ],
+          "summary": "Comprehensive guide to implementing robust testing strategies in Python using pytest, fixtures, mocking, parameterization, and test-driven development practices.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "wshobson/agents",
+          "skillId": "e2e-testing-patterns",
+          "name": "e2e-testing-patterns",
+          "installsAllTime": 1402,
+          "installsTrending": 85,
+          "skillUrl": "https://skills.sh/wshobson/agents/e2e-testing-patterns",
+          "repoUrl": "https://github.com/wshobson/agents",
+          "repoStars": 27647,
+          "tags": [
+            "e2e",
+            "testing",
+            "automation"
+          ],
+          "summary": "Build reliable, fast, and maintainable end-to-end test suites that provide confidence to ship code quickly and catch regressions before users do.",
+          "summarySource": "skills.sh"
+        }
+      ]
+    },
+    {
+      "id": "growth-content",
+      "name": "Growth & Marketing",
+      "focus": "Growth, copywriting, and SEO to drive acquisition and conversion.",
+      "skills": [
+        {
+          "source": "coreyhaines31/marketingskills",
+          "skillId": "seo-audit",
+          "name": "seo-audit",
+          "installsAllTime": 10856,
+          "installsTrending": 561,
+          "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/seo-audit",
+          "repoUrl": "https://github.com/coreyhaines31/marketingskills",
+          "repoStars": 5652,
+          "tags": [
+            "seo",
+            "marketing",
+            "growth"
+          ],
+          "summary": "You are an expert in search engine optimization. Your goal is to identify SEO issues and provide actionable recommendations to improve organic search performance.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "coreyhaines31/marketingskills",
+          "skillId": "copywriting",
+          "name": "copywriting",
+          "installsAllTime": 7590,
+          "installsTrending": 404,
+          "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/copywriting",
+          "repoUrl": "https://github.com/coreyhaines31/marketingskills",
+          "repoStars": 5652,
+          "tags": [
+            "copywriting",
+            "content",
+            "conversion"
+          ],
+          "summary": "You are an expert conversion copywriter. Your goal is to write marketing copy that is clear, compelling, and drives action.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "coreyhaines31/marketingskills",
+          "skillId": "marketing-psychology",
+          "name": "marketing-psychology",
+          "installsAllTime": 5762,
+          "installsTrending": 277,
+          "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/marketing-psychology",
+          "repoUrl": "https://github.com/coreyhaines31/marketingskills",
+          "repoStars": 5652,
+          "tags": [
+            "marketing",
+            "psychology",
+            "positioning"
+          ],
+          "summary": "You are an expert in applying psychological principles and mental models to marketing. Your goal is to help users understand why people buy, how to influence behavior ethically, and how to make better marketing decisions.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "coreyhaines31/marketingskills",
+          "skillId": "programmatic-seo",
+          "name": "programmatic-seo",
+          "installsAllTime": 4911,
+          "installsTrending": 225,
+          "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/programmatic-seo",
+          "repoUrl": "https://github.com/coreyhaines31/marketingskills",
+          "repoStars": 5652,
+          "tags": [
+            "seo",
+            "automation",
+            "growth"
+          ],
+          "summary": "You are an expert in programmatic SEO\u2014building SEO-optimized pages at scale using templates and data. Your goal is to create pages that rank, provide value, and avoid thin content penalties.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "coreyhaines31/marketingskills",
+          "skillId": "marketing-ideas",
+          "name": "marketing-ideas",
+          "installsAllTime": 4474,
+          "installsTrending": 204,
+          "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/marketing-ideas",
+          "repoUrl": "https://github.com/coreyhaines31/marketingskills",
+          "repoStars": 5652,
+          "tags": [
+            "ideation",
+            "growth",
+            "marketing"
+          ],
+          "summary": "You are a marketing strategist with a library of 139 proven marketing ideas. Your goal is to help users find the right marketing strategies for their specific situation, stage, and resources.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "coreyhaines31/marketingskills",
+          "skillId": "pricing-strategy",
+          "name": "pricing-strategy",
+          "installsAllTime": 4141,
+          "installsTrending": 179,
+          "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/pricing-strategy",
+          "repoUrl": "https://github.com/coreyhaines31/marketingskills",
+          "repoStars": 5652,
+          "tags": [
+            "pricing",
+            "strategy",
+            "growth"
+          ],
+          "summary": "You are an expert in SaaS pricing and monetization strategy. Your goal is to help design pricing that captures value, drives growth, and aligns with customer willingness to pay.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "coreyhaines31/marketingskills",
+          "skillId": "social-content",
+          "name": "social-content",
+          "installsAllTime": 4130,
+          "installsTrending": 181,
+          "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/social-content",
+          "repoUrl": "https://github.com/coreyhaines31/marketingskills",
+          "repoStars": 5652,
+          "tags": [
+            "social",
+            "content",
+            "distribution"
+          ],
+          "summary": "You are an expert social media strategist. Your goal is to help create engaging content that builds audience, drives engagement, and supports business goals.",
+          "summarySource": "skills.sh"
+        }
+      ]
+    },
+    {
+      "id": "docs-office",
+      "name": "Docs & Office",
+      "focus": "Document and spreadsheet workflows for extraction and reporting.",
+      "skills": [
+        {
+          "source": "anthropics/skills",
+          "skillId": "pdf",
+          "name": "pdf",
+          "installsAllTime": 7637,
+          "installsTrending": 595,
+          "skillUrl": "https://skills.sh/anthropics/skills/pdf",
+          "repoUrl": "https://github.com/anthropics/skills",
+          "repoStars": 61834,
+          "tags": [
+            "pdf",
+            "docs",
+            "extraction"
+          ],
+          "summary": "This guide covers essential PDF processing operations using Python libraries and command-line tools. For advanced features, JavaScript libraries, and detailed examples, see reference.md. If you need to fill out a PDF form, read forms.md and follow its instructions.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "anthropics/skills",
+          "skillId": "pptx",
+          "name": "pptx",
+          "installsAllTime": 6388,
+          "installsTrending": 528,
+          "skillUrl": "https://skills.sh/anthropics/skills/pptx",
+          "repoUrl": "https://github.com/anthropics/skills",
+          "repoStars": 61834,
+          "tags": [
+            "pptx",
+            "slides",
+            "docs"
+          ],
+          "summary": "A user may ask you to create, edit, or analyze the contents of a .pptx file. A .pptx file is essentially a ZIP archive containing XML files and other resources that you can read or edit. You have different tools and workflows available for different tasks.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "anthropics/skills",
+          "skillId": "xlsx",
+          "name": "xlsx",
+          "installsAllTime": 6020,
+          "installsTrending": 497,
+          "skillUrl": "https://skills.sh/anthropics/skills/xlsx",
+          "repoUrl": "https://github.com/anthropics/skills",
+          "repoStars": 61834,
+          "tags": [
+            "xlsx",
+            "spreadsheet",
+            "data"
+          ],
+          "summary": "Unless otherwise stated by the user or existing template",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "anthropics/skills",
+          "skillId": "docx",
+          "name": "docx",
+          "installsAllTime": 5874,
+          "installsTrending": 485,
+          "skillUrl": "https://skills.sh/anthropics/skills/docx",
+          "repoUrl": "https://github.com/anthropics/skills",
+          "repoStars": 61834,
+          "tags": [
+            "docx",
+            "docs",
+            "authoring"
+          ],
+          "summary": "A user may ask you to create, edit, or analyze the contents of a .docx file. A .docx file is essentially a ZIP archive containing XML files and other resources that you can read or edit. You have different tools and workflows available for different tasks.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "anthropics/skills",
+          "skillId": "doc-coauthoring",
+          "name": "doc-coauthoring",
+          "installsAllTime": 3579,
+          "installsTrending": 245,
+          "skillUrl": "https://skills.sh/anthropics/skills/doc-coauthoring",
+          "repoUrl": "https://github.com/anthropics/skills",
+          "repoStars": 61834,
+          "tags": [
+            "docs",
+            "collaboration",
+            "workflow"
+          ],
+          "summary": "This skill provides a structured workflow for guiding users through collaborative document creation. Act as an active guide, walking users through three stages: Context Gathering, Refinement & Structure, and Reader Testing.",
+          "summarySource": "skills.sh"
+        },
+        {
+          "source": "onmax/nuxt-skills",
+          "skillId": "document-writer",
+          "name": "document-writer",
+          "installsAllTime": 435,
+          "installsTrending": 17,
+          "skillUrl": "https://skills.sh/onmax/nuxt-skills/document-writer",
+          "repoUrl": "https://github.com/onmax/nuxt-skills",
+          "repoStars": 496,
+          "tags": [
+            "writing",
+            "docs",
+            "automation"
+          ],
+          "summary": "Writing guidance for blog posts and documentation following patterns from official Nuxt websites.",
+          "summarySource": "skills.sh"
+        }
+      ]
+    }
+  ]
+}

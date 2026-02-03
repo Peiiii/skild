@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-02-03T16:25:06.612093+00:00",
+  "repos": {
+    "anthropics/skills": 61834,
+    "better-auth/skills": 92,
+    "browser-use/browser-use": 77681,
+    "coreyhaines31/marketingskills": 5652,
+    "expo/skills": 847,
+    "obra/superpowers": 43191,
+    "softaworks/agent-toolkit": 421,
+    "supabase/agent-skills": 1044,
+    "vercel-labs/agent-browser": 12355,
+    "vercel-labs/agent-skills": 18694,
+    "vercel-labs/skills": 4226,
+    "wshobson/agents": 27647,
+    "callstackincubator/agent-skills": 788,
+    "hyf0/vue-skills": 1300,
+    "nextlevelbuilder/ui-ux-pro-max-skill": 26787,
+    "onmax/nuxt-skills": 496,
+    "remotion-dev/skills": 1270,
+    "sickn33/antigravity-awesome-skills": 6740
+  }
+}

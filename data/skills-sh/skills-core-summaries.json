@@ -1,0 +1,260 @@
+{
+  "generatedAt": "2026-02-03T17:16:29.167059+00:00",
+  "summaries": {
+    "vercel-labs/skills/find-skills": {
+      "summary": "This skill helps you discover and install skills from the open agent skills ecosystem.",
+      "skillUrl": "https://skills.sh/vercel-labs/skills/find-skills",
+      "fetchedAt": "2026-02-03T16:06:45.211907+00:00"
+    },
+    "vercel-labs/agent-browser/agent-browser": {
+      "summary": "Every browser automation follows this pattern:",
+      "skillUrl": "https://skills.sh/vercel-labs/agent-browser/agent-browser",
+      "fetchedAt": "2026-02-03T16:06:46.377777+00:00"
+    },
+    "browser-use/browser-use/browser-use": {
+      "summary": "The browser-use command provides fast, persistent browser automation. It maintains browser sessions across commands, enabling complex multi-step workflows.",
+      "skillUrl": "https://skills.sh/browser-use/browser-use/browser-use",
+      "fetchedAt": "2026-02-03T16:06:47.726899+00:00"
+    },
+    "anthropics/skills/skill-creator": {
+      "summary": "This skill provides guidance for creating effective skills.",
+      "skillUrl": "https://skills.sh/anthropics/skills/skill-creator",
+      "fetchedAt": "2026-02-03T16:06:48.734402+00:00"
+    },
+    "anthropics/skills/mcp-builder": {
+      "summary": "Create MCP (Model Context Protocol) servers that enable LLMs to interact with external services through well-designed tools. The quality of an MCP server is measured by how well it enables LLMs to accomplish real-world tasks.",
+      "skillUrl": "https://skills.sh/anthropics/skills/mcp-builder",
+      "fetchedAt": "2026-02-03T16:06:49.929825+00:00"
+    },
+    "obra/superpowers/subagent-driven-development": {
+      "summary": "Execute plan by dispatching fresh subagent per task, with two-stage review after each: spec compliance review first, then code quality review.",
+      "skillUrl": "https://skills.sh/obra/superpowers/subagent-driven-development",
+      "fetchedAt": "2026-02-03T16:06:51.095044+00:00"
+    },
+    "vercel-labs/agent-skills/vercel-react-best-practices": {
+      "summary": "Comprehensive performance optimization guide for React and Next.js applications, maintained by Vercel. Contains 57 rules across 8 categories, prioritized by impact to guide automated refactoring and code generation.",
+      "skillUrl": "https://skills.sh/vercel-labs/agent-skills/vercel-react-best-practices",
+      "fetchedAt": "2026-02-03T16:06:52.153029+00:00"
+    },
+    "vercel-labs/agent-skills/web-design-guidelines": {
+      "summary": "Review files for compliance with Web Interface Guidelines.",
+      "skillUrl": "https://skills.sh/vercel-labs/agent-skills/web-design-guidelines",
+      "fetchedAt": "2026-02-03T16:06:53.245170+00:00"
+    },
+    "remotion-dev/skills/remotion-best-practices": {
+      "summary": "Use this skills whenever you are dealing with Remotion code to obtain the domain-specific knowledge.",
+      "skillUrl": "https://skills.sh/remotion-dev/skills/remotion-best-practices",
+      "fetchedAt": "2026-02-03T16:06:54.313282+00:00"
+    },
+    "anthropics/skills/frontend-design": {
+      "summary": "This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic \"AI slop\" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.",
+      "skillUrl": "https://skills.sh/anthropics/skills/frontend-design",
+      "fetchedAt": "2026-02-03T16:06:55.445385+00:00"
+    },
+    "vercel-labs/agent-skills/vercel-composition-patterns": {
+      "summary": "Composition patterns for building flexible, maintainable React components. Avoid boolean prop proliferation by using compound components, lifting state, and composing internals. These patterns make codebases easier for both humans and AI agents to work with as they scale.",
+      "skillUrl": "https://skills.sh/vercel-labs/agent-skills/vercel-composition-patterns",
+      "fetchedAt": "2026-02-03T16:06:56.557367+00:00"
+    },
+    "nextlevelbuilder/ui-ux-pro-max-skill/ui-ux-pro-max": {
+      "summary": "Comprehensive design guide for web and mobile applications. Contains 50+ styles, 97 color palettes, 57 font pairings, 99 UX guidelines, and 25 chart types across 9 technology stacks. Searchable database with priority-based recommendations.",
+      "skillUrl": "https://skills.sh/nextlevelbuilder/ui-ux-pro-max-skill/ui-ux-pro-max",
+      "fetchedAt": "2026-02-03T16:06:57.719121+00:00"
+    },
+    "hyf0/vue-skills/vue-best-practices": {
+      "summary": "Vue 3 best practices, common gotchas, and performance optimization.",
+      "skillUrl": "https://skills.sh/hyf0/vue-skills/vue-best-practices",
+      "fetchedAt": "2026-02-03T16:06:58.810152+00:00"
+    },
+    "vercel-labs/agent-skills/vercel-react-native-skills": {
+      "summary": "Comprehensive best practices for React Native and Expo applications. Contains rules across multiple categories covering performance, animations, UI patterns, and platform-specific optimizations.",
+      "skillUrl": "https://skills.sh/vercel-labs/agent-skills/vercel-react-native-skills",
+      "fetchedAt": "2026-02-03T16:07:00.031223+00:00"
+    },
+    "expo/skills/building-native-ui": {
+      "summary": "Consult these resources as needed:",
+      "skillUrl": "https://skills.sh/expo/skills/building-native-ui",
+      "fetchedAt": "2026-02-03T16:07:01.084279+00:00"
+    },
+    "expo/skills/upgrading-expo": {
+      "summary": "Beta versions use .preview suffix (e.g., 55.0.0-preview.2), published under @next tag.",
+      "skillUrl": "https://skills.sh/expo/skills/upgrading-expo",
+      "fetchedAt": "2026-02-03T16:07:02.075805+00:00"
+    },
+    "expo/skills/native-data-fetching": {
+      "summary": "You MUST use this skill for ANY networking work including API requests, data fetching, caching, or network debugging.",
+      "skillUrl": "https://skills.sh/expo/skills/native-data-fetching",
+      "fetchedAt": "2026-02-03T16:07:03.277314+00:00"
+    },
+    "expo/skills/expo-dev-client": {
+      "summary": "Use EAS Build to create development clients for testing native code changes on physical devices. Use this for creating custom Expo Go clients for testing branches of your app.",
+      "skillUrl": "https://skills.sh/expo/skills/expo-dev-client",
+      "fetchedAt": "2026-02-03T16:07:04.370131+00:00"
+    },
+    "callstackincubator/agent-skills/react-native-best-practices": {
+      "summary": "Performance optimization guide for React Native applications, covering JavaScript/React, Native (iOS/Android), and bundling optimizations. Based on Callstack's \"Ultimate Guide to React Native Optimization\".",
+      "skillUrl": "https://skills.sh/callstackincubator/agent-skills/react-native-best-practices",
+      "fetchedAt": "2026-02-03T16:07:05.422425+00:00"
+    },
+    "supabase/agent-skills/supabase-postgres-best-practices": {
+      "summary": "Comprehensive performance optimization guide for Postgres, maintained by Supabase. Contains rules across 8 categories, prioritized by impact to guide automated query optimization and schema design.",
+      "skillUrl": "https://skills.sh/supabase/agent-skills/supabase-postgres-best-practices",
+      "fetchedAt": "2026-02-03T16:07:06.402888+00:00"
+    },
+    "better-auth/skills/better-auth-best-practices": {
+      "summary": "Always consult better-auth.com/docs for code examples and latest API.",
+      "skillUrl": "https://skills.sh/better-auth/skills/better-auth-best-practices",
+      "fetchedAt": "2026-02-03T16:07:07.499840+00:00"
+    },
+    "wshobson/agents/api-design-principles": {
+      "summary": "Master REST and GraphQL API design principles to build intuitive, scalable, and maintainable APIs that delight developers and stand the test of time.",
+      "skillUrl": "https://skills.sh/wshobson/agents/api-design-principles",
+      "fetchedAt": "2026-02-03T16:07:08.762909+00:00"
+    },
+    "wshobson/agents/postgresql-table-design": {
+      "summary": "Enable with ALTER TABLE tbl ENABLE ROW LEVEL SECURITY. Create policies: CREATE POLICY user_access ON orders FOR SELECT TO app_users USING (user_id = current_user_id()). Built-in user-based access control at the row level.",
+      "skillUrl": "https://skills.sh/wshobson/agents/postgresql-table-design",
+      "fetchedAt": "2026-02-03T16:07:09.754674+00:00"
+    },
+    "wshobson/agents/sql-optimization-patterns": {
+      "summary": "Transform slow database queries into lightning-fast operations through systematic optimization, proper indexing, and query plan analysis.",
+      "skillUrl": "https://skills.sh/wshobson/agents/sql-optimization-patterns",
+      "fetchedAt": "2026-02-03T16:07:10.796310+00:00"
+    },
+    "wshobson/agents/openapi-spec-generation": {
+      "summary": "Comprehensive patterns for creating, maintaining, and validating OpenAPI 3.1 specifications for RESTful APIs.",
+      "skillUrl": "https://skills.sh/wshobson/agents/openapi-spec-generation",
+      "fetchedAt": "2026-02-03T16:07:12.047654+00:00"
+    },
+    "expo/skills/expo-deployment": {
+      "summary": "This skill covers deploying Expo applications across all platforms using EAS (Expo Application Services).",
+      "skillUrl": "https://skills.sh/expo/skills/expo-deployment",
+      "fetchedAt": "2026-02-03T16:07:13.060437+00:00"
+    },
+    "expo/skills/expo-cicd-workflows": {
+      "summary": "Help developers write and edit EAS CI/CD workflow YAML files.",
+      "skillUrl": "https://skills.sh/expo/skills/expo-cicd-workflows",
+      "fetchedAt": "2026-02-03T16:07:14.011122+00:00"
+    },
+    "wshobson/agents/github-actions-templates": {
+      "summary": "Production-ready GitHub Actions workflow patterns for testing, building, and deploying applications.",
+      "skillUrl": "https://skills.sh/wshobson/agents/github-actions-templates",
+      "fetchedAt": "2026-02-03T16:07:15.062823+00:00"
+    },
+    "wshobson/agents/deployment-pipeline-design": {
+      "summary": "Architecture patterns for multi-stage CI/CD pipelines with approval gates and deployment strategies.",
+      "skillUrl": "https://skills.sh/wshobson/agents/deployment-pipeline-design",
+      "fetchedAt": "2026-02-03T16:07:16.130470+00:00"
+    },
+    "wshobson/agents/terraform-module-library": {
+      "summary": "Production-ready Terraform module patterns for AWS, Azure, and GCP infrastructure.",
+      "skillUrl": "https://skills.sh/wshobson/agents/terraform-module-library",
+      "fetchedAt": "2026-02-03T16:07:17.171051+00:00"
+    },
+    "sickn33/antigravity-awesome-skills/docker-expert": {
+      "summary": "You are an advanced Docker containerization expert with comprehensive, practical knowledge of container optimization, security hardening, multi-stage builds, orchestration patterns, and production deployment strategies based on current industry best practices.",
+      "skillUrl": "https://skills.sh/sickn33/antigravity-awesome-skills/docker-expert",
+      "fetchedAt": "2026-02-03T16:07:18.342471+00:00"
+    },
+    "wshobson/agents/k8s-manifest-generator": {
+      "summary": "Step-by-step guidance for creating production-ready Kubernetes manifests including Deployments, Services, ConfigMaps, Secrets, and PersistentVolumeClaims.",
+      "skillUrl": "https://skills.sh/wshobson/agents/k8s-manifest-generator",
+      "fetchedAt": "2026-02-03T16:07:19.549338+00:00"
+    },
+    "anthropics/skills/webapp-testing": {
+      "summary": "To test local web applications, write native Python Playwright scripts.",
+      "skillUrl": "https://skills.sh/anthropics/skills/webapp-testing",
+      "fetchedAt": "2026-02-03T16:07:20.596584+00:00"
+    },
+    "obra/superpowers/test-driven-development": {
+      "summary": "Write the test first. Watch it fail. Write minimal code to pass.",
+      "skillUrl": "https://skills.sh/obra/superpowers/test-driven-development",
+      "fetchedAt": "2026-02-03T16:07:21.718872+00:00"
+    },
+    "obra/superpowers/systematic-debugging": {
+      "summary": "Random fixes waste time and create new bugs. Quick patches mask underlying issues.",
+      "skillUrl": "https://skills.sh/obra/superpowers/systematic-debugging",
+      "fetchedAt": "2026-02-03T16:07:22.782742+00:00"
+    },
+    "softaworks/agent-toolkit/qa-test-planner": {
+      "summary": "A comprehensive skill for QA engineers to create test plans, generate manual test cases, build regression test suites, validate designs against Figma, and document bugs effectively.",
+      "skillUrl": "https://skills.sh/softaworks/agent-toolkit/qa-test-planner",
+      "fetchedAt": "2026-02-03T16:07:24.041650+00:00"
+    },
+    "wshobson/agents/python-testing-patterns": {
+      "summary": "Comprehensive guide to implementing robust testing strategies in Python using pytest, fixtures, mocking, parameterization, and test-driven development practices.",
+      "skillUrl": "https://skills.sh/wshobson/agents/python-testing-patterns",
+      "fetchedAt": "2026-02-03T16:07:25.294091+00:00"
+    },
+    "wshobson/agents/e2e-testing-patterns": {
+      "summary": "Build reliable, fast, and maintainable end-to-end test suites that provide confidence to ship code quickly and catch regressions before users do.",
+      "skillUrl": "https://skills.sh/wshobson/agents/e2e-testing-patterns",
+      "fetchedAt": "2026-02-03T16:07:26.452717+00:00"
+    },
+    "coreyhaines31/marketingskills/seo-audit": {
+      "summary": "You are an expert in search engine optimization. Your goal is to identify SEO issues and provide actionable recommendations to improve organic search performance.",
+      "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/seo-audit",
+      "fetchedAt": "2026-02-03T16:07:27.472307+00:00"
+    },
+    "coreyhaines31/marketingskills/copywriting": {
+      "summary": "You are an expert conversion copywriter. Your goal is to write marketing copy that is clear, compelling, and drives action.",
+      "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/copywriting",
+      "fetchedAt": "2026-02-03T16:07:28.675176+00:00"
+    },
+    "coreyhaines31/marketingskills/marketing-psychology": {
+      "summary": "You are an expert in applying psychological principles and mental models to marketing. Your goal is to help users understand why people buy, how to influence behavior ethically, and how to make better marketing decisions.",
+      "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/marketing-psychology",
+      "fetchedAt": "2026-02-03T16:07:29.754872+00:00"
+    },
+    "coreyhaines31/marketingskills/programmatic-seo": {
+      "summary": "You are an expert in programmatic SEO\u2014building SEO-optimized pages at scale using templates and data. Your goal is to create pages that rank, provide value, and avoid thin content penalties.",
+      "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/programmatic-seo",
+      "fetchedAt": "2026-02-03T16:07:31.010132+00:00"
+    },
+    "coreyhaines31/marketingskills/marketing-ideas": {
+      "summary": "You are a marketing strategist with a library of 139 proven marketing ideas. Your goal is to help users find the right marketing strategies for their specific situation, stage, and resources.",
+      "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/marketing-ideas",
+      "fetchedAt": "2026-02-03T16:07:32.107629+00:00"
+    },
+    "coreyhaines31/marketingskills/pricing-strategy": {
+      "summary": "You are an expert in SaaS pricing and monetization strategy. Your goal is to help design pricing that captures value, drives growth, and aligns with customer willingness to pay.",
+      "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/pricing-strategy",
+      "fetchedAt": "2026-02-03T16:07:33.246224+00:00"
+    },
+    "coreyhaines31/marketingskills/social-content": {
+      "summary": "You are an expert social media strategist. Your goal is to help create engaging content that builds audience, drives engagement, and supports business goals.",
+      "skillUrl": "https://skills.sh/coreyhaines31/marketingskills/social-content",
+      "fetchedAt": "2026-02-03T16:07:34.194333+00:00"
+    },
+    "anthropics/skills/pdf": {
+      "summary": "This guide covers essential PDF processing operations using Python libraries and command-line tools. For advanced features, JavaScript libraries, and detailed examples, see reference.md. If you need to fill out a PDF form, read forms.md and follow its instructions.",
+      "skillUrl": "https://skills.sh/anthropics/skills/pdf",
+      "fetchedAt": "2026-02-03T16:07:35.342744+00:00"
+    },
+    "anthropics/skills/pptx": {
+      "summary": "A user may ask you to create, edit, or analyze the contents of a .pptx file. A .pptx file is essentially a ZIP archive containing XML files and other resources that you can read or edit. You have different tools and workflows available for different tasks.",
+      "skillUrl": "https://skills.sh/anthropics/skills/pptx",
+      "fetchedAt": "2026-02-03T16:07:36.659005+00:00"
+    },
+    "anthropics/skills/xlsx": {
+      "summary": "Unless otherwise stated by the user or existing template",
+      "skillUrl": "https://skills.sh/anthropics/skills/xlsx",
+      "fetchedAt": "2026-02-03T16:07:37.849128+00:00"
+    },
+    "anthropics/skills/docx": {
+      "summary": "A user may ask you to create, edit, or analyze the contents of a .docx file. A .docx file is essentially a ZIP archive containing XML files and other resources that you can read or edit. You have different tools and workflows available for different tasks.",
+      "skillUrl": "https://skills.sh/anthropics/skills/docx",
+      "fetchedAt": "2026-02-03T16:07:38.790836+00:00"
+    },
+    "anthropics/skills/doc-coauthoring": {
+      "summary": "This skill provides a structured workflow for guiding users through collaborative document creation. Act as an active guide, walking users through three stages: Context Gathering, Refinement & Structure, and Reader Testing.",
+      "skillUrl": "https://skills.sh/anthropics/skills/doc-coauthoring",
+      "fetchedAt": "2026-02-03T16:07:39.866568+00:00"
+    },
+    "onmax/nuxt-skills/document-writer": {
+      "summary": "Writing guidance for blog posts and documentation following patterns from official Nuxt websites.",
+      "skillUrl": "https://skills.sh/onmax/nuxt-skills/document-writer",
+      "fetchedAt": "2026-02-03T16:07:41.032261+00:00"
+    }
+  }
+}

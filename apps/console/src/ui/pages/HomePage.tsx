@@ -6,6 +6,5 @@ import { PageLoading } from '@/components/PageLoading';
 export function HomePage(): JSX.Element {
   const auth = useAuth();
   if (auth.status === 'loading') return <PageLoading />;
-  return <Navigate to="/skills" replace />;
+  return <Navigate to="/core" replace />;
 }
-

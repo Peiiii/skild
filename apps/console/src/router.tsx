@@ -24,6 +24,7 @@ import { LeaderboardPage } from './ui/pages/LeaderboardPage';
 import { GettingStartedPage } from './ui/pages/GettingStartedPage';
 import { CatalogDetailPage } from './ui/pages/CatalogDetailPage';
 import { CatalogCategoryRedirect } from './ui/pages/CatalogCategoryRedirect';
+import { CoreDomainsPage } from './ui/pages/CoreDomainsPage';
 
 export const router = createBrowserRouter([
   {
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
       { path: 'publish', element: <PublishPage /> },
       { path: 'getting-started', element: <GettingStartedPage /> },
       { path: 'skills', element: <SkillsPage /> },
+      { path: 'core', element: <CoreDomainsPage /> },
       { path: 'skillsets', element: <Navigate to="/skills?type=skillset" replace /> },
       { path: 'skills/:scope/:skill', element: <SkillDetailPage /> },
       { path: 'skills/:scope/:skill/manage', element: <RequireAuth><SkillManagePage /></RequireAuth> },
