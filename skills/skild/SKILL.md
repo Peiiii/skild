@@ -135,6 +135,29 @@ skild login
 skild publish --dir ./my-skill
 ```
 
+## Push to Git Repos (Registry-free)
+
+Use `skild push` to sync a Skill into a Git repository and push changes.
+
+```bash
+# Push to GitHub by owner/repo
+skild push owner/repo --dir ./my-skill
+
+# Push to a local repo path
+skild push ~/work/skills-repo --local --dir ./my-skill
+
+# Push to a specific subdirectory
+skild push owner/repo --dir ./my-skill --path skills/my-skill
+
+# Push to a branch (or append #branch to the repo)
+skild push owner/repo#dev --dir ./my-skill
+```
+
+**Notes:**
+- The target path defaults to `skills/<skill-name>` derived from `SKILL.md`.
+- Target path cannot be the repo root.
+- The command clones, commits, and pushes to the remote branch.
+
 ## Command Reference
 
 For the complete command reference with all options, see [commands.md](./commands.md).
