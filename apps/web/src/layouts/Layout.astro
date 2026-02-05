@@ -7,12 +7,12 @@ interface Props {
 
 const {
 	title,
-	description = "The npm for Agent Skills. Discover, install, manage, and publish skills for Claude, Codex, Windsurf, OpenCode, Copilot & Antigravity with ease.",
+	description = "The npm for Agent Skills. Discover, install, manage, and publish skills for Claude, Codex, Windsurf, OpenCode, Copilot, Antigravity & Agents with ease.",
 	image = "/og-image.svg",
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? "https://skild.sh");
-const keywords = "AI agent skills, Claude skills, Codex skills, npm for AI, skill registry, skillsets, AI tools, LLM tools, Windsurf, OpenCode, Copilot, Antigravity";
+const keywords = "AI agent skills, Claude skills, Codex skills, npm for AI, skill registry, skillsets, AI tools, LLM tools, Windsurf, OpenCode, Copilot, Antigravity, Agents";
 
 import "../styles/global.css";
 ---

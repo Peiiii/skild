@@ -9,7 +9,7 @@ Skild is the package manager for Agent Skills—like npm or Homebrew, but for di
 ## Why Skild?
 
 - Installing skills by cloning repos is messy; no consistent standard or versioning  
-- Multiple platforms (Claude, Codex, Copilot, Antigravity) stay siloed; hard to keep in sync  
+- Multiple platforms (Claude, Codex, Copilot, Antigravity, Agents) stay siloed; hard to keep in sync  
 - No marketplace: hard to find trusted skills, ratings, or reliable updates  
 - Skill authors must roll their own validation, versioning, distribution, and promotion
 

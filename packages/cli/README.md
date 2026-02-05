@@ -135,6 +135,7 @@ If you do not pass `--target`, `skild update` and `skild uninstall` will prompt 
 | OpenCode | `~/.config/opencode/skill` |
 | Copilot | `~/.github/skills` |
 | Antigravity | `~/.gemini/antigravity/skills` |
+| Agents | `~/.agents/skills` |
 
 ## 🔄 Syncing Skills
 

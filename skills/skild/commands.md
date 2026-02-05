@@ -306,7 +306,7 @@ skild config list
 ```
 
 **Keys:**
-- `defaultPlatform`: claude, codex, copilot, antigravity, cursor, opencode, windsurf
+- `defaultPlatform`: claude, codex, copilot, antigravity, cursor, opencode, windsurf, agents
 - `defaultScope`: global, project
 - `push.defaultRepo`: default repo for `skild push` when `<repo>` is omitted
 
@@ -390,6 +390,10 @@ skild logout
 | Codex | `-t codex` | `~/.codex/skills` | `./.codex/skills` |
 | Copilot | `-t copilot` | `~/.github/skills` | `./.github/skills` |
 | Antigravity | `-t antigravity` | `~/.gemini/antigravity/skills` | `./.agent/skills` |
+| OpenCode | `-t opencode` | `~/.config/opencode/skill` | `./.opencode/skill` |
+| Cursor | `-t cursor` | `~/.cursor/skills` | `./.cursor/skills` |
+| Windsurf | `-t windsurf` | `~/.windsurf/skills` | `./.windsurf/skills` |
+| Agents | `-t agents` | `~/.agents/skills` | `./.agents/skills` |
 
 ---
 

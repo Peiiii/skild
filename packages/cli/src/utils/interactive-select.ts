@@ -51,6 +51,7 @@ const PLATFORM_DISPLAY: Record<Platform, string> = {
   opencode: 'OpenCode',
   cursor: 'Cursor',
   windsurf: 'Windsurf',
+  agents: 'Agents',
 };
 
 const SCOPE_DISPLAY: Record<InstallScope, string> = {

@@ -1,4 +1,4 @@
-export const PLATFORMS = ['claude', 'codex', 'copilot', 'antigravity', 'opencode', 'cursor', 'windsurf'] as const;
+export const PLATFORMS = ['claude', 'codex', 'copilot', 'antigravity', 'opencode', 'cursor', 'windsurf', 'agents'] as const;
 export type Platform = (typeof PLATFORMS)[number];
 export type InstallScope = 'global' | 'project';
 

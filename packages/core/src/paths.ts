@@ -47,6 +47,10 @@ export function getSkillsDir(platform: Platform, scope: InstallScope): string {
       return scope === 'project'
         ? path.join(getProjectDir(), '.windsurf', 'skills')
         : path.join(getHomeDir(), '.windsurf', 'skills');
+    case 'agents':
+      return scope === 'project'
+        ? path.join(getProjectDir(), '.agents', 'skills')
+        : path.join(getHomeDir(), '.agents', 'skills');
   }
 }
 

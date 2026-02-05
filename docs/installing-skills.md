@@ -64,6 +64,7 @@ Skild supports multiple AI agent platforms:
 | Windsurf | `-t windsurf` | `~/.windsurf/skills` |
 | Copilot | `-t copilot` | `~/.github/skills` |
 | Antigravity | `-t antigravity` | `~/.gemini/antigravity/skills` |
+| Agents | `-t agents` | `~/.agents/skills` |
 
 Example:
 

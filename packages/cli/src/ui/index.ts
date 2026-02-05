@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { PLATFORMS } from '@skild/core';
 import ora, { type Ora } from 'ora';
 
 export type SpinnerInstance = Ora;
@@ -87,7 +88,7 @@ export const ui = {
   },
 
   formatPlatforms: (platforms: string[]) => {
-    if (platforms.length === 4) return chalk.dim('all platforms');
+    if (platforms.length === PLATFORMS.length) return chalk.dim('all platforms');
     if (platforms.length === 1) return chalk.dim(platforms[0]);
     return chalk.dim(`${platforms.length} platforms`);
   },
@@ -108,4 +109,3 @@ export const fmt = {
 };
 
 export { createSpinner } from '../utils/logger.js';
-

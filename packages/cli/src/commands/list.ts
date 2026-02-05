@@ -21,6 +21,7 @@ const PLATFORM_ABBREV: Record<Platform, string> = {
   antigravity: 'Antigravity',
   opencode: 'OpenCode',
   windsurf: 'Windsurf',
+  agents: 'Agents',
 };
 
 interface SkillRow {

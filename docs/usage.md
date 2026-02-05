@@ -195,6 +195,7 @@ All commands accept `-t <platform>` and `--local` options.
 | `windsurf` | `~/.windsurf/skills` | `./.windsurf/skills` |
 | `copilot` | `~/.github/skills` | `./.github/skills` |
 | `antigravity` | `~/.gemini/antigravity/skills` | `./.agent/skills` |
+| `agents` | `~/.agents/skills` | `./.agents/skills` |
 
 Example:
 

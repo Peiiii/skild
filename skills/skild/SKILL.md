@@ -104,6 +104,10 @@ Browse online: [hub.skild.sh](https://hub.skild.sh)
 | Codex | `-t codex` | `~/.codex/skills` |
 | Copilot | `-t copilot` | `~/.github/skills` |
 | Antigravity | `-t antigravity` | `~/.gemini/antigravity/skills` |
+| OpenCode | `-t opencode` | `~/.config/opencode/skill` |
+| Cursor | `-t cursor` | `~/.cursor/skills` |
+| Windsurf | `-t windsurf` | `~/.windsurf/skills` |
+| Agents | `-t agents` | `~/.agents/skills` |
 
 ```bash
 # Example: Install to Antigravity

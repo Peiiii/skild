@@ -29,6 +29,7 @@ curl -fsSL https://skild.sh/install | sh
   - `windsurf` → `~/.windsurf/skills` 或 `./.windsurf/skills`
   - `opencode` → `~/.config/opencode/skill` 或 `./.opencode/skill`
   - `antigravity` → `~/.gemini/antigravity/skills` 或 `./.agent/skills`
+  - `agents` → `~/.agents/skills` 或 `./.agents/skills`
 - **Scope**：`global`（默认） vs `project`（`--local`）
 - **Registry 身份**：`@publisher/skill[@version|tag]`（例如 `@peiiii/pdf@latest`）
 
