@@ -143,6 +143,10 @@ Use `skild push` to sync a Skill into a Git repository and push changes.
 # Push to GitHub by owner/repo
 skild push owner/repo --dir ./my-skill
 
+# Set a default repo (omit <repo> afterwards)
+skild config set push.defaultRepo owner/repo
+skild push --dir ./my-skill
+
 # Push to a local repo path
 skild push ~/work/skills-repo --local --dir ./my-skill
 
@@ -157,6 +161,9 @@ skild push owner/repo#dev --dir ./my-skill
 - The target path defaults to `skills/<skill-name>` derived from `SKILL.md`.
 - Target path cannot be the repo root.
 - The command clones, commits, and pushes to the remote branch.
+- For `owner/repo`, skild tries SSH first and falls back to HTTPS if SSH auth fails.
+- `skild push <repo>` always overrides the default repo.
+- You can also set `SKILD_DEFAULT_PUSH_REPO` to override the default repo per shell.
 
 ## Command Reference
 

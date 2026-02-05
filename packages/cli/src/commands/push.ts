@@ -1,10 +1,9 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { execSync } from 'child_process';
 import simpleGit from 'simple-git';
 import chalk from 'chalk';
-import { SkildError, validateSkillDir } from '@skild/core';
+import { SkildError, loadOrCreateGlobalConfig, validateSkillDir } from '@skild/core';
 import { createSpinner } from '../utils/logger.js';
 
 export interface PushCommandOptions {
@@ -15,6 +14,8 @@ export interface PushCommandOptions {
   local?: boolean;
 }
 
+const DEFAULT_PUSH_REPO_ENV = 'SKILD_DEFAULT_PUSH_REPO';
+
 function expandHome(input: string): string {
   if (!input.startsWith('~')) return input;
   return path.join(os.homedir(), input.slice(1));
@@ -24,7 +25,7 @@ function isExplicitLocalSpec(input: string): boolean {
   return input.startsWith('.') || input.startsWith('/') || input.startsWith('~') || input.startsWith('file://');
 }
 
-function resolveRepoSource(raw: string, preferLocal: boolean): { url: string; label: string } {
+function resolveRepoCandidates(raw: string, preferLocal: boolean): { urls: string[]; label: string; isLocal: boolean } {
   const trimmed = raw.trim();
   if (!trimmed) {
     throw new SkildError('INVALID_SOURCE', 'Missing repo. Provide a Git URL, local path, or owner/repo.');
@@ -32,40 +33,30 @@ function resolveRepoSource(raw: string, preferLocal: boolean): { url: string; la
 
   if (preferLocal || isExplicitLocalSpec(trimmed)) {
     if (trimmed.startsWith('file://')) {
-      return { url: trimmed, label: trimmed };
+      return { urls: [trimmed], label: trimmed, isLocal: true };
     }
     const expanded = expandHome(trimmed);
     const resolved = path.resolve(expanded);
     if (!fs.existsSync(resolved)) {
       throw new SkildError('INVALID_SOURCE', `Local repo not found: ${resolved}`);
     }
-    return { url: resolved, label: resolved };
+    return { urls: [resolved], label: resolved, isLocal: true };
   }
 
   if (/^[^/]+\/[^/]+$/.test(trimmed) && !trimmed.includes(':') && !trimmed.startsWith('http')) {
-    const preferSsh = hasSshAgentKeys() || Boolean(process.env.GIT_SSH_COMMAND);
-    const url = preferSsh ? `git@github.com:${trimmed}.git` : `https://github.com/${trimmed}.git`;
-    return { url, label: trimmed };
+    const sshUrl = `git@github.com:${trimmed}.git`;
+    const httpsUrl = `https://github.com/${trimmed}.git`;
+    return { urls: [sshUrl, httpsUrl], label: trimmed, isLocal: false };
   }
 
   if (/^(https?:|git@|ssh:)/i.test(trimmed) || trimmed.includes('github.com') || trimmed.includes('gitlab.com')) {
-    return { url: trimmed, label: trimmed };
+    return { urls: [trimmed], label: trimmed, isLocal: false };
   }
 
   throw new SkildError(
     'INVALID_SOURCE',
     `Unsupported repo "${raw}". Use owner/repo, a Git URL, or pass --local for a local path.`
   );
-}
-
-function hasSshAgentKeys(): boolean {
-  if (!process.env.SSH_AUTH_SOCK) return false;
-  try {
-    const out = execSync('ssh-add -L', { stdio: ['ignore', 'pipe', 'ignore'] }).toString();
-    return /ssh-(rsa|ed25519)|ecdsa-/.test(out);
-  } catch {
-    return false;
-  }
 }
 
 function normalizeSkillSegment(name: string, fallback: string): string {
@@ -151,8 +142,38 @@ function buildCommitMessage(name: string, version?: string | null): string {
   return v ? `skild push: ${name}@${v}` : `skild push: ${name}`;
 }
 
-export async function push(repo: string, options: PushCommandOptions = {}): Promise<void> {
-  let repoSpec = repo.trim();
+function resolveDefaultRepoSpec(): { repoSpec: string; source: 'env' | 'config' } | null {
+  const envRepo = process.env[DEFAULT_PUSH_REPO_ENV]?.trim();
+  if (envRepo) return { repoSpec: envRepo, source: 'env' };
+
+  const config = loadOrCreateGlobalConfig();
+  const configured = config.push?.defaultRepo?.trim() || (config as { push?: { repo?: string } }).push?.repo?.trim();
+  if (configured) return { repoSpec: configured, source: 'config' };
+
+  return null;
+}
+
+export async function push(repo?: string, options: PushCommandOptions = {}): Promise<void> {
+  const trimmedRepo = repo?.trim() ?? '';
+  const defaultRepo = trimmedRepo ? null : resolveDefaultRepoSpec();
+  const repoInput = trimmedRepo || defaultRepo?.repoSpec || '';
+
+  if (!repoInput) {
+    console.error(
+      chalk.red(
+        `Missing repo. Provide <repo> or set a default via "skild config set push.defaultRepo <repo>" or ${DEFAULT_PUSH_REPO_ENV}.`
+      )
+    );
+    process.exitCode = 1;
+    return;
+  }
+
+  if (defaultRepo) {
+    const sourceLabel = defaultRepo.source === 'env' ? DEFAULT_PUSH_REPO_ENV : 'config';
+    console.log(chalk.dim(`Using default push repo from ${sourceLabel}: ${defaultRepo.repoSpec}`));
+  }
+
+  let repoSpec = repoInput;
   let requestedBranch = options.branch;
   const hashIndex = repoSpec.indexOf('#');
   if (hashIndex !== -1) {
@@ -162,7 +183,16 @@ export async function push(repo: string, options: PushCommandOptions = {}): Prom
     repoSpec = base;
   }
 
-  const { url, label } = resolveRepoSource(repoSpec, Boolean(options.local));
+  let repoResolution: { urls: string[]; label: string; isLocal: boolean };
+  try {
+    repoResolution = resolveRepoCandidates(repoSpec, Boolean(options.local));
+  } catch (error: unknown) {
+    const message = error instanceof SkildError ? error.message : error instanceof Error ? error.message : String(error);
+    console.error(chalk.red(message));
+    process.exitCode = 1;
+    return;
+  }
+  const { urls: repoUrls, label } = repoResolution;
   const dir = path.resolve(options.dir || process.cwd());
   const validation = validateSkillDir(dir);
 
@@ -179,47 +209,61 @@ export async function push(repo: string, options: PushCommandOptions = {}): Prom
   const defaultTarget = `skills/${normalizeSkillSegment(skillName, fallback)}`;
   const targetRel = normalizeTargetPath(options.path || defaultTarget);
 
-  const spinner = createSpinner(`Preparing ${chalk.cyan(skillName)}...`);
-  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'skild-push-'));
+  for (let attempt = 0; attempt < repoUrls.length; attempt += 1) {
+    const url = repoUrls[attempt];
+    const attemptLabel = repoUrls.length > 1 ? ` (${attempt + 1}/${repoUrls.length})` : '';
+    const spinner = createSpinner(`Preparing ${chalk.cyan(skillName)}...`);
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'skild-push-'));
 
-  try {
-    spinner.text = `Cloning ${chalk.cyan(label)}...`;
-    await simpleGit().clone(url, tempRoot);
+    try {
+      spinner.text = `Cloning ${chalk.cyan(label)}${attemptLabel}...`;
+      await simpleGit().clone(url, tempRoot);
 
-    const repoGit = simpleGit(tempRoot);
-    const { branch, setUpstream } = await ensureBranch(repoGit, requestedBranch);
+      const repoGit = simpleGit(tempRoot);
+      const { branch, setUpstream } = await ensureBranch(repoGit, requestedBranch);
 
-    spinner.text = `Updating ${chalk.cyan(targetRel)}...`;
-    const targetAbs = resolveTargetAbs(tempRoot, targetRel);
-    if (fs.existsSync(targetAbs)) fs.rmSync(targetAbs, { recursive: true, force: true });
-    fs.mkdirSync(path.dirname(targetAbs), { recursive: true });
-    copySkillDir(dir, targetAbs);
+      spinner.text = `Updating ${chalk.cyan(targetRel)}...`;
+      const targetAbs = resolveTargetAbs(tempRoot, targetRel);
+      if (fs.existsSync(targetAbs)) fs.rmSync(targetAbs, { recursive: true, force: true });
+      fs.mkdirSync(path.dirname(targetAbs), { recursive: true });
+      copySkillDir(dir, targetAbs);
 
-    await repoGit.add(['-A', targetRel]);
-    const status = await repoGit.status();
-    if (status.isClean()) {
-      spinner.succeed(`No changes to push for ${chalk.green(skillName)}.`);
+      await repoGit.add(['-A', targetRel]);
+      const status = await repoGit.status();
+      if (status.isClean()) {
+        spinner.succeed(`No changes to push for ${chalk.green(skillName)}.`);
+        return;
+      }
+
+      spinner.text = 'Committing changes...';
+      const message = options.message?.trim() || buildCommitMessage(skillName, frontmatter.version as string | undefined);
+      await repoGit.commit(message);
+
+      spinner.text = `Pushing to remote${attemptLabel}...`;
+      if (setUpstream) {
+        await repoGit.push(['-u', 'origin', branch]);
+      } else {
+        await repoGit.push();
+      }
+
+      spinner.succeed(`Pushed ${chalk.green(skillName)} to ${chalk.cyan(label)}:${chalk.cyan(targetRel)}`);
       return;
+    } catch (error: unknown) {
+      const message = error instanceof SkildError ? error.message : error instanceof Error ? error.message : String(error);
+
+      if (attempt < repoUrls.length - 1) {
+        const nextUrl = repoUrls[attempt + 1];
+        spinner.stop();
+        console.log(chalk.yellow(`Push via ${url} failed; trying fallback ${nextUrl}...`));
+        continue;
+      }
+
+      spinner.fail('Push failed');
+      console.error(chalk.red(message));
+      process.exitCode = 1;
+      return;
+    } finally {
+      fs.rmSync(tempRoot, { recursive: true, force: true });
     }
-
-    spinner.text = 'Committing changes...';
-    const message = options.message?.trim() || buildCommitMessage(skillName, frontmatter.version as string | undefined);
-    await repoGit.commit(message);
-
-    spinner.text = 'Pushing to remote...';
-    if (setUpstream) {
-      await repoGit.push(['-u', 'origin', branch]);
-    } else {
-      await repoGit.push();
-    }
-
-    spinner.succeed(`Pushed ${chalk.green(skillName)} to ${chalk.cyan(label)}:${chalk.cyan(targetRel)}`);
-  } catch (error: unknown) {
-    spinner.fail('Push failed');
-    const message = error instanceof SkildError ? error.message : error instanceof Error ? error.message : String(error);
-    console.error(chalk.red(message));
-    process.exitCode = 1;
-  } finally {
-    fs.rmSync(tempRoot, { recursive: true, force: true });
   }
 }

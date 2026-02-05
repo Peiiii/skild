@@ -12,6 +12,7 @@
 - `docs/logs/v0.12.8-hub-core-nav-copy/README.md`
 - `docs/logs/v0.12.9-hub-core-default/README.md`
 - `docs/logs/v0.12.10-skill-push-doc/README.md`
+- `docs/logs/v0.12.11-default-push-repo/README.md`
 
 ## 写日志的标准
 

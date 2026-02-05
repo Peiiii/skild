@@ -80,18 +80,33 @@ function sanitizeLockfile(lockfile: Lockfile): Lockfile {
   return { ...lockfile, entries };
 }
 
+const GLOBAL_CONFIG_DEFAULTS: GlobalConfig = {
+  schemaVersion: 1,
+  defaultPlatform: PLATFORMS[0],
+  defaultScope: 'global'
+};
+
+function applyGlobalConfigDefaults(existing?: GlobalConfig | null): GlobalConfig {
+  if (!existing) return { ...GLOBAL_CONFIG_DEFAULTS };
+  return {
+    ...GLOBAL_CONFIG_DEFAULTS,
+    ...existing,
+    push: existing.push ? { ...existing.push } : undefined
+  };
+}
+
 export function loadOrCreateGlobalConfig(): GlobalConfig {
   const filePath = getGlobalConfigPath();
   const existing = readJsonFile<GlobalConfig>(filePath);
-  if (existing) return existing;
+  if (existing) return applyGlobalConfigDefaults(existing);
 
-  const created: GlobalConfig = {
-    schemaVersion: 1,
-    defaultPlatform: PLATFORMS[0],
-    defaultScope: 'global'
-  };
+  const created = applyGlobalConfigDefaults();
   writeJsonFile(filePath, created);
   return created;
+}
+
+export function saveGlobalConfig(config: GlobalConfig): void {
+  writeJsonFile(getGlobalConfigPath(), applyGlobalConfigDefaults(config));
 }
 
 export function loadRegistryAuth(): RegistryAuth | null {

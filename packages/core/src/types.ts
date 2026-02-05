@@ -121,6 +121,9 @@ export interface GlobalConfig {
   schemaVersion: 1;
   defaultPlatform: Platform;
   defaultScope: InstallScope;
+  push?: {
+    defaultRepo?: string;
+  };
 }
 
 export interface RegistryAuth {

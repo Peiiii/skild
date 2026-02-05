@@ -260,6 +260,58 @@ skild publish --dir ./my-skill --alias my-skill
 
 ---
 
+### skild push
+
+Push a Skill directory into a Git repository (registry-free).
+
+```bash
+skild push [repo] [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--dir <path>` | Skill directory (default: cwd) |
+| `--path <path>` | Target path inside repo (default: `skills/<skill-name>`) |
+| `--branch <branch>` | Target branch (default: repo default) |
+| `--message <text>` | Custom commit message |
+| `--local` | Treat `<repo>` as a local path |
+
+**Examples:**
+```bash
+# Set a default repo and omit <repo>
+skild config set push.defaultRepo owner/repo
+skild push --dir ./my-skill
+
+# Explicit repo (overrides default)
+skild push owner/repo --dir ./my-skill
+```
+
+Notes:
+- For `owner/repo`, skild tries SSH first and falls back to HTTPS if SSH auth fails.
+
+---
+
+## Configuration Commands
+
+### skild config
+
+Manage global config values.
+
+```bash
+skild config get <key>
+skild config set <key> <value>
+skild config unset <key>
+skild config list
+```
+
+**Keys:**
+- `defaultPlatform`: claude, codex, copilot, antigravity, cursor, opencode, windsurf
+- `defaultScope`: global, project
+- `push.defaultRepo`: default repo for `skild push` when `<repo>` is omitted
+
+---
+
 ## Authentication Commands
 
 ### skild signup
@@ -326,6 +378,7 @@ skild logout
 |----------|-------------|
 | `SKILD_REGISTRY_URL` | Override default registry URL |
 | `SKILD_HOME` | Override skild home directory (~/.skild) |
+| `SKILD_DEFAULT_PUSH_REPO` | Default repo for `skild push` when `<repo>` is omitted |
 
 ---
 

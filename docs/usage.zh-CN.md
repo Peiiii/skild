@@ -85,6 +85,10 @@ skild uninstall pdf -t codex --local
 skild push owner/repo --dir ./path/to/skill
 skild push https://github.com/owner/repo.git --dir ./path/to/skill
 
+# 设置默认仓库（之后可省略 <repo>）
+skild config set push.defaultRepo owner/repo
+skild push --dir ./path/to/skill
+
 # 本地仓库（显式）
 skild push /abs/path/to/repo --dir ./path/to/skill --local
 
@@ -95,7 +99,9 @@ skild push owner/repo --dir ./path/to/skill --path skills/demo --branch main --m
 说明：
 - 默认目标路径：`skills/<skill-name>`（来自 `SKILL.md` 的 frontmatter.name）。
 - 本地仓库需 `--local` 或显式路径前缀（`./`、`/`、`~/`、`file://`）。
-- 对于 `owner/repo`，如检测到 SSH agent key，将优先使用 SSH；否则回退到 HTTPS。
+- 对于 `owner/repo`，会先尝试 SSH，若认证失败再回退到 HTTPS。
+- `skild push <repo>` 始终优先生效，覆盖默认仓库。
+- 环境变量 `SKILD_DEFAULT_PUSH_REPO` 可覆盖当前 shell 的默认仓库。
 
 ### 跨平台同步（sync）
 

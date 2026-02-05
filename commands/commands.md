@@ -32,9 +32,24 @@
 
 - **名称**：`skild push`
 - **用途**：将本地 skill 目录上传/更新到指定 Git 仓库路径（不经过 registry）。
-- **输入格式**：`skild push <repo> [--dir <path>] [--path <path>] [--branch <branch>] [--message <text>] [--local]`
+- **输入格式**：`skild push [repo] [--dir <path>] [--path <path>] [--branch <branch>] [--message <text>] [--local]`
 - **输出/期望行为**：
   - 校验本地 SKILL.md 与 frontmatter
   - 克隆仓库并将 skill 写入目标路径（默认 `skills/<skill-name>`）
   - 默认将 `<repo>` 视为远程（`owner/repo` 或 Git URL）；本地路径请用 `--local` 或 `./path`/`/abs/path`
+  - 当省略 `<repo>` 时使用 `push.defaultRepo` 默认仓库
+  - `owner/repo` 会先尝试 SSH，认证失败时回退到 HTTPS
   - 若无变更则提示并退出；有变更则提交并 push
+
+## config
+
+- **名称**：`skild config`
+- **用途**：读取或设置全局配置（如默认平台、默认 push 仓库）。
+- **输入格式**：
+  - `skild config get <key>`
+  - `skild config set <key> <value>`
+  - `skild config unset <key>`
+  - `skild config list`
+- **输出/期望行为**：
+  - 支持配置项 `defaultPlatform`、`defaultScope`、`push.defaultRepo`
+  - `push.defaultRepo` 作为 `skild push` 的默认仓库兜底；显式 `skild push <repo>` 优先

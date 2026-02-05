@@ -128,6 +128,10 @@ skild uninstall pdf
 skild push owner/repo --dir ./path/to/skill
 skild push https://github.com/owner/repo.git --dir ./path/to/skill
 
+# Set a default repo (omit <repo> afterwards)
+skild config set push.defaultRepo owner/repo
+skild push --dir ./path/to/skill
+
 # Local repo (explicit)
 skild push /abs/path/to/repo --dir ./path/to/skill --local
 
@@ -138,7 +142,9 @@ skild push owner/repo --dir ./path/to/skill --path skills/demo --branch main --m
 Notes:
 - Default target path: `skills/<skill-name>` (from `SKILL.md` frontmatter.name).
 - Use `--local` or explicit path prefix (`./`, `/`, `~/`, `file://`) for local repositories.
-- For `owner/repo`, skild prefers SSH if an SSH agent key is available; otherwise it falls back to HTTPS.
+- For `owner/repo`, skild tries SSH first and falls back to HTTPS if SSH auth fails.
+- `skild push <repo>` always overrides the default repo.
+- `SKILD_DEFAULT_PUSH_REPO` overrides the configured default repo per shell.
 
 ### Sync Skills Across Platforms
 

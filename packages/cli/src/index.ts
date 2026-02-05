@@ -23,6 +23,7 @@ import { search } from './commands/search.js';
 import { extractGithubSkills } from './commands/extract-github-skills.js';
 import { sync } from './commands/sync.js';
 import { push } from './commands/push.js';
+import { configGet, configList, configSet, configUnset } from './commands/config.js';
 import { PLATFORMS } from '@skild/core';
 
 const require = createRequire(import.meta.url);
@@ -138,6 +139,34 @@ program
     .description('Remove stored registry credentials')
     .action(async () => logout());
 
+const configCommand = program
+    .command('config')
+    .description('Manage skild config');
+
+configCommand
+    .command('get <key>')
+    .description('Get a config value')
+    .option('--json', 'Output JSON')
+    .action(async (key: string, options: any) => configGet(key, options));
+
+configCommand
+    .command('set <key> <value>')
+    .description('Set a config value')
+    .option('--json', 'Output JSON')
+    .action(async (key: string, value: string, options: any) => configSet(key, value, options));
+
+configCommand
+    .command('unset <key>')
+    .description('Reset a config value to default')
+    .option('--json', 'Output JSON')
+    .action(async (key: string, options: any) => configUnset(key, options));
+
+configCommand
+    .command('list')
+    .description('List config values')
+    .option('--json', 'Output JSON')
+    .action(async (options: any) => configList(options));
+
 program
     .command('whoami')
     .description('Show current registry identity')
@@ -159,14 +188,15 @@ program
     .action(async (options: any) => publish(options));
 
 program
-    .command('push <repo>')
+    .command('push [repo]')
     .description('Upload/update a Skill directory to a Git repository')
     .option('--dir <path>', 'Skill directory (defaults to cwd)')
     .option('--path <path>', 'Target path inside repo (defaults to skills/<skill-name>)')
     .option('--branch <branch>', 'Target branch (defaults to repo default)')
     .option('--message <text>', 'Custom commit message')
     .option('--local', 'Treat <repo> as a local path (default: remote)')
-    .action(async (repo: string, options: any) => push(repo, options));
+    .addHelpText('after', '\nNotes:\n  - Omit <repo> to use `skild config set push.defaultRepo <repo>` or `SKILD_DEFAULT_PUSH_REPO`.\n')
+    .action(async (repo: string | undefined, options: any) => push(repo, options));
 
 program
     .command('search <query>')

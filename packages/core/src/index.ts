@@ -17,7 +17,13 @@ export type {
   RegistryAuth
 } from './types.js';
 
-export { loadOrCreateGlobalConfig, loadRegistryAuth, saveRegistryAuth, clearRegistryAuth } from './storage.js';
+export {
+  loadOrCreateGlobalConfig,
+  saveGlobalConfig,
+  loadRegistryAuth,
+  saveRegistryAuth,
+  clearRegistryAuth
+} from './storage.js';
 export { getSkillsDir, getSkillInstallDir } from './paths.js';
 export { validateSkillDir, readSkillMd, parseSkillFrontmatter } from './skill.js';
 export { initSkill } from './init.js';
