@@ -561,6 +561,7 @@ app.get("/discover", async (c) => {
       const cached = await cache.match(cacheKey);
       if (cached) {
         const response = new Response(cached.body, cached);
+        response.headers.set("cache-control", "no-store");
         response.headers.set("x-skild-cache", "HIT");
         return response;
       }
@@ -581,10 +582,12 @@ app.get("/discover", async (c) => {
       cursor: rawCursor,
       total: page.total,
     });
-    response.headers.set("cache-control", `public, max-age=0, s-maxage=${cacheTtl}`);
+    response.headers.set("cache-control", "no-store");
     response.headers.set("x-skild-cache", "MISS");
     if (cacheTtl > 0) {
-      c.executionCtx.waitUntil(cache.put(cacheKey, response.clone()));
+      const cacheResponse = response.clone();
+      cacheResponse.headers.set("cache-control", `public, max-age=${cacheTtl}`);
+      c.executionCtx.waitUntil(cache.put(cacheKey, cacheResponse));
     }
     return response;
   } catch (e) {

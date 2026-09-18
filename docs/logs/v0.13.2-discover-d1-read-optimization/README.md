@@ -18,7 +18,7 @@
 - 新增 `0016_discover_download_rollups.sql`，初始化下载窗口汇总及维护状态。
 - 下载事件写入时同步递增当天有效的 7 天/30 天汇总。
 - 每日首次 Cron 执行时原子重建滚动窗口。
-- `/discover` 返回 `x-skild-cache: MISS|HIT`，并设置公共缓存策略。
+- `/discover` 返回 `x-skild-cache: MISS|HIT`；Cache API 内部副本缓存 300 秒，客户端响应使用 `no-store`，避免区域浏览器 TTL 规则造成长时间陈旧数据。
 - 常规列表请求不再执行第二条精确计数 SQL。
 
 ## 功能说明
