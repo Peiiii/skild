@@ -10,7 +10,7 @@ import { createSession, parseSessionCookies, revokeSession, serializeClearSessio
 import { issuePublishToken, listTokens, revokeToken } from "./tokens.js";
 import { buildInstallCommand, createLinkedItem, getLinkedItemById, getPublisherHandleById, listLinkedItems, parseLinkedItemUrl, toLinkedItem } from "./linked-items.js";
 import { buildLinkedInstall, listDiscoverItems, toDiscoverItem, upsertDiscoverItemForLinkedItem, upsertDiscoverItemForSkill } from "./discover-items.js";
-import { getDownloadStats, getLeaderboard, recordDownloadEvent } from "./stats.js";
+import { getDownloadStats, getLeaderboard, recordDownloadEvent, refreshDiscoverDownloadRollups } from "./stats.js";
 import { refreshRepoMetrics } from "./github-metrics.js";
 import { discoverGithubSkills } from "./github-discovery.js";
 import { discoverAwesomeSkills } from "./awesome-discovery.js";
@@ -549,6 +549,23 @@ app.get("/linked-items", async (c) => {
 
 app.get("/discover", async (c) => {
   try {
+    const cacheTtl = parseEnvInt(c.env.DISCOVER_CACHE_TTL_SECONDS, 300, 0, 3600);
+    // `caches.default` is provided by Workers; make it explicit because the
+    // WebWorker lib's CacheStorage declaration can win during type merging.
+    const cache = (caches as CacheStorage & { default: Cache }).default;
+    const cacheUrl = new URL(c.req.url);
+    const cacheOrigin = isAllowedOrigin(c.req.header("origin")) ?? "public";
+    cacheUrl.searchParams.set("__skild_cache_origin", cacheOrigin);
+    const cacheKey = new Request(cacheUrl.toString(), { method: "GET" });
+    if (cacheTtl > 0) {
+      const cached = await cache.match(cacheKey);
+      if (cached) {
+        const response = new Response(cached.body, cached);
+        response.headers.set("x-skild-cache", "HIT");
+        return response;
+      }
+    }
+
     const q = (c.req.query("q") || "").trim();
     const limit = Number.parseInt(c.req.query("limit") || "20", 10) || 20;
     const rawCursor = (c.req.query("cursor") || "").trim() || null;
@@ -557,13 +574,19 @@ app.get("/discover", async (c) => {
     const skillset = parseOptionalBoolean(c.req.query("skillset"));
     const category = (c.req.query("category") || "").trim() || null;
     const page = await listDiscoverItems(c.env, { q, limit, cursor, sort, skillset, category });
-    return c.json({
+    const response = c.json({
       ok: true,
       items: page.rows.map((r) => toDiscoverItem(r)),
       nextCursor: page.nextCursor,
       cursor: rawCursor,
       total: page.total,
     });
+    response.headers.set("cache-control", `public, max-age=0, s-maxage=${cacheTtl}`);
+    response.headers.set("x-skild-cache", "MISS");
+    if (cacheTtl > 0) {
+      c.executionCtx.waitUntil(cache.put(cacheKey, response.clone()));
+    }
+    return response;
   } catch (e) {
     return errorJson(c as any, e instanceof Error ? e.message : String(e), 400);
   }
@@ -1466,6 +1489,13 @@ async function runCatalogCategoryTagging(env: Env): Promise<void> {
 export const scheduled = async (_event: unknown, env: Env, ctx: ScheduledCtx): Promise<void> => {
   ctx.waitUntil(
     (async () => {
+      try {
+        const refreshed = await refreshDiscoverDownloadRollups(env);
+        if (refreshed) console.log("discover_download_rollups_refreshed");
+      } catch (err) {
+        console.error("discover_download_rollups_refresh_failed", err instanceof Error ? err.message : String(err));
+      }
+
       try {
         await runCatalogIndexScan(env);
       } catch (err) {

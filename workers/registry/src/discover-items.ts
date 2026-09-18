@@ -302,15 +302,6 @@ export async function listDiscoverItems(
     params.push(categoryFilter);
   }
 
-  const today = new Date();
-  const endDay = today.toISOString().slice(0, 10);
-  const start7d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 6))
-    .toISOString()
-    .slice(0, 10);
-  const start30d = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 29))
-    .toISOString()
-    .slice(0, 10);
-
   const baseUnionSql =
     "SELECT d.type, d.source_id, d.title, d.description, d.tags_json, d.install, d.publisher_handle, d.skillset, d.source_repo, d.source_path, d.source_ref, d.source_url, " +
     "NULL AS category, NULL AS has_risk, NULL AS usage_artifact, NULL AS installable, d.discover_at, d.created_at, d.updated_at " +
@@ -322,25 +313,22 @@ export async function listDiscoverItems(
     "s.last_seen AS discover_at, s.created_at AS created_at, s.updated_at AS updated_at " +
     "FROM catalog_skills s WHERE s.installable = 1";
 
-  const baseSql =
+  const metadataSql =
     "SELECT base.*, COALESCE(s.alias, li.alias) AS alias, " +
-    "COALESCE(dt.downloads, 0) AS downloads_total, " +
-    "COALESCE(d7.downloads, 0) AS downloads_7d, " +
-    "COALESCE(d30.downloads, 0) AS downloads_30d, " +
     "COALESCE(rm.stars_total, cr.stars_total) AS stars_total, " +
     "COALESCE(rm.stars_delta_30d, 0) AS stars_30d " +
     `FROM (${baseUnionSql}) base ` +
     "LEFT JOIN skills s ON s.name = base.source_id AND base.type = 'registry' " +
     "LEFT JOIN linked_items li ON li.id = base.source_id AND base.type = 'linked' " +
-    "LEFT JOIN download_total dt ON dt.entity_type = base.type AND dt.entity_id = base.source_id " +
-    "LEFT JOIN (SELECT entity_type, entity_id, SUM(downloads) AS downloads FROM download_daily WHERE day >= ? AND day <= ? GROUP BY entity_type, entity_id) d7 " +
-    "  ON d7.entity_type = base.type AND d7.entity_id = base.source_id " +
-    "LEFT JOIN (SELECT entity_type, entity_id, SUM(downloads) AS downloads FROM download_daily WHERE day >= ? AND day <= ? GROUP BY entity_type, entity_id) d30 " +
-    "  ON d30.entity_type = base.type AND d30.entity_id = base.source_id " +
     "LEFT JOIN repo_metrics rm ON rm.repo = base.source_repo " +
     "LEFT JOIN catalog_repos cr ON cr.repo = base.source_repo AND base.type = 'catalog'";
 
-  const baseParams: Array<string | number> = [start7d, endDay, start30d, endDay];
+  const baseSql =
+    "SELECT metadata.*, COALESCE(dt.downloads, 0) AS downloads_total, " +
+    "COALESCE(dr.downloads_7d, 0) AS downloads_7d, COALESCE(dr.downloads_30d, 0) AS downloads_30d " +
+    `FROM (${metadataSql}) metadata ` +
+    "LEFT JOIN download_total dt ON dt.entity_type = metadata.type AND dt.entity_id = metadata.source_id " +
+    "LEFT JOIN discover_download_rollups dr ON dr.entity_type = metadata.type AND dr.entity_id = metadata.source_id";
 
   let sortExpr = "discover_at";
   if (sort === "downloads_7d") sortExpr = "downloads_7d";
@@ -383,7 +371,7 @@ export async function listDiscoverItems(
   }
 
   let sql = `SELECT * FROM (${withSortSql}) sorted`;
-  const paramsList = [...baseParams, ...outerParams];
+  const paramsList = [...outerParams];
   if (outerClauses.length > 0) sql += ` WHERE ${outerClauses.join(" AND ")}`;
   sql += ` ORDER BY sort_value DESC, discover_at DESC, (type || ':' || source_id) DESC LIMIT ?`;
   paramsList.push(limit + 1);
@@ -397,8 +385,8 @@ export async function listDiscoverItems(
   // Total count (without cursor pagination)
   let total = 0;
   try {
-    let countSql = `SELECT COUNT(*) AS total FROM (${baseSql}) base`;
-    const countParams = [...baseParams, ...filterParams];
+    let countSql = `SELECT COUNT(*) AS total FROM (${metadataSql}) base`;
+    const countParams = [...filterParams];
     if (filterClauses.length > 0) countSql += ` WHERE ${filterClauses.join(" AND ")}`;
     const countRes = await env.DB.prepare(countSql).bind(...countParams).first<{ total: number }>();
     total = countRes?.total ?? 0;

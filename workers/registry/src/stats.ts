@@ -45,6 +45,8 @@ export interface LeaderboardResult {
   items: LeaderboardItem[];
 }
 
+const DOWNLOAD_ROLLUP_TASK = "discover_download_rollups";
+
 const ALLOWED_SOURCES = new Set(["cli", "console", "api", "unknown"]);
 const PERIODS = new Map<string, number>([
   ["7d", 7],
@@ -142,9 +144,48 @@ export async function recordDownloadEvent(env: Env, input: DownloadEventInput): 
       "INSERT INTO download_total (entity_type, entity_id, downloads, updated_at) VALUES (?1, ?2, 1, ?3)\n" +
         "ON CONFLICT(entity_type, entity_id) DO UPDATE SET downloads = downloads + 1, updated_at = excluded.updated_at",
     ).bind(entityType, entityId, createdAtIso),
+    env.DB.prepare(
+      "INSERT INTO discover_download_rollups (entity_type, entity_id, downloads_7d, downloads_30d, refreshed_day, updated_at) " +
+        "VALUES (?1, ?2, 1, 1, ?3, ?4)\n" +
+        "ON CONFLICT(entity_type, entity_id) DO UPDATE SET " +
+        "downloads_7d = CASE WHEN refreshed_day = excluded.refreshed_day THEN downloads_7d + 1 ELSE downloads_7d END, " +
+        "downloads_30d = CASE WHEN refreshed_day = excluded.refreshed_day THEN downloads_30d + 1 ELSE downloads_30d END, " +
+        "updated_at = excluded.updated_at",
+    ).bind(entityType, entityId, day, createdAtIso),
   ]);
 
   return { entityId };
+}
+
+export async function refreshDiscoverDownloadRollups(env: Env, now = new Date()): Promise<boolean> {
+  const day = formatDay(now);
+  const state = await env.DB.prepare(
+    "SELECT completed_day FROM registry_maintenance_state WHERE task = ?1 LIMIT 1",
+  )
+    .bind(DOWNLOAD_ROLLUP_TASK)
+    .first<{ completed_day: string }>();
+  if (state?.completed_day === day) return false;
+
+  const start7d = formatDay(addDays(now, -6));
+  const start30d = formatDay(addDays(now, -29));
+  const updatedAt = now.toISOString();
+
+  await env.DB.batch([
+    env.DB.prepare("DELETE FROM discover_download_rollups"),
+    env.DB.prepare(
+      "INSERT INTO discover_download_rollups " +
+        "(entity_type, entity_id, downloads_7d, downloads_30d, refreshed_day, updated_at) " +
+        "SELECT entity_type, entity_id, " +
+        "SUM(CASE WHEN day >= ?1 THEN downloads ELSE 0 END), SUM(downloads), ?2, ?3 " +
+        "FROM download_daily WHERE day >= ?4 AND day <= ?2 GROUP BY entity_type, entity_id",
+    ).bind(start7d, day, updatedAt, start30d),
+    env.DB.prepare(
+      "INSERT INTO registry_maintenance_state (task, completed_day, updated_at) VALUES (?1, ?2, ?3) " +
+        "ON CONFLICT(task) DO UPDATE SET completed_day = excluded.completed_day, updated_at = excluded.updated_at",
+    ).bind(DOWNLOAD_ROLLUP_TASK, day, updatedAt),
+  ]);
+
+  return true;
 }
 
 export async function getDownloadStats(env: Env, input: { entityType: EntityType; entityId: string; window?: string | null }): Promise<DownloadStats> {
