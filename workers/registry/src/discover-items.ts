@@ -344,12 +344,14 @@ export async function listDiscoverItems(
   filterClauses.push("(type = 'registry' OR COALESCE(stars_total, 0) >= ?)");
   filterParams.push(minStars);
 
-  // Build sort-projected subquery so we can reuse sort_value in WHERE safely
-  const withSortSql = `SELECT *, ${sortExpr} AS sort_value FROM (${baseSql}) base`;
+  // Apply stable filters before the window count, then paginate outside it. This
+  // keeps `total` exact without running the expensive metadata query twice.
+  let filteredSql = `SELECT *, ${sortExpr} AS sort_value FROM (${baseSql}) base`;
+  if (filterClauses.length > 0) filteredSql += ` WHERE ${filterClauses.join(" AND ")}`;
+  const withTotalSql = `SELECT *, COUNT(*) OVER() AS page_total FROM (${filteredSql}) filtered`;
 
-  // For list query (with pagination cursor)
-  const outerClauses = [...filterClauses];
-  const outerParams = [...filterParams];
+  const cursorClauses: string[] = [];
+  const cursorParams: Array<string | number> = [];
 
   const cursorSortValue =
     cursor && (sort === "downloads_7d" || sort === "downloads_30d" || sort === "stars" || sort === "stars_30d")
@@ -357,10 +359,10 @@ export async function listDiscoverItems(
       : cursor?.sortValue ?? null;
 
   if (cursor && cursorSortValue !== null) {
-    outerClauses.push(
+    cursorClauses.push(
       "(sort_value < ? OR (sort_value = ? AND discover_at < ?) OR (sort_value = ? AND discover_at = ? AND (type || ':' || source_id) < ?))",
     );
-    outerParams.push(
+    cursorParams.push(
       cursorSortValue,
       cursorSortValue,
       cursor.discoverAt,
@@ -370,28 +372,30 @@ export async function listDiscoverItems(
     );
   }
 
-  let sql = `SELECT * FROM (${withSortSql}) sorted`;
-  const paramsList = [...outerParams];
-  if (outerClauses.length > 0) sql += ` WHERE ${outerClauses.join(" AND ")}`;
+  let sql = `SELECT * FROM (${withTotalSql}) sorted`;
+  const paramsList = [...filterParams, ...cursorParams];
+  if (cursorClauses.length > 0) sql += ` WHERE ${cursorClauses.join(" AND ")}`;
   sql += ` ORDER BY sort_value DESC, discover_at DESC, (type || ':' || source_id) DESC LIMIT ?`;
   paramsList.push(limit + 1);
 
   const result = await env.DB.prepare(sql).bind(...paramsList).all();
-  const rows = result.results as unknown as DiscoverItemRow[];
+  const rows = result.results as unknown as Array<DiscoverItemRow & { page_total: number }>;
   const hasMore = rows.length > limit;
   const sliced = hasMore ? rows.slice(0, limit) : rows;
   const nextCursor = hasMore && sliced.length > 0 ? encodeCursor(sliced[sliced.length - 1], sort) : null;
 
-  // Total count (without cursor pagination)
-  let total = 0;
-  try {
-    let countSql = `SELECT COUNT(*) AS total FROM (${metadataSql}) base`;
-    const countParams = [...filterParams];
-    if (filterClauses.length > 0) countSql += ` WHERE ${filterClauses.join(" AND ")}`;
-    const countRes = await env.DB.prepare(countSql).bind(...countParams).first<{ total: number }>();
-    total = countRes?.total ?? 0;
-  } catch {
-    total = 0;
+  let total = Number(rows[0]?.page_total ?? 0);
+  // A stale cursor can point past the last row. Preserve the API's exact total
+  // contract in that rare case without penalizing normal page requests.
+  if (rows.length === 0 && cursor) {
+    try {
+      let countSql = `SELECT COUNT(*) AS total FROM (${metadataSql}) base`;
+      if (filterClauses.length > 0) countSql += ` WHERE ${filterClauses.join(" AND ")}`;
+      const countRes = await env.DB.prepare(countSql).bind(...filterParams).first<{ total: number }>();
+      total = countRes?.total ?? 0;
+    } catch {
+      total = 0;
+    }
   }
 
   return { rows: sliced, nextCursor, total };
