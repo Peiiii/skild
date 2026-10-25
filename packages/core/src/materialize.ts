@@ -2,7 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import degit from 'degit';
-import simpleGit from 'simple-git';
+import { simpleGit } from 'simple-git';
 import type { SourceType } from './types.js';
 import { classifySource, extractSkillName, resolveLocalPath, stripSourceRef, toDegitPath } from './source.js';
 import { copyDir, createTempDir, isDirEmpty, isDirectory, removeDir } from './fs.js';
