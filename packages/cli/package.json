@@ -50,7 +50,7 @@
         "mdast-util-to-string": "^4.0.0",
         "ora": "^8.0.1",
         "remark-parse": "^11.0.0",
-        "simple-git": "^3.27.0",
+        "simple-git": "^4.0.2",
         "string-width": "^8.1.0",
         "tar": "^7.4.3",
         "unified": "^11.0.4"
